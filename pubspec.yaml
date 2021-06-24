@@ -29,9 +29,28 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
 
+  intl: ^0.17.0
+  lottie: ^1.0.1
+  provider: ^5.0.0
+
+  image_picker: ^0.8.0+3
+  image_cropper: ^1.4.1
+
+
+  firebase_core: "^1.3.0"
+  firebase_auth: "^1.4.1"
+  firebase_storage: "^8.1.3"
+  cloud_firestore: ^2.2.2
+  fluttertoast: ^8.0.7
+  shared_preferences: ^2.0.6
+  cached_network_image: ^3.0.0
+  cloud_functions: ^1.1.2
+  routemaster: ^0.9.4
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_native_splash: ^1.2.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -74,3 +93,13 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
+  assets:
+    - assets/images/wecare-black-128.png
+    - assets/images/wecare-black-256.png
+    - assets/images/wecare-black-512.png
+    - assets/images/wecare-white-128.png
+    - assets/images/wecare-white-256.png
+    - assets/images/wecare-white-512.png
+    - assets/images/64776-loading.json
+    - assets/images/9195-error.json
