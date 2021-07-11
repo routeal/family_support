@@ -12,13 +12,15 @@ class Loading extends StatelessWidget {
   }
 }
 
-Future<void> loadingDialog(BuildContext context) async {
-  return showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return Center(
-          child: CircularProgressIndicator(),
-        );
-      });
+class LoadingPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'WeCare',
+      theme: ThemeData(
+        primaryColor: Colors.teal[200],
+      ),
+      home: Loading(),
+    );
+  }
 }

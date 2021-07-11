@@ -7,6 +7,7 @@ import 'package:wecare/ui/app_state.dart';
 import 'package:wecare/ui/customers_page.dart';
 import 'package:wecare/ui/home_page.dart';
 import 'package:wecare/ui/user_props_page.dart';
+import 'package:wecare/widgets/loading.dart';
 
 import './ui/auth_page.dart';
 
@@ -35,7 +36,6 @@ RouteMap _signInRouteMap() {
             return Redirect('/verify');
           AppState appState = context.read<AppState>();
           if (appState.currentUser == null) {
-            print("no appstate currentuser");
             return Redirect('/user');
           }
           return Redirect('/');
@@ -59,34 +59,59 @@ RouteMap _signInRouteMap() {
           child: UserPropsPage(),
         ),
     '/verify': (_) => MaterialPage<void>(
-          child: EmailVerifyScreen(),
+          child: SendEmailVerificationPage(),
         ),
   });
 }
 
 class Launcher extends StatelessWidget {
+  // load appuser from the local disk, if not found,
+  // then check the server
+  Future<AppUser?> loadUser(BuildContext context) async {
+    AppUser? user = await AppUser.load();
+    if (user == null) {
+      FirebaseService firebase = context.read<FirebaseService>();
+      user = await firebase.getUser();
+      if (user != null) {
+        await AppUser.save(user);
+      }
+    }
+    return user;
+  }
+
   @override
   Widget build(BuildContext context) {
     FirebaseService firebase = context.watch<FirebaseService>();
-    if (firebase.auth.currentUser == null) {
-      print('no currentUser');
-      return MaterialApp.router(
-        title: 'CarePlanner',
-        theme: ThemeData(
-          primaryColor: Colors.teal[200],
-        ),
-        routeInformationParser: RoutemasterParser(),
-        routerDelegate: RoutemasterDelegate(routesBuilder: (context) {
-          return _signOutRouteMap;
-        }),
-      );
+    firebase.userId = firebase.auth.currentUser?.uid;
+
+    // SignIn Page
+    if (firebase.userId == null) {
+      // remove the appuser first
+      return FutureBuilder(
+          future: AppUser.save(null),
+          builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return LoadingPage();
+            }
+            return MaterialApp.router(
+              title: 'CarePlanner',
+              theme: ThemeData(
+                primaryColor: Colors.teal[200],
+              ),
+              routeInformationParser: RoutemasterParser(),
+              routerDelegate: RoutemasterDelegate(routesBuilder: (context) {
+                return _signOutRouteMap;
+              }),
+            );
+          });
     }
 
+    // Home Page
     return FutureBuilder(
-        future: AppUser.load(),
+        future: loadUser(context),
         builder: (BuildContext context, AsyncSnapshot<AppUser?> snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
-            return CircularProgressIndicator();
+            return LoadingPage();
           }
 
           if (snapshot.hasData) {

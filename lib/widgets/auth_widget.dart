@@ -1,104 +1,29 @@
-//import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
-/*
-import 'package:flutter/scheduler.dart' show timeDilation;
-
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  Duration get loginTime => Duration(milliseconds: timeDilation.ceil() * 1250);
-
-  Future<String?> onLogin(String email, String password) async {
-    return Future.delayed(loginTime).then((_) {
-      //print('Login email:' + email + ' password:' + password);
-      //return "Account has already there";
-      /*
-      if (!mockUsers.containsKey(data.name)) {
-        return 'User not exists';
-      }
-      if (mockUsers[data.name] != data.password) {
-        return 'Password does not match';
-      }
-      */
-      return null;
-    });
-  }
-
-  Future<String?> onSignup(String email, String password) async {
-    return Future.delayed(loginTime).then((_) {
-      return 'error';
-    });
-  }
-
-  Future<String?> onRecover(String email) async {
-    return Future.delayed(loginTime).then((_) {
-      return null;
-    });
-  }
-
-  Future<void> onSubmitCompleted() async {
-    print('onSubmitCompleted');
-  }
-
-  Future<void> onClose() async {
-    print('onClose');
-  }
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-      ),
-      home: Scaffold(
-        body: LoginScreen(
-          title: 'Care Planner',
-          footer: 'HearingShare',
-          initialValue: 'nabe@live.com',
-          onLogin: onLogin,
-          onSignup: onSignup,
-          onRecover: onRecover,
-          onSubmitCompleted: onSubmitCompleted,
-          onClose: onClose,
-        ),
-      ),
-    );
-  }
-}
-*/
+import 'package:provider/src/provider.dart';
+import 'package:wecare/services/firebase/firebase_service.dart';
 
 final double LOGIN_WIDGET_WIDTH = 320;
 final double CARD_ELEVATION = 20;
 final double SUBMIT_BUTTON_HEIGHT = 38;
 final double SUBMIT_BUTTON_WIDTH = 140;
 
-typedef SubmitCallback = Future<String?>? Function(BuildContext context,
-    String email, String password);
-typedef RecoverCallback = Future<String?>? Function(BuildContext context, String email);
+typedef SubmitCallback = Future<String?>? Function(
+    BuildContext context, String email, String password);
+typedef SendResetPasswordCallback = Future<String?>? Function(
+    BuildContext context, String email);
+typedef SendEmailVerificationCallback = Future<String?>? Function(
+    BuildContext context);
 typedef ContextCallback = Future<void>? Function(BuildContext context);
 
 class AuthWidget extends StatefulWidget {
-  bool? initLogin;
+  bool? isAuthPage;
   String title;
   String footer;
   String? initialValue;
   SubmitCallback? onLogin;
   SubmitCallback? onSignup;
-  RecoverCallback? onRecover;
+  SendEmailVerificationCallback? onSendEmailVerification;
+  SendResetPasswordCallback? onSendResetPassword;
   ContextCallback? onSubmitCompleted;
   ContextCallback? onClose;
 
@@ -109,10 +34,11 @@ class AuthWidget extends StatefulWidget {
     this.initialValue,
     this.onLogin,
     this.onSignup,
-    this.onRecover,
+    this.onSendEmailVerification,
+    this.onSendResetPassword,
     this.onSubmitCompleted,
     this.onClose,
-    this.initLogin,
+    this.isAuthPage,
   }) : super(key: key);
 
   @override
@@ -167,18 +93,28 @@ class _AuthWidgetState extends State<AuthWidget> {
     setState(() {
       _animatedWidget = _ForgotPasswordWidget(
         initialValue: widget.initialValue,
-        onRecover: onRecover,
+        onSendResetPassword: onSendResetPassword,
         onSubmitCompleted: widget.onSubmitCompleted,
         notifyParent: setLogin,
       );
     });
   }
 
-  void setEmailSent(String email) {
+  void setPasswordResetSent(String email) {
     setState(() {
-      _animatedWidget = _EmailSentWidget(
+      _animatedWidget = _PasswordResetSentWidget(
         email: email,
-        onRecover: widget.onRecover,
+        onSendResetPassword: widget.onSendResetPassword,
+        notifyParent: setLogin,
+      );
+    });
+  }
+
+  void setEmailVerificationSent(String email) {
+    setState(() {
+      _animatedWidget = _EmailVerificationSentWidget(
+        email: email,
+        onSendEmailVerification: widget.onSendEmailVerification,
         onClose: widget.onClose,
       );
     });
@@ -187,17 +123,19 @@ class _AuthWidgetState extends State<AuthWidget> {
   @override
   void initState() {
     super.initState();
-    if (widget.initLogin != null && widget.initLogin!) {
+    if (widget.isAuthPage ?? true) {
       setLogin();
     } else {
-      setEmailSent(widget.initialValue!);
+      setEmailVerificationSent(widget.initialValue!);
     }
   }
 
-  Future<String?> onRecover(BuildContext context, String email) async {
-    String? error = await widget.onRecover!(context, email);
+  // on success, set a new widget
+  Future<String?> onSendResetPassword(
+      BuildContext context, String email) async {
+    String? error = await widget.onSendResetPassword!(context, email);
     if (error == null) {
-      setEmailSent(email);
+      setPasswordResetSent(email);
     }
     return error;
   }
@@ -218,6 +156,7 @@ class _AuthWidgetState extends State<AuthWidget> {
                     children: [
                       Spacer(),
                       header,
+                      // widgets are switched
                       AnimatedSwitcher(
                           duration: const Duration(seconds: 1),
                           transitionBuilder: (Widget child,
@@ -233,11 +172,10 @@ class _AuthWidgetState extends State<AuthWidget> {
                           child: _animatedWidget!),
                       Spacer(),
                       Expanded(
-                        child: Container(
-                          alignment: Alignment.bottomCenter,
-                          child: footer,
-                        )
-                      )
+                          child: Container(
+                        alignment: Alignment.bottomCenter,
+                        child: footer,
+                      ))
                     ],
                   ),
                 ),
@@ -250,24 +188,24 @@ class _AuthWidgetState extends State<AuthWidget> {
   }
 }
 
-// EmailSentWidget is shown after email verification has been sent
-// in ForgotPassword, also it can resend email verification.
-class _EmailSentWidget extends StatefulWidget {
+class _EmailVerificationSentWidget extends StatefulWidget {
   String email;
-  RecoverCallback? onRecover;
+  SendEmailVerificationCallback? onSendEmailVerification;
   ContextCallback? onClose;
 
-  _EmailSentWidget({
+  _EmailVerificationSentWidget({
     required this.email,
-    this.onRecover,
+    this.onSendEmailVerification,
     this.onClose,
   });
 
   @override
-  _EmailSentWidgetState createState() => _EmailSentWidgetState();
+  _EmailVerificationSentWidgetState createState() =>
+      _EmailVerificationSentWidgetState();
 }
 
-class _EmailSentWidgetState extends State<_EmailSentWidget> with LoginWidgetCommon {
+class _EmailVerificationSentWidgetState
+    extends State<_EmailVerificationSentWidget> with LoginWidgetCommon {
   bool _hasSent = false;
 
   Widget get title {
@@ -329,7 +267,7 @@ class _EmailSentWidgetState extends State<_EmailSentWidget> with LoginWidgetComm
         padding: const EdgeInsets.only(top: 2, bottom: 0),
         child: DefaultTextStyle(
           child: TextButton(
-            child: Text('Close',
+            child: Text('Back',
                 style: TextStyle(
                   fontSize: 16,
                 )),
@@ -359,7 +297,162 @@ class _EmailSentWidgetState extends State<_EmailSentWidget> with LoginWidgetComm
     });
 
     // send email
-    error = await widget.onRecover!(context, widget.email);
+    error = await widget.onSendEmailVerification!(context);
+
+    // disable the resend button on success
+    _hasSent = (error == null);
+
+    // stop loading icon
+    setState(() {
+      isSubmitting = false;
+    });
+
+    if (error == null) {
+      error = 'email verification has been sent.';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: LOGIN_WIDGET_WIDTH,
+      child: Card(
+        elevation: CARD_ELEVATION,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(CARD_ELEVATION),
+        ),
+        child: new Container(
+          //color: Colors.black12,
+          padding: EdgeInsets.all(16),
+          child: FocusTraversalGroup(
+            child: Column(
+              children: <Widget>[
+                title,
+                body1,
+                emailto,
+                body2,
+                isSubmitting ? loadingIcon : resend,
+                close,
+                if (error != null) status,
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PasswordResetSentWidget extends StatefulWidget {
+  String email;
+  SendResetPasswordCallback? onSendResetPassword;
+  VoidCallback notifyParent;
+
+  _PasswordResetSentWidget({
+    required this.email,
+    this.onSendResetPassword,
+    required this.notifyParent,
+  });
+
+  @override
+  _PasswordResetSentWidgetState createState() =>
+      _PasswordResetSentWidgetState();
+}
+
+class _PasswordResetSentWidgetState extends State<_PasswordResetSentWidget>
+    with LoginWidgetCommon {
+  bool _hasSent = false;
+
+  Widget get title {
+    return Padding(
+      padding: const EdgeInsets.only(top: 0, bottom: 8),
+      child: DefaultTextStyle(
+        child: Text('Please verify your email'),
+        style: Theme.of(context).textTheme.headline5!,
+      ),
+    );
+  }
+
+  Widget get body1 {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 8),
+      child: Text('We sent a password reset email to'),
+    );
+  }
+
+  Widget get emailto {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 8),
+      child: Text(widget.email),
+    );
+  }
+
+  Widget get body2 {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 8),
+      child: Text(
+          'If you don\'t see it, you may need to check your spam folder'),
+    );
+  }
+
+  Widget get resend {
+    return Padding(
+        padding: const EdgeInsets.only(top: 16, bottom: 2),
+        child: SizedBox(
+          width: SUBMIT_BUTTON_WIDTH,
+          height: SUBMIT_BUTTON_HEIGHT,
+          child: ElevatedButton(
+            onPressed: _hasSent ? null : submit,
+            child: Text('Resend Email',
+                style: TextStyle(
+                  color: Theme.of(context).canvasColor,
+                  fontSize: 16,
+                )),
+            style: ButtonStyle(
+                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18.0),
+            ))),
+          ),
+        ));
+  }
+
+  Widget get close {
+    return Padding(
+        padding: const EdgeInsets.only(top: 2, bottom: 0),
+        child: DefaultTextStyle(
+          child: TextButton(
+            child: Text('BACK',
+                style: TextStyle(
+                  fontSize: 16,
+                )),
+            onPressed: widget.notifyParent,
+            style:
+                TextButton.styleFrom(primary: Theme.of(context).primaryColor),
+          ),
+          style: Theme.of(context).textTheme.bodyText1!,
+        ));
+  }
+
+  Widget get status {
+    return Padding(
+      padding: const EdgeInsets.only(top: 0, bottom: 4),
+      child: Text(error!,
+          style: TextStyle(
+            color: Theme.of(context).errorColor,
+            fontSize: 12,
+          )),
+    );
+  }
+
+  void submit() async {
+    // start loading icon
+    setState(() {
+      isSubmitting = true;
+    });
+
+    // send email
+    error = await widget.onSendResetPassword!(context, widget.email);
 
     // disable the resend button on success
     _hasSent = (error == null);
@@ -407,13 +500,13 @@ class _EmailSentWidgetState extends State<_EmailSentWidget> with LoginWidgetComm
 
 class _ForgotPasswordWidget extends StatefulWidget {
   String? initialValue;
-  RecoverCallback? onRecover;
+  SendResetPasswordCallback? onSendResetPassword;
   ContextCallback? onSubmitCompleted;
-  final Function() notifyParent;
+  VoidCallback notifyParent;
 
   _ForgotPasswordWidget({
     this.initialValue,
-    required this.onRecover,
+    required this.onSendResetPassword,
     this.onSubmitCompleted,
     required this.notifyParent,
   });
@@ -545,7 +638,7 @@ class _ForgotPasswordWidgetState extends State<_ForgotPasswordWidget>
     });
 
     // send email
-    error = await widget.onRecover!(context, _emailText!);
+    error = await widget.onSendResetPassword!(context, _emailText!);
 
     // stop loading icon
     setState(() {
@@ -803,7 +896,7 @@ class _LoginWidgetState extends State<_LoginWidget> with LoginWidgetCommon {
             color: Theme.of(context).errorColor,
             fontSize: 12,
           )),
-      );
+    );
   }
 
   void toggleObscured() {
@@ -838,6 +931,10 @@ class _LoginWidgetState extends State<_LoginWidget> with LoginWidgetCommon {
 
     // run either login or signup
     error = await callback(context, _emailText!, _passwdText!);
+
+    if (error == null) {
+      return;
+    }
 
     // stop loading icon
     setState(() {

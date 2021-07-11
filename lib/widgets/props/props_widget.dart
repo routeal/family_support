@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:wecare/utils/commands.dart';
+import 'package:provider/src/provider.dart';
+import 'package:wecare/services/firebase/firebase_service.dart';
+import 'package:wecare/widgets/props/props_text_item.dart';
 
 import './props_image_item.dart';
 import './props_textfield_item.dart';
@@ -50,7 +52,11 @@ class PropsWidget extends StatelessWidget {
                 ? TextButton(
                     child: Text(props.logoutButtonLabel ?? 'Logout',
                         style: Theme.of(context).textTheme.button),
-                    onPressed: () => {exitApp()})
+                    onPressed: () {
+                      FirebaseService firebase =
+                          context.read<FirebaseService>();
+                      firebase.signOut();
+                    })
                 : Container(),
             TextButton(
                 child: Text(props.saveButtonLabel ?? 'Save',
@@ -77,6 +83,10 @@ class PropsWidget extends StatelessWidget {
                             initialValue: item.init,
                             onSaved: item.onSaved,
                             validator: item.validator,
+                          );
+                        } else if (item.type == PropsType.Error) {
+                          return PropsTextItem(
+                            label: item.label,
                           );
                         } else if (item.type == PropsType.InputField) {
                           return PropsTextFieldItem(

@@ -36,12 +36,17 @@ class FirebaseService {
     }
   }
 
-  Future<User?> signIn({required String email, required String password, bool createAccount = false}) async {
+  Future<User?> signIn(
+      {required String email,
+      required String password,
+      bool createAccount = false}) async {
     UserCredential userCreds;
     if (createAccount) {
-      userCreds = await auth.createUserWithEmailAndPassword(email: email, password: password);
+      userCreds = await auth.createUserWithEmailAndPassword(
+          email: email, password: password);
     } else {
-      userCreds = await auth.signInWithEmailAndPassword(email: email, password: password);
+      userCreds = await auth.signInWithEmailAndPassword(
+          email: email, password: password);
     }
     return userCreds.user;
   }
@@ -53,12 +58,17 @@ class FirebaseService {
     }
   }
 
+  Future<void> sendPasswordResetEmail({required String email}) async {
+    await auth.sendPasswordResetEmail(email: email);
+  }
+
   Future<void> signOut() async {
     await auth.signOut();
     userId = null;
   }
 
   Future<AppUser?> getUser() async {
+    print(_userId);
     return await usersRef
         .doc(_userId)
         .get()
@@ -66,23 +76,20 @@ class FirebaseService {
   }
 
   Future<void> setUser(AppUser user) async {
-    await usersRef
-        .doc(user.id)
-        .set(user);
+    await usersRef.doc(user.id).set(user);
   }
 
   Future<void> updateUser(AppUser user, Map<String, Object?> data) async {
-    await usersRef
-        .doc(user.id)
-        .update(data);
+    await usersRef.doc(user.id).update(data);
   }
 
   Future<String?> uploadFile(String destination, String localPath) async {
     File localFile = File(localPath);
     if (!localFile.existsSync()) {
-      throw('not found: ' + localPath);
+      throw ('not found: ' + localPath);
     }
-    UploadTask uploadTask = FirebaseStorage.instance.ref(destination).putFile(localFile);
+    UploadTask uploadTask =
+        FirebaseStorage.instance.ref(destination).putFile(localFile);
     await uploadTask;
     return uploadTask.snapshot.ref.getDownloadURL();
   }

@@ -6,6 +6,7 @@ import 'package:provider/src/provider.dart';
 import 'package:wecare/models/user.dart';
 import 'package:wecare/services/firebase/firebase_service.dart';
 import 'package:wecare/ui/app_state.dart';
+import 'package:wecare/widgets/dialogs.dart';
 import 'package:wecare/widgets/loading.dart';
 import 'package:wecare/widgets/props/props_values.dart';
 import 'package:wecare/widgets/props/props_widget.dart';
@@ -180,12 +181,14 @@ class UserProps extends PropsValues {
     // display loading icon
     loadingDialog(context);
 
-    FirebaseService firebase = context.read<FirebaseService>();
-
-    // save the current firebase user id
-    _appUser.id = firebase.auth.currentUser!.uid;
+    String? error;
 
     try {
+      FirebaseService firebase = context.read<FirebaseService>();
+
+      // save the current firebase user id
+      _appUser.id = firebase.auth.currentUser!.uid;
+
       // upload the user
       await firebase.setUser(_appUser);
 
@@ -203,14 +206,20 @@ class UserProps extends PropsValues {
       // globally set the current user
       AppState appState = context.read<AppState>();
       appState.currentUser = _appUser;
-
-      // pop down the loading icon
-      Navigator.of(context).pop();
-
-      // replace the current page with the root page
-      appState.route?.replace('/');
     } catch (e) {
-      print('Error: user props: ' + e.toString());
+      error = e.toString();
+    }
+
+    // pop down the loading icon
+    Navigator.of(context).pop();
+
+    if (error != null) {
+      // context comes from scaffold
+      showSnackBar(context: context, message: error!);
+    } else {
+      // replace the current page with the root page
+      AppState appState = context.read<AppState>();
+      appState.route?.replace('/');
     }
   }
 }

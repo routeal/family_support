@@ -1,12 +1,12 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:wecare/models/customer.dart';
 import 'package:wecare/ui/home_page.dart';
-import 'package:wecare/widgets/loading.dart';
+import 'package:wecare/widgets/dialogs.dart';
 import 'package:wecare/widgets/props/props_values.dart';
 import 'package:wecare/widgets/props/props_widget.dart';
 
@@ -41,9 +41,9 @@ class CustomerProps extends PropsValues {
             return "Photo is required";
           }
           File file = File(value);
-            if (!file.existsSync()) {
-              return 'Photo is not saved in ' + value;
-            }
+          if (!file.existsSync()) {
+            return 'Photo is not saved in ' + value;
+          }
           return null;
         },
       ),
@@ -166,7 +166,7 @@ class CustomerProps extends PropsValues {
       // go back to Home screen in anyway
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => HomePage()),
-              (Route<dynamic> route) => false);
+          (Route<dynamic> route) => false);
     });
   }
 }

@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/src/provider.dart';
 import 'package:wecare/services/firebase/firebase_service.dart';
-import 'package:wecare/utils/commands.dart';
 import 'package:wecare/widgets/auth_widget.dart';
 
 class AuthPage extends StatelessWidget {
@@ -38,6 +37,7 @@ class AuthPage extends StatelessWidget {
       if (user == null) {
         throw ('Unable to sign in due to unknown error.');
       }
+      await firebase.sendEmailVerification();
       return null;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
@@ -52,10 +52,21 @@ class AuthPage extends StatelessWidget {
     }
   }
 
-  Future<String?> _onRecover(BuildContext context, String email) async {
+  Future<String?> _onSendEmailVerification(BuildContext context) async {
     try {
       FirebaseService firebase = context.read<FirebaseService>();
       await firebase.sendEmailVerification();
+      return null;
+    } catch (e) {
+      return e.toString();
+    }
+  }
+
+  Future<String?> _onSendResetPassword(
+      BuildContext context, String email) async {
+    try {
+      FirebaseService firebase = context.read<FirebaseService>();
+      await firebase.sendPasswordResetEmail(email: email);
       return null;
     } catch (e) {
       return e.toString();
@@ -68,9 +79,7 @@ class AuthPage extends StatelessWidget {
 
   Future<void> _onClose(BuildContext context) async {
     FirebaseService firebase = context.read<FirebaseService>();
-    firebase.signOut().then((_) {
-      exitApp();
-    });
+    await firebase.signOut();
   }
 
   @override
@@ -82,17 +91,18 @@ class AuthPage extends StatelessWidget {
       footer: 'HealingShare',
       onLogin: _onLogin,
       onSignup: _onSignup,
-      onRecover: _onRecover,
+      onSendEmailVerification: _onSendEmailVerification,
+      onSendResetPassword: _onSendResetPassword,
       onSubmitCompleted: _onSubmitCompleted,
       onClose: _onClose,
       initialValue: firebase.auth.currentUser?.email,
-      initLogin: true,
+      isAuthPage: true,
     );
   }
 }
 
-class EmailVerifyScreen extends StatelessWidget {
-  Future<String?> _onRecover(BuildContext context, String email) async {
+class SendEmailVerificationPage extends StatelessWidget {
+  Future<String?> _onSendEmailVerification(BuildContext context) async {
     try {
       FirebaseService firebase = context.read<FirebaseService>();
       await firebase.sendEmailVerification();
@@ -104,9 +114,7 @@ class EmailVerifyScreen extends StatelessWidget {
 
   Future<void> _onClose(BuildContext context) async {
     FirebaseService firebase = context.read<FirebaseService>();
-    firebase.signOut().then((_) {
-      exitApp();
-    });
+    firebase.signOut();
   }
 
   @override
@@ -116,10 +124,10 @@ class EmailVerifyScreen extends StatelessWidget {
     return AuthWidget(
       title: 'CarePlanner',
       footer: 'HealingShare',
-      onRecover: _onRecover,
+      onSendEmailVerification: _onSendEmailVerification,
       onClose: _onClose,
       initialValue: email,
-      initLogin: false,
+      isAuthPage: false,
     );
   }
 }
