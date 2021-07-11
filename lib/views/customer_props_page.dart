@@ -5,7 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:wecare/models/customer.dart';
-import 'package:wecare/ui/home_page.dart';
+import 'package:wecare/views/home_page.dart';
 import 'package:wecare/widgets/dialogs.dart';
 import 'package:wecare/widgets/props/props_values.dart';
 import 'package:wecare/widgets/props/props_widget.dart';

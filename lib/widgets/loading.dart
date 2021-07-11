@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-class Loading extends StatelessWidget {
+class LoadingWidget extends StatelessWidget {
   final bool hasIndicator;
-  Loading([this.hasIndicator = true]);
+  LoadingWidget([this.hasIndicator = true]);
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -20,7 +20,7 @@ class LoadingPage extends StatelessWidget {
       theme: ThemeData(
         primaryColor: Colors.teal[200],
       ),
-      home: Loading(),
+      home: LoadingWidget(),
     );
   }
 }

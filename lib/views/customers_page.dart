@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/src/provider.dart';
-import 'package:wecare/ui/customer_props_page.dart';
+import 'package:wecare/views/customer_props_page.dart';
 import 'package:wecare/models/customer.dart';
 import 'package:wecare/services/firebase/firebase_service.dart';
 

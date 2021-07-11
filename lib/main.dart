@@ -4,14 +4,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:wecare/launcher.dart';
 import 'package:wecare/services/firebase/firebase_service.dart';
-import 'package:wecare/ui/app_state.dart';
-
-import './launcher.dart';
-import './utils/logger.dart';
-import './widgets/error_screen.dart';
-import './widgets/loading.dart';
-import 'models/user.dart';
+import 'package:wecare/utils/logger.dart';
+import 'package:wecare/views/app_state.dart';
+import 'package:wecare/widgets/error_page.dart';
+import 'package:wecare/widgets/loading.dart';
 
 void main() async {
   initLogger(() async {
@@ -88,9 +86,9 @@ class _InitFirebaseState extends State<InitFirebase>
   Widget build(BuildContext context) {
     Widget? widget;
     if (_error) {
-      widget = ErrorPage(error: _errorStr);
+      widget = FatalErrorWidget(error: _errorStr);
     } else if (!_initialized) {
-      widget = Loading(true);
+      widget = LoadingWidget(true);
     }
 
     if (widget != null) {

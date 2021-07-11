@@ -3,13 +3,12 @@ import 'package:provider/src/provider.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:wecare/models/user.dart';
 import 'package:wecare/services/firebase/firebase_service.dart';
-import 'package:wecare/ui/app_state.dart';
-import 'package:wecare/ui/customers_page.dart';
-import 'package:wecare/ui/home_page.dart';
-import 'package:wecare/ui/user_props_page.dart';
+import 'package:wecare/views/app_state.dart';
+import 'package:wecare/views/auth_page.dart';
+import 'package:wecare/views/customers_page.dart';
+import 'package:wecare/views/home_page.dart';
+import 'package:wecare/views/user_props_page.dart';
 import 'package:wecare/widgets/loading.dart';
-
-import './ui/auth_page.dart';
 
 final _signOutRouteMap = RouteMap(routes: {
   '/': (routeInfo) {
