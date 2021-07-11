@@ -88,7 +88,7 @@ class _InitFirebaseState extends State<InitFirebase>
   Widget build(BuildContext context) {
     Widget? widget;
     if (_error) {
-      widget = ErrorScreen(error: _errorStr);
+      widget = ErrorPage(error: _errorStr);
     } else if (!_initialized) {
       widget = Loading(true);
     }

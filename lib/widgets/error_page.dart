@@ -5,10 +5,10 @@ import 'package:flutter/services.dart';
 
 import 'package:lottie/lottie.dart';
 
-class ErrorScreen extends StatelessWidget {
+class ErrorPage extends StatelessWidget {
   String? error;
 
-  ErrorScreen({this.error}) {
+  ErrorPage({this.error}) {
     error ??= 'Oops, something went wrong.';
   }
 
