@@ -57,8 +57,6 @@ class CustomerProps extends PropsValues {
           return null;
         },
         onSaved: (String? value) => customer.name = value!,
-        // ignore: non_constant_identifier_names
-        onChanged: (String) => (dirty = true),
       ),
       PropsValueItem(
         type: PropsType.InputField,
@@ -70,8 +68,6 @@ class CustomerProps extends PropsValues {
           return null;
         },
         onSaved: (String? value) => customer.phone = value!,
-        // ignore: non_constant_identifier_names
-        onChanged: (String) => (dirty = true),
       ),
       PropsValueItem(
         type: PropsType.InputField,
@@ -79,8 +75,6 @@ class CustomerProps extends PropsValues {
         init: customer.email,
         icon: Icons.email_outlined,
         onSaved: (String? value) => customer.email = value!,
-        // ignore: non_constant_identifier_names
-        onChanged: (String) => (dirty = true),
       ),
       PropsValueItem(
         type: PropsType.InputField,
@@ -92,8 +86,6 @@ class CustomerProps extends PropsValues {
           return null;
         },
         onSaved: (String? value) => customer.address = value!,
-        // ignore: non_constant_identifier_names
-        onChanged: (String) => (dirty = true),
       ),
       PropsValueItem(
         type: PropsType.InputField,
@@ -101,8 +93,6 @@ class CustomerProps extends PropsValues {
         init: customer.website,
         icon: Icons.public_outlined,
         onSaved: (String? value) => customer.website = value!,
-        // ignore: non_constant_identifier_names
-        onChanged: (String) => (dirty = true),
       ),
       PropsValueItem(
         type: PropsType.InputField,
@@ -110,10 +100,12 @@ class CustomerProps extends PropsValues {
         init: customer.representative,
         icon: Icons.support_agent_outlined,
         onSaved: (String? value) => customer.representative = value!,
-        // ignore: non_constant_identifier_names
-        onChanged: (String) => (dirty = true),
       ),
     ];
+  }
+
+  bool get dirty {
+    return false;
   }
 
   final customersRef = FirebaseFirestore.instance
@@ -123,7 +115,7 @@ class CustomerProps extends PropsValues {
         toFirestore: (customer, _) => customer.toJson(),
       );
 
-  Future<void> submit(context) async {
+  Future<void> submit(BuildContext context) async {
     // check the validation of each field
     bool hasValidated = key?.currentState?.validate() ?? false;
     if (!hasValidated) {

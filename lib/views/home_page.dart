@@ -1,7 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/src/provider.dart';
 import 'package:wecare/services/firebase/firebase_service.dart';
+import 'package:wecare/views/app_state.dart';
 import 'package:wecare/views/customers_page.dart';
+import 'package:wecare/views/user_dialog.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -26,7 +29,20 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    AppState appState = context.read<AppState>();
+
+    final appBar = AppBar(
+      title: Text('CarePlanner'),
+      actions: [
+        IconButton(
+          icon: appState.currentUser!.avatar,
+          onPressed: () => userDialog(context),
+        ),
+      ],
+    );
+
     return Scaffold(
+      appBar: appBar,
       body: _pageList[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
@@ -54,6 +70,7 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+/*
         appBar: AppBar(
           title: const Text('wecare'),
           actions: [
@@ -65,6 +82,7 @@ class SettingsPage extends StatelessWidget {
             ),
           ],
         ),
+*/
         body: Center(child: Text('Settings page')));
   }
 }
@@ -73,6 +91,7 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+/*
       appBar: AppBar(
         title: const Text('wecare'),
         actions: [
@@ -84,6 +103,7 @@ class ProfilePage extends StatelessWidget {
           ),
         ],
       ),
+*/
       body: Center(child: Text('Profile page')),
     );
   }

@@ -51,11 +51,7 @@ abstract class PropsValues {
     _formKey = k;
   }
 
-  bool _dirty = false;
-  bool get dirty => _dirty;
-  set dirty(bool b) {
-    _dirty = b;
-  }
+  bool get dirty;
 
   List<PropsValueItem> items();
 

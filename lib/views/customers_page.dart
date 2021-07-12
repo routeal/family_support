@@ -2,10 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/src/provider.dart';
-import 'package:wecare/views/customer_props_page.dart';
 import 'package:wecare/models/customer.dart';
-import 'package:wecare/services/firebase/firebase_service.dart';
+import 'package:wecare/views/customer_props_page.dart';
 
 class CustomersPage extends StatefulWidget {
   CustomersPage({Key? key}) : super(key: key);
@@ -14,7 +12,7 @@ class CustomersPage extends StatefulWidget {
 }
 
 class _CustomersPageState extends State<CustomersPage> {
-  late Stream<QuerySnapshot<Customer>> _customers;
+  //late Stream<QuerySnapshot<Customer>> _customers;
 
   final customersRef = FirebaseFirestore.instance
       .collection('customers')
@@ -25,19 +23,20 @@ class _CustomersPageState extends State<CustomersPage> {
 
   @override
   void initState() {
-    getCustomers();
+    //getCustomers();
     super.initState();
   }
 
   void getCustomers() {
     setState(() {
-      _customers = customersRef.snapshots();
+      //_customers = customersRef.snapshots();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+/*
         appBar: AppBar(
           title: const Text('wecare'),
           actions: [
@@ -49,6 +48,7 @@ class _CustomersPageState extends State<CustomersPage> {
             ),
           ],
         ),
+*/
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add),
           onPressed: () {
@@ -56,6 +56,8 @@ class _CustomersPageState extends State<CustomersPage> {
                 MaterialPageRoute(builder: (context) => CustomerPropsPage()));
           },
         ),
+        body: Container());
+/*
         body: StreamBuilder<QuerySnapshot<Customer>>(
             stream: _customers,
             builder: (context, snapshot) {
@@ -86,6 +88,7 @@ class _CustomersPageState extends State<CustomersPage> {
                     },
                   ));
             }));
+ */
   }
 }
 

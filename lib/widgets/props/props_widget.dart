@@ -2,11 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/src/provider.dart';
 import 'package:wecare/services/firebase/firebase_service.dart';
+import 'package:wecare/widgets/props/props_image_item.dart';
 import 'package:wecare/widgets/props/props_text_item.dart';
-
-import './props_image_item.dart';
-import './props_textfield_item.dart';
-import './props_values.dart';
+import 'package:wecare/widgets/props/props_textfield_item.dart';
+import 'package:wecare/widgets/props/props_values.dart';
 
 class PropsWidget extends StatelessWidget {
   final PropsValues props;

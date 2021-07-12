@@ -23,23 +23,22 @@ class UserPropsPage extends StatelessWidget {
 }
 
 class UserProps extends PropsValues {
+  bool _isNewUser = true;
   late AppUser _appUser;
 
-  UserProps(User? user, AppUser? appUser) {
+  UserProps(User? firebaseUser, AppUser? appUser) {
+    assert(firebaseUser != null);
+
     if (appUser != null) {
-      title = appUser.display_name;
-      saveButtonLabel = "Save";
-      _appUser = appUser;
+      _isNewUser = false;
+      _appUser = appUser.clone();
+      // title is the user's display name
+      title = _appUser.display_name;
     } else {
+      _appUser = AppUser(id: firebaseUser!.uid);
+      _appUser.email = firebaseUser.email;
       title = "Your Information";
-      saveButtonLabel = "Save";
       logoutButtonLabel = "Logout";
-      _appUser = AppUser(
-        id: user?.uid,
-        phone: user?.phoneNumber,
-        display_name: user?.displayName,
-        email: user?.email,
-      );
     }
   }
 
@@ -76,8 +75,6 @@ class UserProps extends PropsValues {
             _appUser.display_name = value;
           }
         },
-        // ignore: non_constant_identifier_names
-        onChanged: (String) => (dirty = true),
       ),
       PropsValueItem(
         type: PropsType.InputField,
@@ -88,8 +85,6 @@ class UserProps extends PropsValues {
           return null;
         },
         onSaved: (String? value) => _appUser.first_name = value!,
-        // ignore: non_constant_identifier_names
-        onChanged: (String) => (dirty = true),
       ),
       PropsValueItem(
         type: PropsType.InputField,
@@ -100,8 +95,6 @@ class UserProps extends PropsValues {
           return null;
         },
         onSaved: (String? value) => _appUser.last_name = value!,
-        // ignore: non_constant_identifier_names
-        onChanged: (String) => (dirty = true),
       ),
       PropsValueItem(
         type: PropsType.InputField,
@@ -113,8 +106,6 @@ class UserProps extends PropsValues {
           return null;
         },
         onSaved: (String? value) => _appUser.company = value!,
-        // ignore: non_constant_identifier_names
-        onChanged: (String) => (dirty = true),
       ),
       PropsValueItem(
         type: PropsType.InputField,
@@ -126,8 +117,6 @@ class UserProps extends PropsValues {
           return null;
         },
         onSaved: (String? value) => _appUser.phone = value!,
-        // ignore: non_constant_identifier_names
-        onChanged: (String) => (dirty = true),
       ),
       PropsValueItem(
         type: PropsType.InputField,
@@ -139,8 +128,6 @@ class UserProps extends PropsValues {
           return null;
         },
         onSaved: (String? value) => _appUser.email = value!,
-        // ignore: non_constant_identifier_names
-        onChanged: (String) => (dirty = true),
       ),
       PropsValueItem(
         type: PropsType.InputField,
@@ -152,8 +139,6 @@ class UserProps extends PropsValues {
           return null;
         },
         onSaved: (String? value) => _appUser.address = value!,
-        // ignore: non_constant_identifier_names
-        onChanged: (String) => (dirty = true),
       ),
       PropsValueItem(
         type: PropsType.InputField,
@@ -161,38 +146,26 @@ class UserProps extends PropsValues {
         init: _appUser.website,
         icon: Icons.public_outlined,
         onSaved: (String? value) => _appUser.website = value!,
-        // ignore: non_constant_identifier_names
-        onChanged: (String) => (dirty = true),
       ),
     ];
   }
 
-  Future<void> submit(context) async {
-    // check the validation of each field
-    bool hasValidated = key?.currentState?.validate() ?? false;
-    if (!hasValidated) {
-      return;
-    }
+  bool get dirty {
+    //final updates = _appUser.diff(appState.currentUser!);
+    return false;
+  }
 
-    // save the form fields
-    key?.currentState?.save();
-
-    // display loading icon
-    loadingDialog(context);
-
+  Future<String?> createNewUser(BuildContext context) async {
     String? error;
 
     try {
       FirebaseService firebase = context.read<FirebaseService>();
 
-      // save the current firebase user id
-      _appUser.id = firebase.auth.currentUser!.uid;
-
       // upload the user
       await firebase.setUser(_appUser);
 
       // upload the image file
-      final destination = 'images/' + _appUser.id! + '/user.jpg';
+      final destination = 'images/' + _appUser.id + '/user.jpg';
       _appUser.image =
           await firebase.uploadFile(destination, _appUser.filepath);
 
@@ -209,12 +182,63 @@ class UserProps extends PropsValues {
       error = e.toString();
     }
 
+    return error;
+  }
+
+  Future<String?> updateUser(BuildContext context) async {
+    String? error;
+
+    try {
+      AppState appState = context.read<AppState>();
+
+      final updates = _appUser.diff(appState.currentUser!);
+      if (updates == null) {
+        return "nothing has changed";
+      }
+
+      FirebaseService firebase = context.read<FirebaseService>();
+
+      // update the user with the image url
+      await firebase.updateUser(_appUser, updates);
+
+      // save the user into the local disk
+      await AppUser.save(_appUser);
+
+      appState.currentUser = _appUser;
+    } catch (e) {
+      error = e.toString();
+    }
+
+    return error;
+  }
+
+  Future<void> submit(BuildContext context) async {
+    // check the validation of each field
+    bool hasValidated = key?.currentState?.validate() ?? false;
+    if (!hasValidated) {
+      return;
+    }
+
+    // save the form fields
+    key?.currentState?.save();
+
+    // display loading icon
+    loadingDialog(context);
+
+    String? error;
+
+    if (_isNewUser) {
+      error = await createNewUser(context);
+    } else {
+      error = await updateUser(context);
+    }
+
     // pop down the loading icon
     Navigator.of(context).pop();
 
     if (error != null) {
       // context comes from scaffold
-      showSnackBar(context: context, message: error!);
+      showSnackBar(context: context, message: error);
     } else {
       // replace the current page with the root page
       AppState appState = context.read<AppState>();

@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'dart:math';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 Future<void> exitApp() async {
@@ -12,4 +14,8 @@ Future<void> exitApp() async {
       SystemChannels.platform.invokeMethod('SystemNavigator.pop');
     });
   }
+}
+
+int getRandomPrimaryColor() {
+  return Colors.primaries[Random().nextInt(Colors.primaries.length)].value;
 }
