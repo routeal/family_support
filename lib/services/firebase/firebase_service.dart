@@ -12,13 +12,6 @@ class FirebaseService {
   FirebaseFirestore get firestore => FirebaseFirestore.instance;
   FirebaseAuth get auth => FirebaseAuth.instance;
 
-  CollectionReference<AppUser?> get usersRef =>
-      firestore.collection('users').withConverter<AppUser>(
-            fromFirestore: (snapshots, _) =>
-                AppUser.fromJson(snapshots.data()!),
-            toFirestore: (AppUser, _) => AppUser.toJson(),
-          );
-
   String? _userId;
   String? get userId => _userId;
   set userId(String? value) => _userId = value;
@@ -67,8 +60,16 @@ class FirebaseService {
     userId = null;
   }
 
+  CollectionReference<AppUser?> get usersRef =>
+      firestore.collection('users').withConverter<AppUser>(
+            fromFirestore: (snapshots, _) =>
+                AppUser.fromJson(snapshots.data()!),
+            toFirestore: (AppUser, _) => AppUser.toJson(),
+          );
+
+  String get userImage => 'images/' + userId! + '/user.jpg';
+
   Future<AppUser?> getUser() async {
-    print(_userId);
     return await usersRef
         .doc(_userId)
         .get()
@@ -76,11 +77,11 @@ class FirebaseService {
   }
 
   Future<void> setUser(AppUser user) async {
-    await usersRef.doc(user.id).set(user);
+    await usersRef.doc(_userId).set(user);
   }
 
-  Future<void> updateUser(AppUser user, Map<String, Object?> data) async {
-    await usersRef.doc(user.id).update(data);
+  Future<void> updateUser(Map<String, Object?> data) async {
+    await usersRef.doc(_userId).update(data);
   }
 
   Future<String?> uploadFile(String destination, String localPath) async {

@@ -10,6 +10,7 @@ class PropsValueItem {
   FormFieldValidator<String>? validator;
   ValueChanged<String>? onChanged;
   IconData? icon;
+  bool enabled;
 
   PropsValueItem({
     required this.type,
@@ -19,6 +20,7 @@ class PropsValueItem {
     this.validator,
     this.onChanged,
     this.icon,
+    this.enabled = true,
   });
 }
 

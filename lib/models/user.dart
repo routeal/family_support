@@ -104,9 +104,6 @@ class AppUser {
 
   Map<String, Object?>? diff(AppUser user) {
     Map<String, Object?> map = Map();
-    if (image != user.image) {
-      map['image'] = user.image;
-    }
     if (display_name != user.display_name) {
       map['display_name'] = user.display_name;
     }

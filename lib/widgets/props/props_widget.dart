@@ -82,6 +82,7 @@ class PropsWidget extends StatelessWidget {
                             initialValue: item.init,
                             onSaved: item.onSaved,
                             validator: item.validator,
+                            onChanged: item.onChanged,
                           );
                         } else if (item.type == PropsType.Error) {
                           return PropsTextItem(
@@ -95,6 +96,7 @@ class PropsWidget extends StatelessWidget {
                             validator: item.validator,
                             onSaved: item.onSaved,
                             onChanged: item.onChanged,
+                            enabled: item.enabled,
                           );
                         } else {
                           return Container();

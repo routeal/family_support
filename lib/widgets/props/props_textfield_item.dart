@@ -7,6 +7,7 @@ class PropsTextFieldItem extends StatefulWidget {
   final FormFieldSetter<String>? onSaved;
   final ValueChanged<String>? onChanged;
   final IconData? icon;
+  final bool enabled;
 
   const PropsTextFieldItem({
     this.initialValue,
@@ -15,6 +16,7 @@ class PropsTextFieldItem extends StatefulWidget {
     this.onSaved,
     this.onChanged,
     this.icon,
+    this.enabled = true,
   });
 
   @override
@@ -46,6 +48,7 @@ class _PropsTextFieldItemState extends State<PropsTextFieldItem> {
         validator: widget.validator,
         onChanged: widget.onChanged,
         onSaved: widget.onSaved,
+        enabled: widget.enabled,
       ),
     );
   }

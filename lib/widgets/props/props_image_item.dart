@@ -7,22 +7,24 @@ import 'package:image_picker/image_picker.dart';
 
 class PropsImageItem extends FormField<String> {
   PropsImageItem({
-    String? initialValue,
+    String? initialValue, // image url
     FormFieldSetter<String>? onSaved,
     FormFieldValidator<String>? validator,
+    ValueChanged<String>? onChanged,
   }) : super(
             onSaved: onSaved,
             validator: validator,
             initialValue: initialValue ?? "",
             builder: (state) {
-              return _PropsImageItemState(state);
+              return _PropsImageItemState(state: state, onChanged: onChanged);
             });
 }
 
 class _PropsImageItemState extends StatefulWidget {
   final FormFieldState<String> state;
+  ValueChanged<String>? onChanged;
 
-  _PropsImageItemState(this.state);
+  _PropsImageItemState({required this.state, required this.onChanged});
 
   @override
   _PropsImageItemImageState createState() => _PropsImageItemImageState(state);
@@ -33,12 +35,12 @@ class _PropsImageItemImageState extends State<_PropsImageItemState> {
 
   _PropsImageItemImageState(this.state);
 
-  String? _url;
-  File? _file;
-  final picker = ImagePicker();
+  String? _imageUrl;
+  File? _croppedFile;
+  final _picker = ImagePicker();
 
   Future _showDialog() async {
-    var pane = (_file != null)
+    var pane = (_croppedFile != null || _imageUrl != null)
         ? [
             TextButton(
               child: Text("Remove photo"),
@@ -107,25 +109,34 @@ class _PropsImageItemImageState extends State<_PropsImageItemState> {
 
   @override
   void initState() {
-    _url = state.value;
+    super.initState();
+    _imageUrl = state.value;
   }
 
+/*
   @override
   void setState(VoidCallback fn) {
     super.setState(fn);
     state.setValue(_file?.path ?? "");
   }
+*/
 
-  Future removePhoto() async {
-    if (_file != null && _file!.existsSync()) {
-      await _file!.delete();
-      _file = null;
-      setState(() {});
+  Future<void> removePhoto() async {
+    if (_croppedFile != null && _croppedFile!.existsSync()) {
+      await _croppedFile!.delete();
+      _croppedFile = null;
+    }
+    if (_imageUrl != null) {
+      _imageUrl = null;
+    }
+    setState(() {});
+    if (widget.onChanged != null) {
+      widget.onChanged!('');
     }
   }
 
-  Future getImage(source) async {
-    final pickedFile = await picker.getImage(source: source);
+  Future<void> getImage(ImageSource source) async {
+    final pickedFile = await _picker.getImage(source: source);
     if (pickedFile != null) {
       File file = File(pickedFile.path);
       if (file.existsSync()) {
@@ -134,24 +145,28 @@ class _PropsImageItemImageState extends State<_PropsImageItemState> {
     }
   }
 
-  Future _cropImage(filepath) async {
+  Future<void> _cropImage(String imageSource) async {
     File? croppedImage = await ImageCropper.cropImage(
-      sourcePath: filepath,
+      sourcePath: imageSource,
       maxWidth: 120,
       maxHeight: 120,
       compressQuality: 70,
       cropStyle: CropStyle.circle,
     );
 
+    // delete file anyway
+    File file = File(imageSource);
+    if (file.existsSync()) {
+      file.delete();
+    }
+
     if (croppedImage != null) {
-      _file = croppedImage;
+      _croppedFile = croppedImage;
       setState(() {});
     }
 
-    // delete file anyway
-    File file = File(filepath);
-    if (file.existsSync()) {
-      file.delete();
+    if (widget.onChanged != null) {
+      widget.onChanged!('');
     }
   }
 
@@ -159,39 +174,42 @@ class _PropsImageItemImageState extends State<_PropsImageItemState> {
   Widget build(BuildContext context) {
     Widget? icon;
 
-    if (_file != null && _file!.existsSync()) {
+    if (_imageUrl != null && _imageUrl!.isNotEmpty) {
       icon = CircleAvatar(
-        backgroundImage: FileImage(_file!),
-        radius: 64.0,
+        backgroundImage: NetworkImage(_imageUrl!),
+        radius: 32,
       );
-    } else if (_url != null && _url!.isNotEmpty) {
+    } else if (_croppedFile != null && _croppedFile!.existsSync()) {
       icon = CircleAvatar(
-        backgroundImage: NetworkImage(_url!),
-        radius: 64.0,
+        backgroundImage: FileImage(_croppedFile!),
+        radius: 32,
       );
     } else {
       icon = CircleAvatar(
         child: Icon(Icons.add_a_photo_outlined),
-        radius: 64.0,
         foregroundColor: Colors.white,
+        radius: 32,
       );
     }
 
     return Container(
-        padding: EdgeInsets.all(16.0),
         child: Column(children: [
-          Center(
-              child: IconButton(
-            iconSize: 64,
+      SizedBox(
+          height: 100,
+          child: IconButton(
             icon: icon,
+            iconSize: 64,
             onPressed: _showDialog,
           )),
-          Text(state.errorText ?? '',
-              style: TextStyle(color: Theme.of(context).errorColor)),
-        ]));
+      (state.errorText != null)
+          ? Text(state.errorText!,
+              style: TextStyle(color: Theme.of(context).errorColor))
+          : Container(),
+    ]));
   }
 }
 
+/*
 class PhotoImage extends StatefulWidget {
   @override
   _PhotoImageState createState() => _PhotoImageState();
@@ -339,3 +357,4 @@ class _PhotoImageState extends State<PhotoImage> {
     );
   }
 }
+*/
