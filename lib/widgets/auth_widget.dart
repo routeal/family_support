@@ -310,7 +310,7 @@ class _EmailVerificationSentWidgetState
     });
 
     if (error == null) {
-      error = 'email verification has been sent.';
+      error = 'Email verification has been sent.';
     }
   }
 

@@ -109,10 +109,12 @@ class Launcher extends StatelessWidget {
           FirebaseService firebase = context.watch<FirebaseService>();
 
           if (firebase.auth.currentUser == null) {
+            print('FutureBuilder: login route');
             appState.route = RoutemasterDelegate(routesBuilder: (context) {
               return _signOutRouteMap;
             });
           } else {
+            print('FutureBuilder: app route');
             appState.route = RoutemasterDelegate(routesBuilder: (context) {
               return _signInRouteMap();
             });

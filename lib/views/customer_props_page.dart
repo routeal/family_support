@@ -3,15 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:provider/src/provider.dart';
 import 'package:wecare/models/customer.dart';
 import 'package:wecare/services/firebase/firebase_service.dart';
-import 'package:wecare/views/app_state.dart';
 import 'package:wecare/widgets/dialogs.dart';
 import 'package:wecare/widgets/props/props_values.dart';
 import 'package:wecare/widgets/props/props_widget.dart';
 
 class CustomerPropsPage extends StatelessWidget {
+  Customer? customer;
+  CustomerPropsPage([this.customer]);
   @override
   Widget build(BuildContext context) {
-    return PropsWidget(CustomerProps(context));
+    return PropsWidget(CustomerProps(context, customer));
   }
 }
 
@@ -20,11 +21,19 @@ class CustomerProps extends PropsValues {
   bool _dirty = false;
   bool _isNewUser = true;
   late Customer _customer;
+  Customer? _origin;
 
-  CustomerProps(BuildContext context) {
-    title = "Create Customer";
-    _customer = Customer();
-    _isNewUser = true;
+  CustomerProps(BuildContext context, Customer? customer) {
+    if (customer == null) {
+      title = "Create Customer";
+      _isNewUser = true;
+      _customer = Customer();
+    } else {
+      title = customer?.name ?? '';
+      _isNewUser = false;
+      _customer = customer!.clone();
+      _origin = customer;
+    }
   }
 
   bool get dirty => _dirty || _imageDirty;
@@ -110,7 +119,38 @@ class CustomerProps extends PropsValues {
         _customer.image_url =
             await firebase.uploadFile(imagePath, _customer.filepath!);
 
-        firebase.customersRef
+        await firebase.customersRef
+            .doc(_customer.id!)
+            .update({'image_url': _customer.image_url});
+      }
+    } catch (e) {
+      error = e.toString();
+    }
+    return error;
+  }
+
+  Future<String?> updateCustomer(BuildContext context) async {
+    String? error;
+    try {
+      FirebaseService firebase = context.read<FirebaseService>();
+
+      final Map<String, Object?>? updates = _origin!.diff(_customer);
+      if (updates != null) {
+        updates.entries.forEach((entry) {
+          print('${entry.key}:${entry.value}');
+        });
+        // update the user with the image url
+        await firebase.customersRef.doc(_origin!.id).update(updates);
+      }
+
+      if (_customer.filepath != null && _customer.filepath!.isNotEmpty) {
+        final imagePath = 'images/' + _customer.id! + '/customer.jpg';
+
+        // upload the image file
+        _customer.image_url =
+            await firebase.uploadFile(imagePath, _customer.filepath!);
+
+        await firebase.customersRef
             .doc(_customer.id!)
             .update({'image_url': _customer.image_url});
       }
@@ -137,6 +177,8 @@ class CustomerProps extends PropsValues {
 
     if (_isNewUser) {
       error = await createCustomer(context);
+    } else {
+      error = await updateCustomer(context);
     }
 
     // pop down the loading icon
@@ -146,9 +188,7 @@ class CustomerProps extends PropsValues {
       // context comes from scaffold
       showSnackBar(context: context, message: error);
     } else {
-      // replace the current page with the root page
-      AppState appState = context.read<AppState>();
-      appState.route?.replace('/');
+      Navigator.of(context).pop();
     }
   }
 }

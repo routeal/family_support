@@ -63,9 +63,18 @@ class _CustomersPageState extends State<CustomersPage> {
                   child: ListView.builder(
                     itemCount: data.size,
                     itemBuilder: (context, index) {
-                      return _CustomerItem(
-                        data.docs[index].data(),
-                        data.docs[index].reference,
+                      Customer customer = data.docs[index].data();
+                      DocumentReference<Customer> reference = data.docs[index].reference;
+                      customer.id = reference.id;
+                      return ListTile(
+                          leading: customer.avatar,
+                          title: Text(customer.name!),
+                          subtitle: Text(customer.address!),
+                          enabled: true,
+                          onTap: () {
+                            Navigator.push(context,
+                              MaterialPageRoute(builder: (context) => CustomerPropsPage(customer)));
+                          }
                       );
                     },
                   ));

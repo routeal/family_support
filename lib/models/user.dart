@@ -40,7 +40,8 @@ class AppUser {
 
   AppUser.fromJson(Map<String, Object?> json)
       : this(
-          image_url: json['image_url'] == null ? null : json['image_url'] as String,
+          image_url:
+              json['image_url'] == null ? null : json['image_url'] as String,
           display_name: json['display_name'] == null
               ? null
               : json['display_name'] as String,
@@ -73,7 +74,9 @@ class AppUser {
       'website': website,
       'note': note,
       'color': color,
-      'created_at': created_at ?? DateTime.now().toIso8601String(),
+      'created_at': (created_at != null)
+          ? created_at!.toIso8601String()
+          : DateTime.now().toIso8601String(),
     };
   }
 
