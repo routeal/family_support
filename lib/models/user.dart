@@ -5,8 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wecare/utils/commands.dart';
 
 class AppUser {
-  String id;
-  String? image;
+  String? image_url;
   String? display_name;
   String? first_name;
   String? last_name;
@@ -16,14 +15,12 @@ class AppUser {
   String? address;
   String? website;
   String? note;
+  String? filepath;
   int? color;
   DateTime? created_at;
 
-  String filepath = "";
-
   AppUser({
-    required this.id,
-    this.image,
+    this.image_url,
     this.display_name,
     this.first_name,
     this.last_name,
@@ -43,8 +40,7 @@ class AppUser {
 
   AppUser.fromJson(Map<String, Object?> json)
       : this(
-          id: json['id'] as String,
-          image: json['image'] == null ? null : json['image'] as String,
+          image_url: json['image_url'] == null ? null : json['image_url'] as String,
           display_name: json['display_name'] == null
               ? null
               : json['display_name'] as String,
@@ -66,8 +62,7 @@ class AppUser {
 
   Map<String, Object?> toJson() {
     return {
-      'id': id,
-      'image': image,
+      'image_url': image_url,
       'display_name': display_name,
       'first_name': first_name,
       'last_name': last_name,
@@ -84,8 +79,7 @@ class AppUser {
 
   AppUser clone() {
     AppUser _appUser = AppUser(
-      id: this.id,
-      image: this.image,
+      image_url: this.image_url,
       display_name: this.display_name,
       first_name: this.first_name,
       last_name: this.last_name,
@@ -156,9 +150,9 @@ class AppUser {
 
   Widget get avatar {
     late Widget icon;
-    if (image != null) {
+    if (image_url != null) {
       icon = CircleAvatar(
-        backgroundImage: NetworkImage(image!),
+        backgroundImage: NetworkImage(image_url!),
       );
     } else if (color != null) {
       icon = CircleAvatar(

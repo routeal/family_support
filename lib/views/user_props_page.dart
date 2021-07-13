@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/src/provider.dart';
@@ -14,11 +12,7 @@ class UserPropsPage extends StatelessWidget {
   const UserPropsPage({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    FirebaseService firebase =
-        Provider.of<FirebaseService>(context, listen: false);
-    AppState appState = Provider.of<AppState>(context, listen: false);
-    return PropsWidget(
-        UserProps(firebase.auth.currentUser, appState.currentUser));
+    return PropsWidget(UserProps(context));
   }
 }
 
@@ -26,42 +20,42 @@ class UserProps extends PropsValues {
   bool _imageDirty = false;
   bool _dirty = false;
   bool _isNewUser = true;
-  late AppUser _newUser;
+  late AppUser _updateUser;
 
-  UserProps(User? firebaseUser, AppUser? appUser) {
-    assert(firebaseUser != null);
+  UserProps(BuildContext context) {
+    FirebaseService firebase =
+        Provider.of<FirebaseService>(context, listen: false);
+    AppState appState = Provider.of<AppState>(context, listen: false);
 
-    if (appUser != null) {
+    if (appState.currentUser != null) {
       _isNewUser = false;
-      _newUser = appUser.clone();
+      _updateUser = appState.currentUser!.clone();
       // title is the user's display name
-      title = _newUser.display_name;
+      title = _updateUser.display_name;
     } else {
-      _newUser = AppUser(id: firebaseUser!.uid);
-      _newUser.email = firebaseUser.email;
+      User? user = firebase.auth.currentUser;
+      assert(user != null);
+      _updateUser = AppUser();
+      _updateUser.email = user!.email;
       title = "Your Information";
       logoutButtonLabel = "Logout";
     }
   }
 
+  bool get dirty => _dirty || _imageDirty;
+
   List<PropsValueItem> items() {
     return [
       PropsValueItem(
         type: PropsType.Photo,
-        init: _newUser.image,
+        init: _updateUser.image_url,
         onSaved: (String? value) {
           if (value != null || value!.isNotEmpty) {
-            _newUser.filepath = value;
+            _updateUser.filepath = value;
           }
         },
-        validator: (String? value) {
-          if (value == null || value.isEmpty) {
-            return "Photo is required";
-          }
-          File file = File(value);
-          if (!file.existsSync()) {
-            return 'Photo is not saved in ' + value;
-          }
+        validator: (_) {
+          // not necessarily set
           return null;
         },
         onChanged: (_) => _imageDirty = true,
@@ -69,13 +63,13 @@ class UserProps extends PropsValues {
       PropsValueItem(
         type: PropsType.InputField,
         label: "Display Name",
-        init: _newUser.display_name,
+        init: _updateUser.display_name,
         icon: Icons.person_outline,
         onSaved: (String? value) {
           if (value == null || value.isEmpty) {
-            _newUser.display_name = _newUser.last_name;
+            _updateUser.display_name = _updateUser.last_name;
           } else {
-            _newUser.display_name = value;
+            _updateUser.display_name = value;
           }
         },
         onChanged: (_) => _dirty = true,
@@ -83,110 +77,112 @@ class UserProps extends PropsValues {
       PropsValueItem(
         type: PropsType.InputField,
         label: "First Name",
-        init: _newUser.first_name,
+        init: _updateUser.first_name,
         validator: (String? value) {
           if (value == null || value.isEmpty) return "First Name is required";
           return null;
         },
-        onSaved: (String? value) => _newUser.first_name = value!,
+        onSaved: (String? value) => _updateUser.first_name = value!,
         onChanged: (_) => _dirty = true,
       ),
       PropsValueItem(
         type: PropsType.InputField,
         label: "Last Name",
-        init: _newUser.last_name,
+        init: _updateUser.last_name,
         validator: (String? value) {
           if (value == null || value.isEmpty) return "Last Name is required";
           return null;
         },
-        onSaved: (String? value) => _newUser.last_name = value!,
+        onSaved: (String? value) => _updateUser.last_name = value!,
         onChanged: (_) => _dirty = true,
       ),
       PropsValueItem(
         type: PropsType.InputField,
         label: "Company",
-        init: _newUser.company,
+        init: _updateUser.company,
         icon: Icons.business_outlined,
         validator: (String? value) {
           if (value == null || value.isEmpty) return "Company is required";
           return null;
         },
-        onSaved: (String? value) => _newUser.company = value!,
+        onSaved: (String? value) => _updateUser.company = value!,
         onChanged: (_) => _dirty = true,
       ),
       PropsValueItem(
         type: PropsType.InputField,
         label: "Phone",
-        init: _newUser.phone,
+        init: _updateUser.phone,
         icon: Icons.phone_outlined,
         validator: (String? value) {
           if (value == null || value.isEmpty) return "Phone is required";
           return null;
         },
-        onSaved: (String? value) => _newUser.phone = value!,
+        onSaved: (String? value) => _updateUser.phone = value!,
         onChanged: (_) => _dirty = true,
       ),
       PropsValueItem(
         type: PropsType.InputField,
         enabled: false,
         label: "Email",
-        init: _newUser.email,
+        init: _updateUser.email,
         icon: Icons.email_outlined,
         validator: (String? value) {
           if (value == null || value.isEmpty) return "Email is required";
           return null;
         },
-        onSaved: (String? value) => _newUser.email = value!,
+        onSaved: (String? value) => _updateUser.email = value!,
         onChanged: (_) => _dirty = true,
       ),
       PropsValueItem(
         type: PropsType.InputField,
         label: "Address",
-        init: _newUser.address,
+        init: _updateUser.address,
         icon: Icons.place_outlined,
         validator: (String? value) {
           if (value == null || value.isEmpty) return "Address is required";
           return null;
         },
-        onSaved: (String? value) => _newUser.address = value!,
+        onSaved: (String? value) => _updateUser.address = value!,
         onChanged: (_) => _dirty = true,
       ),
       PropsValueItem(
         type: PropsType.InputField,
         label: "Website",
-        init: _newUser.website,
+        init: _updateUser.website,
         icon: Icons.public_outlined,
-        onSaved: (String? value) => _newUser.website = value!,
+        onSaved: (String? value) => _updateUser.website = value!,
         onChanged: (_) => _dirty = true,
       ),
     ];
   }
 
-  bool get dirty => _dirty || _imageDirty;
-
-  Future<String?> createNewUser(BuildContext context) async {
+  Future<String?> createUser(BuildContext context) async {
     String? error;
 
     try {
+      AppState appState = context.read<AppState>();
       FirebaseService firebase = context.read<FirebaseService>();
 
       // upload the user
-      await firebase.setUser(_newUser);
+      await firebase.setUser(_updateUser);
 
-      // upload the image file
-      final destination = 'images/' + _newUser.id + '/user.jpg';
-      _newUser.image =
-          await firebase.uploadFile(destination, _newUser.filepath);
+      if (_updateUser.filepath != null && _updateUser.filepath!.isNotEmpty) {
+        String imagePath =
+            'images/' + firebase.auth.currentUser!.uid + '/user.jpg';
 
-      // update the user with the image url
-      await firebase.updateUser({'image': _newUser.image});
+        // upload the image file
+        _updateUser.image_url =
+            await firebase.uploadFile(imagePath, _updateUser.filepath!);
+
+        // update the user with the image url
+        await firebase.updateUser({'image_url': _updateUser.image_url});
+      }
 
       // save the user into the local disk
-      await AppUser.save(_newUser);
+      await AppUser.save(_updateUser);
 
       // globally set the current user
-      AppState appState = context.read<AppState>();
-      appState.currentUser = _newUser;
+      appState.currentUser = _updateUser;
     } catch (e) {
       error = e.toString();
     }
@@ -201,24 +197,29 @@ class UserProps extends PropsValues {
       AppState appState = context.read<AppState>();
       FirebaseService firebase = context.read<FirebaseService>();
 
-      final updates = _newUser.diff(appState.currentUser!);
+      final updates = _updateUser.diff(appState.currentUser!);
       if (updates != null) {
         // update the user with the image url
         await firebase.updateUser(updates);
       }
 
-      if (_imageDirty) {
+      if (_imageDirty &&
+          _updateUser.filepath != null &&
+          _updateUser.filepath!.isNotEmpty) {
+        String imagePath =
+            'images/' + firebase.auth.currentUser!.uid + '/user.jpg';
+
         // upload the image file
-        _newUser.image =
-            await firebase.uploadFile(firebase.userImage, _newUser.filepath);
+        _updateUser.image_url =
+            await firebase.uploadFile(imagePath, _updateUser.filepath!);
+
         // update the user with the image url
-        await firebase.updateUser({'image': _newUser.image});
+        await firebase.updateUser({'image_url': _updateUser.image_url});
       }
 
       // save the user into the local disk
-      await AppUser.save(_newUser);
-
-      appState.currentUser = _newUser;
+      await AppUser.save(_updateUser);
+      appState.currentUser = _updateUser;
     } catch (e) {
       error = e.toString();
     }
@@ -242,7 +243,7 @@ class UserProps extends PropsValues {
     String? error;
 
     if (_isNewUser) {
-      error = await createNewUser(context);
+      error = await createUser(context);
     } else {
       error = await updateUser(context);
     }

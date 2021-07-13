@@ -2,7 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/src/provider.dart';
 import 'package:wecare/models/customer.dart';
+import 'package:wecare/services/firebase/firebase_service.dart';
 import 'package:wecare/views/customer_props_page.dart';
 
 class CustomersPage extends StatefulWidget {
@@ -12,43 +14,24 @@ class CustomersPage extends StatefulWidget {
 }
 
 class _CustomersPageState extends State<CustomersPage> {
-  //late Stream<QuerySnapshot<Customer>> _customers;
-
-  final customersRef = FirebaseFirestore.instance
-      .collection('customers')
-      .withConverter<Customer>(
-        fromFirestore: (snapshots, _) => Customer.fromJson(snapshots.data()!),
-        toFirestore: (customer, _) => customer.toJson(),
-      );
+  late Stream<QuerySnapshot<Customer>> _customers;
 
   @override
   void initState() {
-    //getCustomers();
+    getCustomers();
     super.initState();
   }
 
   void getCustomers() {
     setState(() {
-      //_customers = customersRef.snapshots();
+      FirebaseService firebaseService = context.read<FirebaseService>();
+      _customers = firebaseService.customersRef.snapshots();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-/*
-        appBar: AppBar(
-          title: const Text('wecare'),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.exit_to_app),
-              onPressed: () async {
-                context.read<FirebaseService>().signOut();
-              },
-            ),
-          ],
-        ),
-*/
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add),
           onPressed: () {
@@ -56,8 +39,7 @@ class _CustomersPageState extends State<CustomersPage> {
                 MaterialPageRoute(builder: (context) => CustomerPropsPage()));
           },
         ),
-        body: Container());
-/*
+        //body: Container());
         body: StreamBuilder<QuerySnapshot<Customer>>(
             stream: _customers,
             builder: (context, snapshot) {
@@ -88,14 +70,13 @@ class _CustomersPageState extends State<CustomersPage> {
                     },
                   ));
             }));
- */
   }
 }
 
 class _CustomerItem extends StatelessWidget {
   _CustomerItem(this.customer, this.reference) {
     customer.id = reference.id;
-    print(customer.id);
+    print(reference.id);
   }
 
   final Customer customer;
@@ -104,9 +85,9 @@ class _CustomerItem extends StatelessWidget {
   /// Returns the customer image
   Widget photo(BuildContext context) {
     return Material(
-      child: (customer.image?.isNotEmpty ?? false)
+      child: (customer.image_url?.isNotEmpty ?? false)
           ? CircleAvatar(
-              backgroundImage: NetworkImage(customer.image!),
+              backgroundImage: NetworkImage(customer.image_url!),
               radius: 25.0,
             )
           : CircleAvatar(

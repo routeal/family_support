@@ -1,119 +1,124 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:provider/src/provider.dart';
 import 'package:wecare/models/customer.dart';
-import 'package:wecare/views/home_page.dart';
+import 'package:wecare/services/firebase/firebase_service.dart';
+import 'package:wecare/views/app_state.dart';
 import 'package:wecare/widgets/dialogs.dart';
 import 'package:wecare/widgets/props/props_values.dart';
 import 'package:wecare/widgets/props/props_widget.dart';
 
 class CustomerPropsPage extends StatelessWidget {
-  final props = CustomerProps();
-
   @override
   Widget build(BuildContext context) {
-    return PropsWidget(props);
+    return PropsWidget(CustomerProps(context));
   }
 }
 
 class CustomerProps extends PropsValues {
-  final customer = Customer();
+  bool _imageDirty = false;
+  bool _dirty = false;
+  bool _isNewUser = true;
+  late Customer _customer;
 
-  CustomerProps() {
+  CustomerProps(BuildContext context) {
     title = "Create Customer";
+    _customer = Customer();
+    _isNewUser = true;
   }
+
+  bool get dirty => _dirty || _imageDirty;
 
   List<PropsValueItem> items() {
     return [
       PropsValueItem(
         type: PropsType.Photo,
-        init: customer.image,
+        init: _customer.image_url,
         onSaved: (String? value) {
           if (value != null || value!.isNotEmpty) {
-            customer.filepath = value;
+            _customer.filepath = value;
           }
         },
-        validator: (String? value) {
-          if (value == null || value.isEmpty) {
-            return "Photo is required";
-          }
-          File file = File(value);
-          if (!file.existsSync()) {
-            return 'Photo is not saved in ' + value;
-          }
+        validator: (_) {
+          // not necessarily set
           return null;
         },
+        onChanged: (_) => _imageDirty = true,
       ),
       PropsValueItem(
         type: PropsType.InputField,
         label: "Company",
-        init: customer.name,
+        init: _customer.name,
         icon: Icons.business_outlined,
         validator: (String? value) {
           if (value == null || value.isEmpty) return "Company is required";
           return null;
         },
-        onSaved: (String? value) => customer.name = value!,
+        onSaved: (String? value) => _customer.name = value!,
+        onChanged: (_) => _dirty = true,
       ),
       PropsValueItem(
         type: PropsType.InputField,
         label: "Phone",
-        init: customer.phone,
+        init: _customer.phone,
         icon: Icons.phone_outlined,
         validator: (String? value) {
           if (value == null || value.isEmpty) return "Phone is required";
           return null;
         },
-        onSaved: (String? value) => customer.phone = value!,
+        onSaved: (String? value) => _customer.phone = value!,
+        onChanged: (_) => _dirty = true,
       ),
       PropsValueItem(
         type: PropsType.InputField,
         label: "Email",
-        init: customer.email,
+        init: _customer.email,
         icon: Icons.email_outlined,
-        onSaved: (String? value) => customer.email = value!,
+        onSaved: (String? value) => _customer.email = value!,
+        onChanged: (_) => _dirty = true,
       ),
       PropsValueItem(
         type: PropsType.InputField,
         label: "Address",
-        init: customer.address,
+        init: _customer.address,
         icon: Icons.place_outlined,
         validator: (String? value) {
           if (value == null || value.isEmpty) return "Address is required";
           return null;
         },
-        onSaved: (String? value) => customer.address = value!,
-      ),
-      PropsValueItem(
-        type: PropsType.InputField,
-        label: "Website",
-        init: customer.website,
-        icon: Icons.public_outlined,
-        onSaved: (String? value) => customer.website = value!,
-      ),
-      PropsValueItem(
-        type: PropsType.InputField,
-        label: "Representative",
-        init: customer.representative,
-        icon: Icons.support_agent_outlined,
-        onSaved: (String? value) => customer.representative = value!,
+        onSaved: (String? value) => _customer.address = value!,
+        onChanged: (_) => _dirty = true,
       ),
     ];
   }
 
-  bool get dirty {
-    return false;
-  }
+  Future<String?> createCustomer(BuildContext context) async {
+    String? error;
+    try {
+      FirebaseService firebase = context.read<FirebaseService>();
 
-  final customersRef = FirebaseFirestore.instance
-      .collection('customers')
-      .withConverter<Customer>(
-        fromFirestore: (snapshots, _) => Customer.fromJson(snapshots.data()!),
-        toFirestore: (customer, _) => customer.toJson(),
-      );
+      // create a new customer
+      DocumentReference<Customer> value =
+          await firebase.customersRef.add(_customer);
+
+      _customer.id = value.id;
+
+      if (_customer.filepath != null && _customer.filepath!.isNotEmpty) {
+        final imagePath = 'images/' + _customer.id! + '/customer.jpg';
+
+        // upload the image file
+        _customer.image_url =
+            await firebase.uploadFile(imagePath, _customer.filepath!);
+
+        firebase.customersRef
+            .doc(_customer.id!)
+            .update({'image_url': _customer.image_url});
+      }
+    } catch (e) {
+      error = e.toString();
+    }
+    return error;
+  }
 
   Future<void> submit(BuildContext context) async {
     // check the validation of each field
@@ -128,37 +133,22 @@ class CustomerProps extends PropsValues {
     // display loading icon
     loadingDialog(context);
 
-    // create a new customer
-    customersRef.add(customer).then((value) {
-      customer.id = value.id;
-    }).then((_) {
-      return File(customer.filepath);
-    }).then((file) {
-      final filename = 'images/' + customer.id + '/customer.jpg';
-      return FirebaseStorage.instance.ref(filename).putFile(file);
-    }).then((taskSnapshot) {
-      // get the url of the image in the cloud storage
-      return taskSnapshot.ref.getDownloadURL();
-    }).then((downloadURL) {
-      // update the customer
-      return FirebaseFirestore.instance
-          .collection('customers')
-          .doc(customer.id)
-          .update({'image': downloadURL});
-    }).catchError((error) {
-      // close the loading dialog
-      Navigator.of(context).pop();
-      Fluttertoast.showToast(
-          msg: error.toString(),
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.CENTER,
-          backgroundColor: Theme.of(context).canvasColor,
-          textColor: Theme.of(context).errorColor);
-    }).whenComplete(() {
-      // go back to Home screen in anyway
-      Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => HomePage()),
-          (Route<dynamic> route) => false);
-    });
+    String? error;
+
+    if (_isNewUser) {
+      error = await createCustomer(context);
+    }
+
+    // pop down the loading icon
+    Navigator.of(context).pop();
+
+    if (error != null) {
+      // context comes from scaffold
+      showSnackBar(context: context, message: error);
+    } else {
+      // replace the current page with the root page
+      AppState appState = context.read<AppState>();
+      appState.route?.replace('/');
+    }
   }
 }

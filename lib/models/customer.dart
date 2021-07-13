@@ -1,14 +1,12 @@
 class Customer {
-  String id = "";
-  String filepath = "";
-
-  String? image;
+  String? id;
+  String? image_url;
   String? name;
   String? phone;
   String? email;
   String? address;
-  String? website;
-  String? representative;
+  String? filepath;
+  int? color;
   DateTime? created_at;
 
   Customer({
@@ -16,17 +14,16 @@ class Customer {
     this.email,
     this.name,
     this.phone,
-    this.representative,
-    this.website,
-    this.image,
+    this.image_url,
+    this.color,
     this.created_at,
   });
 
   Customer.fromJson(Map<String, Object?> json)
   : this(
-    image: json['image'] == null
+    image_url: json['image_url'] == null
         ? null
-        : json['image'] as String,
+        : json['image_url'] as String,
     name:  json['name'] == null
         ? null
         : json['name'] as String,
@@ -39,12 +36,9 @@ class Customer {
     address: json['address'] == null
         ? null
         : json['address']! as String,
-    website: json['url'] == null
+    color: json['color'] == null
         ? null
-        : json['url'] as String,
-    representative: json['rep'] == null
-        ? null
-        : json['rep']! as String,
+        : json['color']! as int,
     created_at: json['created_at'] == null
         ? null
         : DateTime.parse(json['created_at'] as String),
@@ -52,14 +46,13 @@ class Customer {
 
   Map<String, Object?> toJson() {
     return {
-      'image': image,
+      'image_url': image_url,
       'name': name,
       'phone': phone,
       'email': email,
       'address': address,
-      'url': website,
-      'rep': representative,
-      'created_at': DateTime.now().toIso8601String(),
+      'color': color,
+      'created_at': created_at ?? DateTime.now().toIso8601String(),
     };
   }
 }

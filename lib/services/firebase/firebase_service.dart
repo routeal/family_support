@@ -6,20 +6,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
+import 'package:wecare/models/customer.dart';
 import 'package:wecare/models/user.dart';
 
 class FirebaseService {
   FirebaseFirestore get firestore => FirebaseFirestore.instance;
+
+  ////////////////////////////////////////////////////////////////////////////
+  /// Authentication
+  ////////////////////////////////////////////////////////////////////////////
+
   FirebaseAuth get auth => FirebaseAuth.instance;
-
-  String? _userId;
-  String? get userId => _userId;
-  set userId(String? value) => _userId = value;
-
-  bool _emailVerified = true;
-  bool get emailVerified => _emailVerified;
-  set emailVerified(bool b) => _emailVerified = b;
-
   Stream<User?> get onAuthStateChanged => auth.authStateChanges();
 
   Future<void> init() async {
@@ -57,8 +54,11 @@ class FirebaseService {
 
   Future<void> signOut() async {
     await auth.signOut();
-    userId = null;
   }
+
+  ////////////////////////////////////////////////////////////////////////////
+  /// User
+  ////////////////////////////////////////////////////////////////////////////
 
   CollectionReference<AppUser?> get usersRef =>
       firestore.collection('users').withConverter<AppUser>(
@@ -67,21 +67,19 @@ class FirebaseService {
             toFirestore: (AppUser, _) => AppUser.toJson(),
           );
 
-  String get userImage => 'images/' + userId! + '/user.jpg';
-
   Future<AppUser?> getUser() async {
     return await usersRef
-        .doc(_userId)
+        .doc(auth.currentUser!.uid)
         .get()
         .then((snapshot) => snapshot.data()!);
   }
 
   Future<void> setUser(AppUser user) async {
-    await usersRef.doc(_userId).set(user);
+    await usersRef.doc(auth.currentUser!.uid).set(user);
   }
 
   Future<void> updateUser(Map<String, Object?> data) async {
-    await usersRef.doc(_userId).update(data);
+    await usersRef.doc(auth.currentUser!.uid).update(data);
   }
 
   Future<String?> uploadFile(String destination, String localPath) async {
@@ -94,6 +92,20 @@ class FirebaseService {
     await uploadTask;
     return uploadTask.snapshot.ref.getDownloadURL();
   }
+
+  ////////////////////////////////////////////////////////////////////////////
+  /// Customer
+  ////////////////////////////////////////////////////////////////////////////
+
+  CollectionReference<Customer> get customersRef => FirebaseFirestore.instance
+      .collection('customers')
+      .doc(auth.currentUser!.uid)
+      .collection('list')
+      .withConverter<Customer>(
+    fromFirestore: (snapshots, _) => Customer.fromJson(snapshots.data()!),
+    toFirestore: (customer, _) => customer.toJson(),
+  );
+
 
   void setupEmulator() async {
     // authentication

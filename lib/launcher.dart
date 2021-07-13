@@ -81,10 +81,9 @@ class Launcher extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     FirebaseService firebase = context.watch<FirebaseService>();
-    firebase.userId = firebase.auth.currentUser?.uid;
 
     // SignIn Page
-    if (firebase.userId == null) {
+    if (firebase.auth.currentUser == null) {
       // remove the appuser first
       return FutureBuilder(
           future: AppUser.save(null),
