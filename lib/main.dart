@@ -93,7 +93,6 @@ class _InitFirebaseState extends State<InitFirebase>
 
     if (widget != null) {
       return MaterialApp(
-        title: 'WeCare',
         theme: ThemeData(
           primaryColor: Colors.teal[200],
         ),

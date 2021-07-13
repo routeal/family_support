@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/src/provider.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:wecare/models/user.dart';
@@ -9,6 +10,7 @@ import 'package:wecare/views/customers_page.dart';
 import 'package:wecare/views/home_page.dart';
 import 'package:wecare/views/user_props_page.dart';
 import 'package:wecare/widgets/loading.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 final _signOutRouteMap = RouteMap(routes: {
   '/': (routeInfo) {
@@ -64,47 +66,29 @@ RouteMap _signInRouteMap() {
 }
 
 class Launcher extends StatelessWidget {
+
   // load appuser from the local disk, if not found,
   // then check the server
   Future<AppUser?> loadUser(BuildContext context) async {
-    AppUser? user = await AppUser.load();
-    if (user == null) {
-      FirebaseService firebase = context.read<FirebaseService>();
-      user = await firebase.getUser();
-      if (user != null) {
-        await AppUser.save(user);
+    FirebaseService firebase = context.read<FirebaseService>();
+    if (firebase.auth.currentUser == null) {
+      // delete the previous user if any
+      AppUser.save(null);
+      return null;
+    } else {
+      AppUser? user = await AppUser.load();
+      if (user == null) {
+        user = await firebase.getUser();
+        if (user != null) {
+          await AppUser.save(user);
+        }
       }
+      return user;
     }
-    return user;
   }
 
   @override
   Widget build(BuildContext context) {
-    FirebaseService firebase = context.watch<FirebaseService>();
-
-    // SignIn Page
-    if (firebase.auth.currentUser == null) {
-      // remove the appuser first
-      return FutureBuilder(
-          future: AppUser.save(null),
-          builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
-            if (snapshot.connectionState != ConnectionState.done) {
-              return LoadingPage();
-            }
-            return MaterialApp.router(
-              title: 'CarePlanner',
-              theme: ThemeData(
-                primaryColor: Colors.teal[200],
-              ),
-              routeInformationParser: RoutemasterParser(),
-              routerDelegate: RoutemasterDelegate(routesBuilder: (context) {
-                return _signOutRouteMap;
-              }),
-            );
-          });
-    }
-
-    // Home Page
     return FutureBuilder(
         future: loadUser(context),
         builder: (BuildContext context, AsyncSnapshot<AppUser?> snapshot) {
@@ -119,11 +103,20 @@ class Launcher extends StatelessWidget {
           }
 
           AppState appState = context.read<AppState>();
+
           appState.currentUser = snapshot.data;
 
-          appState.route = RoutemasterDelegate(routesBuilder: (context) {
-            return _signInRouteMap();
-          });
+          FirebaseService firebase = context.watch<FirebaseService>();
+
+          if (firebase.auth.currentUser == null) {
+            appState.route = RoutemasterDelegate(routesBuilder: (context) {
+              return _signOutRouteMap;
+            });
+          } else {
+            appState.route = RoutemasterDelegate(routesBuilder: (context) {
+              return _signInRouteMap();
+            });
+          }
 
           return MaterialApp.router(
             title: 'CarePlanner',
@@ -132,6 +125,16 @@ class Launcher extends StatelessWidget {
             ),
             routeInformationParser: RoutemasterParser(),
             routerDelegate: appState.route!,
+            localizationsDelegates: [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: [
+              const Locale('en', ''),
+              const Locale('ja', ''),
+            ],
           );
         });
   }

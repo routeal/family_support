@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/src/provider.dart';
 import 'package:wecare/services/firebase/firebase_service.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 final double LOGIN_WIDGET_WIDTH = 320;
 final double CARD_ELEVATION = 20;
@@ -547,7 +549,7 @@ class _ForgotPasswordWidgetState extends State<_ForgotPasswordWidget>
             borderRadius: BorderRadius.all(Radius.circular(25)),
           ),
           prefixIcon: Icon(Icons.account_circle_rounded),
-          labelText: 'Email',
+          labelText: AppLocalizations.of(context)!.email,
         ),
         onChanged: null,
         onSaved: (String? value) => _emailText = value,
@@ -739,7 +741,7 @@ class _LoginWidgetState extends State<_LoginWidget> with LoginWidgetCommon {
             borderRadius: BorderRadius.all(Radius.circular(25)),
           ),
           prefixIcon: Icon(Icons.account_circle_rounded),
-          labelText: 'Email',
+          labelText: AppLocalizations.of(context)!.email,
         ),
         onChanged: null,
         onSaved: (String? value) => _emailText = value,
@@ -774,7 +776,7 @@ class _LoginWidgetState extends State<_LoginWidget> with LoginWidgetCommon {
                       : Icon(Icons.visibility_off_rounded),
                   onTap: toggleObscured,
                 )),
-            labelText: 'Password'),
+            labelText: AppLocalizations.of(context)!.password),
         onChanged: (_) {
           if (_passwdNotMatch) {
             _passwdNotMatch = false;
@@ -992,11 +994,11 @@ class _LoginWidgetState extends State<_LoginWidget> with LoginWidgetCommon {
                   isSubmitting
                       ? loadingIcon
                       : (_isLogin
-                          ? submit(true, 'LOGIN', login)
-                          : submit(true, 'SIGNUP', signup)),
+                          ? submit(true, AppLocalizations.of(context)!.login, login)
+                          : submit(true, AppLocalizations.of(context)!.signup, signup)),
                   _isLogin
-                      ? submit(false, 'SIGNUP', toggleMode)
-                      : submit(false, 'LOGIN', toggleMode),
+                      ? submit(false, AppLocalizations.of(context)!.signup, toggleMode)
+                      : submit(false, AppLocalizations.of(context)!.login, toggleMode),
                   if (error != null) status,
                 ],
               ),

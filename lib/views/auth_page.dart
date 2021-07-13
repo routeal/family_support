@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/src/provider.dart';
 import 'package:wecare/services/firebase/firebase_service.dart';
 import 'package:wecare/widgets/auth_widget.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AuthPage extends StatelessWidget {
   Future<String?> _onLogin(
@@ -87,8 +88,8 @@ class AuthPage extends StatelessWidget {
     //User? user = context.watch<User?>();
     FirebaseService firebase = context.read<FirebaseService>();
     return AuthWidget(
-      title: 'CarePlanner',
-      footer: 'HealingShare',
+      title: AppLocalizations.of(context)!.appName,
+      footer: AppLocalizations.of(context)!.company,
       onLogin: _onLogin,
       onSignup: _onSignup,
       onSendEmailVerification: _onSendEmailVerification,
@@ -122,8 +123,8 @@ class SendEmailVerificationPage extends StatelessWidget {
     FirebaseService firebase = context.read<FirebaseService>();
     String? email = firebase.auth.currentUser?.email;
     return AuthWidget(
-      title: 'CarePlanner',
-      footer: 'HealingShare',
+      title: AppLocalizations.of(context)!.appName,
+      footer: AppLocalizations.of(context)!.company,
       onSendEmailVerification: _onSendEmailVerification,
       onClose: _onClose,
       initialValue: email,
