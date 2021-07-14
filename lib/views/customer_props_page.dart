@@ -29,9 +29,9 @@ class CustomerProps extends PropsValues {
       _isNewUser = true;
       _customer = Customer();
     } else {
-      title = customer?.name ?? '';
+      title = customer.name ?? '';
       _isNewUser = false;
-      _customer = customer!.clone();
+      _customer = customer.clone();
       _origin = customer;
     }
   }
@@ -43,24 +43,16 @@ class CustomerProps extends PropsValues {
       PropsValueItem(
         type: PropsType.Photo,
         init: _customer.image_url,
-        onSaved: (String? value) {
-          if (value != null || value!.isNotEmpty) {
-            _customer.filepath = value;
-          }
-        },
-        validator: (_) {
-          // not necessarily set
-          return null;
-        },
+        onSaved: (String? value) => _customer.filepath = value,
         onChanged: (_) => _imageDirty = true,
       ),
       PropsValueItem(
         type: PropsType.InputField,
-        label: "Company",
+        label: "Name",
         init: _customer.name,
-        icon: Icons.business_outlined,
+        icon: Icons.person_outline,
         validator: (String? value) {
-          if (value == null || value.isEmpty) return "Company is required";
+          if (value == null || value.isEmpty) return "Name is required";
           return null;
         },
         onSaved: (String? value) => _customer.name = value!,
@@ -112,8 +104,10 @@ class CustomerProps extends PropsValues {
 
       _customer.id = value.id;
 
-      if (_customer.filepath != null && _customer.filepath!.isNotEmpty) {
+      if (!(_customer.filepath?.isEmpty ?? true)) {
         final imagePath = 'images/' + _customer.id! + '/customer.jpg';
+
+        print('create: ' + imagePath);
 
         // upload the image file
         _customer.image_url =
@@ -143,16 +137,27 @@ class CustomerProps extends PropsValues {
         await firebase.customersRef.doc(_origin!.id).update(updates);
       }
 
-      if (_customer.filepath != null && _customer.filepath!.isNotEmpty) {
+      if (_imageDirty) {
         final imagePath = 'images/' + _customer.id! + '/customer.jpg';
 
-        // upload the image file
-        _customer.image_url =
-            await firebase.uploadFile(imagePath, _customer.filepath!);
+        if (_customer.filepath?.isEmpty ?? true) {
+          print('remove: ' + imagePath);
 
-        await firebase.customersRef
-            .doc(_customer.id!)
-            .update({'image_url': _customer.image_url});
+          _customer.image_url = null;
+          await firebase.deleteFile(imagePath);
+          await firebase.customersRef
+              .doc(_customer.id!)
+              .update({'image_url': null});
+        } else if (_customer.filepath != _origin!.image_url) {
+          print('replace: ' + imagePath);
+
+          // upload the image file
+          _customer.image_url =
+              await firebase.uploadFile(imagePath, _customer.filepath!);
+          await firebase.customersRef
+              .doc(_customer.id!)
+              .update({'image_url': _customer.image_url});
+        }
       }
     } catch (e) {
       error = e.toString();

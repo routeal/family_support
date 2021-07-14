@@ -49,15 +49,7 @@ class UserProps extends PropsValues {
       PropsValueItem(
         type: PropsType.Photo,
         init: _user.image_url,
-        onSaved: (String? value) {
-          if (value != null || value!.isNotEmpty) {
-            _user.filepath = value;
-          }
-        },
-        validator: (_) {
-          // not necessarily set
-          return null;
-        },
+        onSaved: (String? value) => _user.filepath = value,
         onChanged: (_) => _imageDirty = true,
       ),
       PropsValueItem(
@@ -158,7 +150,6 @@ class UserProps extends PropsValues {
 
   Future<String?> createUser(BuildContext context) async {
     String? error;
-
     try {
       AppState appState = context.read<AppState>();
       FirebaseService firebase = context.read<FirebaseService>();
@@ -166,9 +157,12 @@ class UserProps extends PropsValues {
       // upload the user
       await firebase.setUser(_user);
 
-      if (_user.filepath != null && _user.filepath!.isNotEmpty) {
+      // image
+      if (!(_user.filepath?.isEmpty ?? true)) {
         String imagePath =
             'images/' + firebase.auth.currentUser!.uid + '/user.jpg';
+
+        print('create: ' + imagePath);
 
         // upload the image file
         _user.image_url = await firebase.uploadFile(imagePath, _user.filepath!);
@@ -185,17 +179,16 @@ class UserProps extends PropsValues {
     } catch (e) {
       error = e.toString();
     }
-
     return error;
   }
 
   Future<String?> updateUser(BuildContext context) async {
     String? error;
-
     try {
       AppState appState = context.read<AppState>();
       FirebaseService firebase = context.read<FirebaseService>();
 
+      // updates except image
       final Map<String, Object?>? updates = appState.currentUser!.diff(_user);
       if (updates != null) {
         updates.entries.forEach((entry) {
@@ -205,24 +198,36 @@ class UserProps extends PropsValues {
         await firebase.updateUser(updates);
       }
 
-      if (_imageDirty && _user.filepath != null && _user.filepath!.isNotEmpty) {
+      // image
+      if (_imageDirty) {
         String imagePath =
             'images/' + firebase.auth.currentUser!.uid + '/user.jpg';
 
-        // upload the image file
-        _user.image_url = await firebase.uploadFile(imagePath, _user.filepath!);
+        if (_user.filepath?.isEmpty ?? true) {
+          print('remove: ' + imagePath);
+          _user.image_url = null;
+          // delete from storage
+          await firebase.deleteFile(imagePath);
+          // update the user with the image url
+          await firebase.updateUser({'image_url': null});
+        } else if (_user.filepath != appState.currentUser!.image_url) {
+          print('replace: ' + imagePath);
 
-        // update the user with the image url
-        await firebase.updateUser({'image_url': _user.image_url});
+          // upload the image file
+          _user.image_url =
+              await firebase.uploadFile(imagePath, _user.filepath!);
+          // update the user with the image url
+          await firebase.updateUser({'image_url': _user.image_url});
+        }
       }
 
       // save the user into the local disk
       await AppUser.save(_user);
+
       appState.currentUser = _user;
     } catch (e) {
       error = e.toString();
     }
-
     return error;
   }
 

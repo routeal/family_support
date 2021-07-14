@@ -33,7 +33,7 @@ class PropsWidget extends StatelessWidget {
                           onPressed: () => Navigator.pop(context, true),
                         ),
                         TextButton(
-                          child: Text("Save"),
+                          child: Text("Continue"),
                           onPressed: () => Navigator.pop(context, false),
                         ),
                       ],

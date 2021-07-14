@@ -40,8 +40,19 @@ class _PropsImageItemImageState extends State<_PropsImageItemState> {
   final _picker = ImagePicker();
 
   Future _showDialog() async {
-    var pane = (_croppedFile != null || _imageUrl != null)
+    var pane = ((_imageUrl?.isEmpty ?? false) &&
+            (_croppedFile == null || !_croppedFile!.existsSync()))
         ? [
+            TextButton(
+              child: Text("Take photo"),
+              onPressed: () => Navigator.pop(context, "camera"),
+            ),
+            TextButton(
+              child: Text("Choose photo"), // Select new photo
+              onPressed: () => Navigator.pop(context, "photo"),
+            ),
+          ]
+        : [
             TextButton(
               child: Text("Remove photo"),
               onPressed: () => Navigator.pop(context, "remove"),
@@ -52,16 +63,6 @@ class _PropsImageItemImageState extends State<_PropsImageItemState> {
             ),
             TextButton(
               child: Text("Select new photo"),
-              onPressed: () => Navigator.pop(context, "photo"),
-            ),
-          ]
-        : [
-            TextButton(
-              child: Text("Take photo"),
-              onPressed: () => Navigator.pop(context, "camera"),
-            ),
-            TextButton(
-              child: Text("Choose photo"), // Select new photo
               onPressed: () => Navigator.pop(context, "photo"),
             ),
           ];
@@ -113,13 +114,10 @@ class _PropsImageItemImageState extends State<_PropsImageItemState> {
     _imageUrl = state.value;
   }
 
-/*
   @override
   void setState(VoidCallback fn) {
     super.setState(fn);
-    state.setValue(_file?.path ?? "");
   }
-*/
 
   Future<void> removePhoto() async {
     if (_croppedFile != null && _croppedFile!.existsSync()) {
@@ -129,6 +127,7 @@ class _PropsImageItemImageState extends State<_PropsImageItemState> {
     if (_imageUrl != null) {
       _imageUrl = null;
     }
+    state.setValue(null);
     setState(() {});
     if (widget.onChanged != null) {
       widget.onChanged!('');
@@ -161,7 +160,10 @@ class _PropsImageItemImageState extends State<_PropsImageItemState> {
     }
 
     if (croppedImage != null) {
+      // disable the original image
+      _imageUrl = null;
       _croppedFile = croppedImage;
+      state.setValue(_croppedFile?.path);
       setState(() {});
     }
 
@@ -174,7 +176,7 @@ class _PropsImageItemImageState extends State<_PropsImageItemState> {
   Widget build(BuildContext context) {
     Widget? icon;
 
-    if (_imageUrl != null && _imageUrl!.isNotEmpty) {
+    if (!(_imageUrl?.isEmpty ?? true)) {
       icon = CircleAvatar(
         backgroundImage: NetworkImage(_imageUrl!),
         radius: 32,

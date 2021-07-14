@@ -93,6 +93,10 @@ class FirebaseService {
     return uploadTask.snapshot.ref.getDownloadURL();
   }
 
+  Future<void> deleteFile(String destination) async {
+    await FirebaseStorage.instance.ref().child(destination).delete();
+  }
+
   ////////////////////////////////////////////////////////////////////////////
   /// Customer
   ////////////////////////////////////////////////////////////////////////////
@@ -102,10 +106,9 @@ class FirebaseService {
       .doc(auth.currentUser!.uid)
       .collection('list')
       .withConverter<Customer>(
-    fromFirestore: (snapshots, _) => Customer.fromJson(snapshots.data()!),
-    toFirestore: (customer, _) => customer.toJson(),
-  );
-
+        fromFirestore: (snapshots, _) => Customer.fromJson(snapshots.data()!),
+        toFirestore: (customer, _) => customer.toJson(),
+      );
 
   void setupEmulator() async {
     // authentication
