@@ -41,19 +41,20 @@ class FirebaseService {
     return userCreds.user;
   }
 
-  Future<void> sendEmailVerification() async {
+  Future<void> sendEmailVerification() {
     User? user = auth.currentUser;
     if (user != null && !user.emailVerified) {
-      await user.sendEmailVerification();
+      return user.sendEmailVerification();
     }
+    return Future(() => null);
   }
 
-  Future<void> sendPasswordResetEmail({required String email}) async {
-    await auth.sendPasswordResetEmail(email: email);
+  Future<void> sendPasswordResetEmail({required String email}) {
+    return auth.sendPasswordResetEmail(email: email);
   }
 
-  Future<void> signOut() async {
-    await auth.signOut();
+  Future<void> signOut() {
+    return auth.signOut();
   }
 
   ////////////////////////////////////////////////////////////////////////////
@@ -67,34 +68,23 @@ class FirebaseService {
             toFirestore: (AppUser, _) => AppUser.toJson(),
           );
 
-  Future<AppUser?> getUser() async {
-    return await usersRef
+  Future<AppUser?> getUser() {
+    return usersRef
         .doc(auth.currentUser!.uid)
         .get()
         .then((snapshot) => snapshot.data()!);
   }
 
-  Future<void> setUser(AppUser user) async {
-    await usersRef.doc(auth.currentUser!.uid).set(user);
+  Future<void> createUser(AppUser user) {
+    return usersRef.doc(auth.currentUser!.uid).set(user);
   }
 
-  Future<void> updateUser(Map<String, Object?> data) async {
-    await usersRef.doc(auth.currentUser!.uid).update(data);
+  Future<void> updateUser(Map<String, Object?> data) {
+    return usersRef.doc(auth.currentUser!.uid).update(data);
   }
 
-  Future<String?> uploadFile(String destination, String localPath) async {
-    File localFile = File(localPath);
-    if (!localFile.existsSync()) {
-      throw ('not found: ' + localPath);
-    }
-    UploadTask uploadTask =
-        FirebaseStorage.instance.ref(destination).putFile(localFile);
-    await uploadTask;
-    return uploadTask.snapshot.ref.getDownloadURL();
-  }
-
-  Future<void> deleteFile(String destination) async {
-    await FirebaseStorage.instance.ref().child(destination).delete();
+  Future<void> updateUserImage(String? url) {
+    return usersRef.doc(auth.currentUser!.uid).update({'image_url':url});
   }
 
   ////////////////////////////////////////////////////////////////////////////
@@ -102,13 +92,62 @@ class FirebaseService {
   ////////////////////////////////////////////////////////////////////////////
 
   CollectionReference<Customer> get customersRef => FirebaseFirestore.instance
-      .collection('customers')
+      .collection('users')
       .doc(auth.currentUser!.uid)
-      .collection('list')
+      .collection('customers')
       .withConverter<Customer>(
         fromFirestore: (snapshots, _) => Customer.fromJson(snapshots.data()!),
         toFirestore: (customer, _) => customer.toJson(),
       );
+
+  Future<DocumentReference<Customer>> createCustomer(Customer customer) {
+    return customersRef.add(customer);
+  }
+
+  Future<void> updateCustomer(String customerId, Map<String, Object?> data) {
+    return customersRef.doc(customerId).update(data);
+  }
+
+  Future<void> updateCustomerImage(String customerId, String? url) {
+    return customersRef.doc(customerId).update({'image_url': url});
+  }
+
+  ////////////////////////////////////////////////////////////////////////////
+  /// Storage
+  ////////////////////////////////////////////////////////////////////////////
+
+  String _userImagePath() {
+    return 'users/' + auth.currentUser!.uid + '/images';
+  }
+
+  String userImagePath() {
+    return _userImagePath() + '/user_profile.jpg';
+  }
+
+  String customerImagePath(String id) {
+    return _userImagePath() + '/' + id + '/customer_profile.jpg';
+  }
+
+  Future<String?> uploadFile(String destination, String localPath) {
+    File localFile = File(localPath);
+    if (!localFile.existsSync()) {
+      throw ('not found: ' + localPath);
+    }
+    UploadTask uploadTask =
+        FirebaseStorage.instance.ref(destination).putFile(localFile);
+    return uploadTask.then((snapshot) => snapshot.ref.getDownloadURL());
+
+//    await uploadTask;
+//    return uploadTask.snapshot.ref.getDownloadURL();
+  }
+
+  Future<void> deleteFile(String destination) {
+    return FirebaseStorage.instance.ref().child(destination).delete();
+  }
+
+  ////////////////////////////////////////////////////////////////////////////
+  /// Emulator
+  ////////////////////////////////////////////////////////////////////////////
 
   void setupEmulator() async {
     // authentication

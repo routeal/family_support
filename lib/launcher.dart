@@ -8,6 +8,7 @@ import 'package:wecare/views/app_state.dart';
 import 'package:wecare/views/auth_page.dart';
 import 'package:wecare/views/customers_page.dart';
 import 'package:wecare/views/home_page.dart';
+import 'package:wecare/views/term_page.dart';
 import 'package:wecare/views/user_props_page.dart';
 import 'package:wecare/widgets/loading.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -62,6 +63,9 @@ RouteMap _signInRouteMap() {
     '/verify': (_) => MaterialPage<void>(
           child: SendEmailVerificationPage(),
         ),
+    '/term': (_) => MaterialPage<void>(
+      child: TermPage(),
+    ),
   });
 }
 

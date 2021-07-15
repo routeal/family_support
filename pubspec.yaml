@@ -47,6 +47,8 @@ dependencies:
   cached_network_image: ^3.0.0
   cloud_functions: ^1.1.2
   routemaster: ^0.9.4
+  webview_flutter: ^2.0.10
+  json_annotation: ^4.1.0
 
 dev_dependencies:
   flutter_test:

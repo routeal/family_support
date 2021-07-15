@@ -155,12 +155,11 @@ class UserProps extends PropsValues {
       FirebaseService firebase = context.read<FirebaseService>();
 
       // upload the user
-      await firebase.setUser(_user);
+      await firebase.createUser(_user);
 
       // image
       if (!(_user.filepath?.isEmpty ?? true)) {
-        String imagePath =
-            'images/' + firebase.auth.currentUser!.uid + '/user.jpg';
+        String imagePath = firebase.userImagePath();
 
         print('create: ' + imagePath);
 
@@ -168,7 +167,7 @@ class UserProps extends PropsValues {
         _user.image_url = await firebase.uploadFile(imagePath, _user.filepath!);
 
         // update the user with the image url
-        await firebase.updateUser({'image_url': _user.image_url});
+        await firebase.updateUserImage(_user.image_url);
       }
 
       // save the user into the local disk
@@ -178,6 +177,7 @@ class UserProps extends PropsValues {
       appState.currentUser = _user;
     } catch (e) {
       error = e.toString();
+      print(error);
     }
     return error;
   }
@@ -200,8 +200,7 @@ class UserProps extends PropsValues {
 
       // image
       if (_imageDirty) {
-        String imagePath =
-            'images/' + firebase.auth.currentUser!.uid + '/user.jpg';
+        String imagePath = firebase.userImagePath();
 
         if (_user.filepath?.isEmpty ?? true) {
           print('remove: ' + imagePath);
@@ -209,7 +208,7 @@ class UserProps extends PropsValues {
           // delete from storage
           await firebase.deleteFile(imagePath);
           // update the user with the image url
-          await firebase.updateUser({'image_url': null});
+          await firebase.updateUserImage(null);
         } else if (_user.filepath != appState.currentUser!.image_url) {
           print('replace: ' + imagePath);
 
@@ -217,7 +216,7 @@ class UserProps extends PropsValues {
           _user.image_url =
               await firebase.uploadFile(imagePath, _user.filepath!);
           // update the user with the image url
-          await firebase.updateUser({'image_url': _user.image_url});
+          await firebase.updateUserImage(_user.image_url);
         }
       }
 
@@ -226,6 +225,7 @@ class UserProps extends PropsValues {
 
       appState.currentUser = _user;
     } catch (e) {
+      print(error);
       error = e.toString();
     }
     return error;

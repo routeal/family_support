@@ -95,15 +95,21 @@ void userDialog(BuildContext context) {
                 children: <Widget>[
                   TextButton(
                     child: Text('Privacy Policy'),
-                    onPressed: null,
+                    onPressed: () {
+                      AppState appState = context.read<AppState>();
+                      appState.route!.push('/term');
+                    },
                   ),
                   Text(
                     '•',
                     style: Theme.of(context).textTheme.caption,
                   ),
                   TextButton(
-                    child: Text('Privacy Policy'),
-                    onPressed: null,
+                    child: Text('Term of Service'),
+                    onPressed: () {
+                      AppState appState = context.read<AppState>();
+                      appState.route!.push('/term');
+                    },
                   )
                 ],
               )

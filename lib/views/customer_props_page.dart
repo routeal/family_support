@@ -100,22 +100,20 @@ class CustomerProps extends PropsValues {
 
       // create a new customer
       DocumentReference<Customer> value =
-          await firebase.customersRef.add(_customer);
+          await firebase.createCustomer(_customer);
 
       _customer.id = value.id;
 
       if (!(_customer.filepath?.isEmpty ?? true)) {
-        final imagePath = 'images/' + _customer.id! + '/customer.jpg';
+        final path = firebase.customerImagePath(_customer.id!);
 
-        print('create: ' + imagePath);
+        print('create: ' + path);
 
         // upload the image file
         _customer.image_url =
-            await firebase.uploadFile(imagePath, _customer.filepath!);
+            await firebase.uploadFile(path, _customer.filepath!);
 
-        await firebase.customersRef
-            .doc(_customer.id!)
-            .update({'image_url': _customer.image_url});
+        await firebase.updateCustomerImage(_customer.id!, _customer.image_url);
       }
     } catch (e) {
       error = e.toString();
@@ -134,29 +132,26 @@ class CustomerProps extends PropsValues {
           print('${entry.key}:${entry.value}');
         });
         // update the user with the image url
-        await firebase.customersRef.doc(_origin!.id).update(updates);
+        await firebase.updateCustomer(_origin!.id!, updates);
       }
 
       if (_imageDirty) {
-        final imagePath = 'images/' + _customer.id! + '/customer.jpg';
+        final path = firebase.customerImagePath(_customer.id!);
 
         if (_customer.filepath?.isEmpty ?? true) {
-          print('remove: ' + imagePath);
+          print('remove: ' + path);
 
           _customer.image_url = null;
-          await firebase.deleteFile(imagePath);
-          await firebase.customersRef
-              .doc(_customer.id!)
-              .update({'image_url': null});
+          await firebase.deleteFile(path);
+          await firebase.updateCustomerImage(_customer.id!, null);
         } else if (_customer.filepath != _origin!.image_url) {
-          print('replace: ' + imagePath);
+          print('replace: ' + path);
 
           // upload the image file
           _customer.image_url =
-              await firebase.uploadFile(imagePath, _customer.filepath!);
-          await firebase.customersRef
-              .doc(_customer.id!)
-              .update({'image_url': _customer.image_url});
+              await firebase.uploadFile(path, _customer.filepath!);
+          await firebase.updateCustomerImage(
+              _customer.id!, _customer.image_url);
         }
       }
     } catch (e) {
