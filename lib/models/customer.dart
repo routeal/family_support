@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wecare/utils/commands.dart';
 
 class Customer {
   String? id;
@@ -19,6 +20,8 @@ class Customer {
     this.image_url,
     this.color,
     this.created_at,
+    this.filepath,
+    this.id,
   });
 
   Customer.fromJson(Map<String, Object?> json)
@@ -42,7 +45,7 @@ class Customer {
       'phone': phone,
       'email': email,
       'address': address,
-      'color': color,
+      'color': (color ?? getRandomPrimaryColor()),
       'created_at': (created_at != null)
           ? created_at!.toIso8601String()
           : DateTime.now().toIso8601String(),
@@ -50,7 +53,7 @@ class Customer {
   }
 
   Customer clone() {
-    Customer _customer = Customer(
+    return Customer(
       image_url: this.image_url,
       name: this.name,
       phone: this.phone,
@@ -58,10 +61,9 @@ class Customer {
       address: this.address,
       color: this.color,
       created_at: this.created_at,
+      id: this.id,
+      filepath: this.filepath,
     );
-    _customer.id = this.id;
-    _customer.filepath = this.filepath;
-    return _customer;
   }
 
   Map<String, Object?>? diff(Customer user) {

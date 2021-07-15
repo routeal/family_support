@@ -32,11 +32,8 @@ class AppUser {
     this.note,
     this.color,
     this.created_at,
-  }) {
-    if (color == null) {
-      color = getRandomPrimaryColor();
-    }
-  }
+    this.filepath,
+  });
 
   AppUser.fromJson(Map<String, Object?> json)
       : this(
@@ -73,7 +70,7 @@ class AppUser {
       'address': address,
       'website': website,
       'note': note,
-      'color': color,
+      'color': (color ?? getRandomPrimaryColor()),
       'created_at': (created_at != null)
           ? created_at!.toIso8601String()
           : DateTime.now().toIso8601String(),
@@ -81,7 +78,7 @@ class AppUser {
   }
 
   AppUser clone() {
-    AppUser _appUser = AppUser(
+    return AppUser(
       image_url: this.image_url,
       display_name: this.display_name,
       first_name: this.first_name,
@@ -94,9 +91,8 @@ class AppUser {
       note: this.note,
       color: this.color,
       created_at: this.created_at,
+      filepath: this.filepath,
     );
-    _appUser.filepath = this.filepath;
-    return _appUser;
   }
 
   Map<String, Object?>? diff(AppUser user) {
