@@ -89,6 +89,14 @@ class UserProps extends PropsValues {
         onChanged: (_) => _dirty = true,
       ),
       PropsValueItem(
+        type: PropsType.Color,
+        label: "Primary Color",
+        init: _user.color,
+        icon: Icons.color_lens_outlined,
+        onSaved: (String? value) => _user.color = value!,
+        onChanged: (_) => _dirty = true,
+      ),
+      PropsValueItem(
         type: PropsType.InputField,
         label: "Company",
         init: _user.company,

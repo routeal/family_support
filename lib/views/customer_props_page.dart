@@ -90,6 +90,14 @@ class CustomerProps extends PropsValues {
         onSaved: (String? value) => _customer.address = value!,
         onChanged: (_) => _dirty = true,
       ),
+      PropsValueItem(
+        type: PropsType.Color,
+        label: "Primary Color",
+        init: _customer.color,
+        icon: Icons.color_lens_outlined,
+        onSaved: (String? value) => _customer.color = value!,
+        onChanged: (_) => _dirty = true,
+      ),
     ];
   }
 

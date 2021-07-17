@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wecare/utils/commands.dart';
+import 'package:wecare/utils/colors.dart';
 
 class AppUser {
   String? image_url;
@@ -16,7 +16,7 @@ class AppUser {
   String? website;
   String? note;
   String? filepath;
-  int? color;
+  String? color;
   DateTime? created_at;
 
   AppUser({
@@ -52,7 +52,7 @@ class AppUser {
           address: json['address'] == null ? null : json['address']! as String,
           website: json['website'] == null ? null : json['website'] as String,
           note: json['note'] == null ? null : json['note'] as String,
-          color: json['color'] == null ? null : json['color'] as int,
+          color: json['color'] == null ? null : json['color'] as String,
           created_at: json['created_at'] == null
               ? null
               : DateTime.parse(json['created_at'] as String),
@@ -70,7 +70,7 @@ class AppUser {
       'address': address,
       'website': website,
       'note': note,
-      'color': (color ?? getRandomPrimaryColor()),
+      'color': color,
       'created_at': (created_at != null)
           ? created_at!.toIso8601String()
           : DateTime.now().toIso8601String(),
@@ -156,7 +156,7 @@ class AppUser {
     } else if (color != null) {
       icon = CircleAvatar(
         child: Text(display_name![0]),
-        backgroundColor: Color(color!),
+        backgroundColor: HexColor(color!),
       );
     } else {
       icon = CircleAvatar(

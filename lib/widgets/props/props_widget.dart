@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/src/provider.dart';
 import 'package:wecare/services/firebase/firebase_service.dart';
+import 'package:wecare/widgets/props/props_color_item.dart';
 import 'package:wecare/widgets/props/props_image_item.dart';
 import 'package:wecare/widgets/props/props_text_item.dart';
 import 'package:wecare/widgets/props/props_textfield_item.dart';
@@ -90,6 +91,16 @@ class PropsWidget extends StatelessWidget {
                           );
                         } else if (item.type == PropsType.InputField) {
                           return PropsTextFieldItem(
+                            icon: item.icon,
+                            initialValue: item.init,
+                            label: item.label,
+                            validator: item.validator,
+                            onSaved: item.onSaved,
+                            onChanged: item.onChanged,
+                            enabled: item.enabled,
+                          );
+                        } else if (item.type == PropsType.Color) {
+                          return PropsColorItem(
                             icon: item.icon,
                             initialValue: item.init,
                             label: item.label,

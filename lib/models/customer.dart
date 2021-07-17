@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wecare/utils/commands.dart';
+import 'package:wecare/utils/colors.dart';
 
 class Customer {
   String? id;
@@ -9,7 +9,7 @@ class Customer {
   String? email;
   String? address;
   String? filepath;
-  int? color;
+  String? color;
   DateTime? created_at;
 
   Customer({
@@ -32,7 +32,7 @@ class Customer {
           phone: json['phone'] == null ? null : json['phone']! as String,
           email: json['email'] == null ? null : json['email'] as String,
           address: json['address'] == null ? null : json['address']! as String,
-          color: json['color'] == null ? null : json['color']! as int,
+          color: json['color'] == null ? null : json['color']! as String,
           created_at: json['created_at'] == null
               ? null
               : DateTime.parse(json['created_at'] as String),
@@ -45,7 +45,7 @@ class Customer {
       'phone': phone,
       'email': email,
       'address': address,
-      'color': (color ?? getRandomPrimaryColor()),
+      'color': color,
       'created_at': (created_at != null)
           ? created_at!.toIso8601String()
           : DateTime.now().toIso8601String(),
@@ -95,7 +95,7 @@ class Customer {
     } else if (color != null) {
       icon = CircleAvatar(
         child: Text(name![0]),
-        backgroundColor: Color(color!),
+        backgroundColor: HexColor(color!),
       );
     } else {
       icon = CircleAvatar(
