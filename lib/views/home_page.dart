@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/src/provider.dart';
 import 'package:wecare/views/app_state.dart';
 import 'package:wecare/views/customers_page.dart';
 import 'package:wecare/views/user_dialog.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -17,8 +17,10 @@ class _HomePageState extends State<HomePage> {
 
   static List<Widget> _pageList = [
     CustomersPage(),
-    SettingsPage(),
-    ProfilePage(),
+    EventPage(),
+    ShiftPage(),
+    ChatPage(),
+    AlbumPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -45,18 +47,27 @@ class _HomePageState extends State<HomePage> {
       appBar: appBar,
       body: _pageList[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Customers',
+            icon: Icon(Icons.timeline_outlined),
+            label: 'Timeline',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Setting',
+            icon: Icon(Icons.event_outlined),
+            label: 'Event',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Search',
+            icon: Icon(Icons.track_changes_outlined),
+            label: 'Shift',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat_outlined),
+            label: 'Chat',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.photo_album_outlined),
+            label: 'Album',
           ),
         ],
         currentIndex: _selectedIndex,
@@ -66,45 +77,33 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class SettingsPage extends StatelessWidget {
+class EventPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-/*
-        appBar: AppBar(
-          title: const Text('wecare'),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.exit_to_app),
-              onPressed: () async {
-                context.read<FirebaseService>().signOut();
-              },
-            ),
-          ],
-        ),
-*/
-        body: Center(child: Text('Settings page')));
+    return Scaffold(body: Center(child: Text('Event page')));
   }
 }
 
-class ProfilePage extends StatelessWidget {
+class ShiftPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-/*
-      appBar: AppBar(
-        title: const Text('wecare'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.exit_to_app),
-            onPressed: () async {
-              context.read<FirebaseService>().signOut();
-            },
-          ),
-        ],
-      ),
-*/
-      body: Center(child: Text('Profile page')),
-    );
+      body: Center(child: Text('Shift page')));
+  }
+}
+
+class ChatPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(child: Text('Chat page')));
+  }
+}
+
+class AlbumPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(child: Text('Album page')));
   }
 }

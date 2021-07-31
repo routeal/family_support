@@ -8,6 +8,7 @@ import 'package:wecare/views/app_state.dart';
 import 'package:wecare/views/auth_page.dart';
 import 'package:wecare/views/customers_page.dart';
 import 'package:wecare/views/home_page.dart';
+import 'package:wecare/views/support_members.dart';
 import 'package:wecare/views/term_page.dart';
 import 'package:wecare/views/user_props_page.dart';
 import 'package:wecare/widgets/loading.dart';
@@ -45,18 +46,24 @@ RouteMap _signInRouteMap() {
         },
         builder: () => TabPage(
           child: HomePage(),
-          paths: ['customers', 'settings', 'search'],
+          paths: ['timeline', 'event', 'shift', 'chat', 'album'],
         ),
       );
     },
-    '/customers': (_) => MaterialPage<void>(
+    '/timeline': (_) => MaterialPage<void>(
           child: CustomersPage(),
         ),
-    '/settings': (_) => MaterialPage<void>(
-          child: SettingsPage(),
+    '/event': (_) => MaterialPage<void>(
+          child: EventPage(),
         ),
-    '/search': (_) => MaterialPage<void>(
-          child: ProfilePage(),
+    '/shift': (_) => MaterialPage<void>(
+          child: ShiftPage(),
+        ),
+    '/chat': (_) => MaterialPage<void>(
+          child: ChatPage(),
+        ),
+    '/album': (_) => MaterialPage<void>(
+          child: AlbumPage(),
         ),
     '/user': (_) => MaterialPage<void>(
           child: UserPropsPage(),
@@ -65,13 +72,15 @@ RouteMap _signInRouteMap() {
           child: SendEmailVerificationPage(),
         ),
     '/term': (_) => MaterialPage<void>(
-      child: TermPage(),
+          child: TermPage(),
+        ),
+    '/supporters': (_) => MaterialPage<void>(
+      child: SupportMembers(),
     ),
   });
 }
 
 class Launcher extends StatelessWidget {
-
   // load appuser from the local disk, if not found,
   // then check the server
   Future<AppUser?> loadUser(BuildContext context) async {

@@ -39,7 +39,6 @@ class _CustomersPageState extends State<CustomersPage> {
                 MaterialPageRoute(builder: (context) => CustomerPropsPage()));
           },
         ),
-        //body: Container());
         body: StreamBuilder<QuerySnapshot<Customer>>(
             stream: _customers,
             builder: (context, snapshot) {

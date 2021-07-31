@@ -60,11 +60,11 @@ void userDialog(BuildContext context) {
                   endIndent: 2.0 // Ending Space
                   ),
               ListTile(
-                  leading: Icon(Icons.person_outline_rounded),
-                  title: Text('Your profile'),
+                  leading: Icon(Icons.people_outlined),
+                  title: Text('Team members'),
                   onTap: () {
                     Navigator.of(context).pop();
-                    appState.route!.push('/user');
+                    appState.route!.push('/supporters');
                   }),
               Divider(
                   color: Colors.black87,
