@@ -11,6 +11,7 @@ import 'package:wecare/views/home_page.dart';
 import 'package:wecare/views/term_page.dart';
 import 'package:wecare/views/user_props_page.dart';
 import 'package:wecare/widgets/loading.dart';
+import 'package:wecare/globals.dart' as globals;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 final _signOutRouteMap = RouteMap(routes: {
@@ -125,9 +126,8 @@ class Launcher extends StatelessWidget {
           }
 
           return MaterialApp.router(
-            title: 'CarePlanner',
             theme: ThemeData(
-              primaryColor: Colors.teal[200],
+              primaryColor: globals.defaultThemeColor,
             ),
             routeInformationParser: RoutemasterParser(),
             routerDelegate: appState.route!,

@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:provider/src/provider.dart';
-import 'package:wecare/services/firebase/firebase_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-
-final double LOGIN_WIDGET_WIDTH = 320;
-final double CARD_ELEVATION = 20;
-final double SUBMIT_BUTTON_HEIGHT = 38;
-final double SUBMIT_BUTTON_WIDTH = 140;
+final double loginWidgetWidth = 320;
+final double cardElevation = 20;
+final double submitButtonHeight = 38;
+final double submitButtonWidth = 140;
 
 typedef SubmitCallback = Future<String?>? Function(
     BuildContext context, String email, String password);
@@ -18,16 +15,16 @@ typedef SendEmailVerificationCallback = Future<String?>? Function(
 typedef ContextCallback = Future<void>? Function(BuildContext context);
 
 class AuthWidget extends StatefulWidget {
-  bool? isAuthPage;
-  String title;
-  String footer;
-  String? initialValue;
-  SubmitCallback? onLogin;
-  SubmitCallback? onSignup;
-  SendEmailVerificationCallback? onSendEmailVerification;
-  SendResetPasswordCallback? onSendResetPassword;
-  ContextCallback? onSubmitCompleted;
-  ContextCallback? onClose;
+  final bool? isAuthPage;
+  final String title;
+  final String footer;
+  final String? initialValue;
+  final SubmitCallback? onLogin;
+  final SubmitCallback? onSignup;
+  final SendEmailVerificationCallback? onSendEmailVerification;
+  final SendResetPasswordCallback? onSendResetPassword;
+  final ContextCallback? onSubmitCompleted;
+  final ContextCallback? onClose;
 
   AuthWidget({
     Key? key,
@@ -54,14 +51,11 @@ class _AuthWidgetState extends State<AuthWidget> {
     return Padding(
       padding: const EdgeInsets.all(18),
       child: DefaultTextStyle(
-          child: Text(
-            widget.title,
-          ),
-          style: TextStyle(
-            color: Theme.of(context).canvasColor,
-            fontSize: 38,
-            fontWeight: FontWeight.bold,
-          )),
+        child: Text(
+          widget.title,
+        ),
+        style: Theme.of(context).textTheme.headline3!,
+      ),
     );
   }
 
@@ -69,13 +63,11 @@ class _AuthWidgetState extends State<AuthWidget> {
     return Padding(
       padding: const EdgeInsets.all(8),
       child: DefaultTextStyle(
-          child: Text(
-            widget.footer,
-          ),
-          style: TextStyle(
-            color: Theme.of(context).canvasColor,
-            fontSize: 12,
-          )),
+        child: Text(
+          widget.footer,
+        ),
+        style: Theme.of(context).textTheme.caption!,
+      ),
     );
   }
 
@@ -191,9 +183,9 @@ class _AuthWidgetState extends State<AuthWidget> {
 }
 
 class _EmailVerificationSentWidget extends StatefulWidget {
-  String email;
-  SendEmailVerificationCallback? onSendEmailVerification;
-  ContextCallback? onClose;
+  final String email;
+  final SendEmailVerificationCallback? onSendEmailVerification;
+  final ContextCallback? onClose;
 
   _EmailVerificationSentWidget({
     required this.email,
@@ -246,8 +238,8 @@ class _EmailVerificationSentWidgetState
     return Padding(
         padding: const EdgeInsets.only(top: 16, bottom: 2),
         child: SizedBox(
-          width: SUBMIT_BUTTON_WIDTH,
-          height: SUBMIT_BUTTON_HEIGHT,
+          width: submitButtonWidth,
+          height: submitButtonHeight,
           child: ElevatedButton(
             onPressed: _hasSent ? null : submit,
             child: Text('Resend Email',
@@ -317,11 +309,11 @@ class _EmailVerificationSentWidgetState
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: LOGIN_WIDGET_WIDTH,
+      width: loginWidgetWidth,
       child: Card(
-        elevation: CARD_ELEVATION,
+        elevation: cardElevation,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(CARD_ELEVATION),
+          borderRadius: BorderRadius.circular(cardElevation),
         ),
         child: new Container(
           //color: Colors.black12,
@@ -346,9 +338,9 @@ class _EmailVerificationSentWidgetState
 }
 
 class _PasswordResetSentWidget extends StatefulWidget {
-  String email;
-  SendResetPasswordCallback? onSendResetPassword;
-  VoidCallback notifyParent;
+  final String email;
+  final SendResetPasswordCallback? onSendResetPassword;
+  final VoidCallback notifyParent;
 
   _PasswordResetSentWidget({
     required this.email,
@@ -392,8 +384,8 @@ class _PasswordResetSentWidgetState extends State<_PasswordResetSentWidget>
   Widget get body2 {
     return Padding(
       padding: const EdgeInsets.only(top: 8, bottom: 8),
-      child: Text(
-          'If you don\'t see it, you may need to check your spam folder'),
+      child:
+          Text('If you don\'t see it, you may need to check your spam folder'),
     );
   }
 
@@ -401,8 +393,8 @@ class _PasswordResetSentWidgetState extends State<_PasswordResetSentWidget>
     return Padding(
         padding: const EdgeInsets.only(top: 16, bottom: 2),
         child: SizedBox(
-          width: SUBMIT_BUTTON_WIDTH,
-          height: SUBMIT_BUTTON_HEIGHT,
+          width: submitButtonWidth,
+          height: submitButtonHeight,
           child: ElevatedButton(
             onPressed: _hasSent ? null : submit,
             child: Text('Resend Email',
@@ -472,11 +464,11 @@ class _PasswordResetSentWidgetState extends State<_PasswordResetSentWidget>
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: LOGIN_WIDGET_WIDTH,
+      width: loginWidgetWidth,
       child: Card(
-        elevation: CARD_ELEVATION,
+        elevation: cardElevation,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(CARD_ELEVATION),
+          borderRadius: BorderRadius.circular(cardElevation),
         ),
         child: new Container(
           //color: Colors.black12,
@@ -501,10 +493,10 @@ class _PasswordResetSentWidgetState extends State<_PasswordResetSentWidget>
 }
 
 class _ForgotPasswordWidget extends StatefulWidget {
-  String? initialValue;
-  SendResetPasswordCallback? onSendResetPassword;
-  ContextCallback? onSubmitCompleted;
-  VoidCallback notifyParent;
+  final String? initialValue;
+  final SendResetPasswordCallback? onSendResetPassword;
+  final ContextCallback? onSubmitCompleted;
+  final VoidCallback notifyParent;
 
   _ForgotPasswordWidget({
     this.initialValue,
@@ -574,8 +566,8 @@ class _ForgotPasswordWidgetState extends State<_ForgotPasswordWidget>
     return Padding(
         padding: const EdgeInsets.only(top: 8, bottom: 2),
         child: SizedBox(
-          width: SUBMIT_BUTTON_WIDTH,
-          height: SUBMIT_BUTTON_HEIGHT,
+          width: submitButtonWidth,
+          height: submitButtonHeight,
           child: ElevatedButton(
             onPressed: submit,
             child: Text('RECOVER',
@@ -657,7 +649,7 @@ class _ForgotPasswordWidgetState extends State<_ForgotPasswordWidget>
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: LOGIN_WIDGET_WIDTH,
+      width: loginWidgetWidth,
       child: Card(
         elevation: 20,
         shape: RoundedRectangleBorder(
@@ -694,10 +686,10 @@ class _ForgotPasswordWidgetState extends State<_ForgotPasswordWidget>
 }
 
 class _LoginWidget extends StatefulWidget {
-  String? initialValue;
-  SubmitCallback? onLogin;
-  SubmitCallback? onSignup;
-  ContextCallback? onSubmitCompleted;
+  final String? initialValue;
+  final SubmitCallback? onLogin;
+  final SubmitCallback? onSignup;
+  final ContextCallback? onSubmitCompleted;
   final Function() notifyParent;
 
   _LoginWidget({
@@ -840,11 +832,14 @@ class _LoginWidgetState extends State<_LoginWidget> with LoginWidgetCommon {
       padding: const EdgeInsets.only(top: 0, bottom: 4),
       child: DefaultTextStyle(
         child: TextButton(
-          child: Text('Forgot Password?'),
-          onPressed: widget.notifyParent,
-          style: TextButton.styleFrom(
-            primary: Colors.black87,
+          child: Text(
+            'Forgot Password?',
+            style: TextStyle(
+              fontSize: Theme.of(context).textTheme.subtitle1!.fontSize,
+              color: Theme.of(context).primaryColor,
+            ),
           ),
+          onPressed: widget.notifyParent,
         ),
         style: Theme.of(context).textTheme.bodyText1!,
       ),
@@ -856,8 +851,8 @@ class _LoginWidgetState extends State<_LoginWidget> with LoginWidgetCommon {
       return Padding(
           padding: const EdgeInsets.only(top: 8, bottom: 2),
           child: SizedBox(
-            width: SUBMIT_BUTTON_WIDTH,
-            height: SUBMIT_BUTTON_HEIGHT,
+            width: submitButtonWidth,
+            height: submitButtonHeight,
             child: ElevatedButton(
               onPressed: callback,
               child: Text(label,
@@ -973,7 +968,7 @@ class _LoginWidgetState extends State<_LoginWidget> with LoginWidgetCommon {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: LOGIN_WIDGET_WIDTH,
+      width: loginWidgetWidth,
       child: Card(
         elevation: 20,
         shape: RoundedRectangleBorder(
@@ -994,11 +989,15 @@ class _LoginWidgetState extends State<_LoginWidget> with LoginWidgetCommon {
                   isSubmitting
                       ? loadingIcon
                       : (_isLogin
-                          ? submit(true, AppLocalizations.of(context)!.login, login)
-                          : submit(true, AppLocalizations.of(context)!.signup, signup)),
+                          ? submit(
+                              true, AppLocalizations.of(context)!.login, login)
+                          : submit(true, AppLocalizations.of(context)!.signup,
+                              signup)),
                   _isLogin
-                      ? submit(false, AppLocalizations.of(context)!.signup, toggleMode)
-                      : submit(false, AppLocalizations.of(context)!.login, toggleMode),
+                      ? submit(false, AppLocalizations.of(context)!.signup,
+                          toggleMode)
+                      : submit(false, AppLocalizations.of(context)!.login,
+                          toggleMode),
                   if (error != null) status,
                 ],
               ),
@@ -1019,21 +1018,15 @@ class _LoginWidgetState extends State<_LoginWidget> with LoginWidgetCommon {
 }
 
 class LoginWidgetCommon {
-  bool _isSubmitting = false;
-  String? _error;
-
-  void set isSubmitting(bool b) => _isSubmitting = b;
-  bool get isSubmitting => _isSubmitting;
-
-  void set error(String? e) => _error = e;
-  String? get error => _error;
+  bool isSubmitting = false;
+  String? error;
 
   Widget get loadingIcon {
     return Padding(
         padding: const EdgeInsets.only(top: 8, bottom: 2),
         child: SizedBox(
-            width: SUBMIT_BUTTON_HEIGHT,
-            height: SUBMIT_BUTTON_HEIGHT,
+            width: submitButtonHeight,
+            height: submitButtonHeight,
             child: CircularProgressIndicator()));
   }
 

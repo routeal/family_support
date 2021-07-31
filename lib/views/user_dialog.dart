@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/src/provider.dart';
 import 'package:wecare/services/firebase/firebase_service.dart';
 import 'package:wecare/views/app_state.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void userDialog(BuildContext context) {
   AppState appState = context.read<AppState>();
@@ -28,7 +29,7 @@ void userDialog(BuildContext context) {
                       height: 48.0,
                       child: Center(
                         child: Text(
-                          'CarePlanner',
+                          AppLocalizations.of(context)!.appName,
                           style: Theme.of(context).textTheme.headline6,
                         ),
                       ),

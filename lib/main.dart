@@ -10,6 +10,7 @@ import 'package:wecare/utils/logger.dart';
 import 'package:wecare/views/app_state.dart';
 import 'package:wecare/widgets/fatal_error_widget.dart';
 import 'package:wecare/widgets/loading.dart';
+import 'package:wecare/globals.dart' as globals;
 
 void main() async {
   initLogger(() async {
@@ -94,7 +95,7 @@ class _InitFirebaseState extends State<InitFirebase>
     if (widget != null) {
       return MaterialApp(
         theme: ThemeData(
-          primaryColor: Colors.teal[200],
+          primaryColor: globals.defaultThemeColor
         ),
         home: widget,
       );

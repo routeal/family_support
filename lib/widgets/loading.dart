@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:wecare/globals.dart' as globals;
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LoadingWidget extends StatelessWidget {
   final bool hasIndicator;
@@ -16,9 +18,8 @@ class LoadingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'WeCare',
       theme: ThemeData(
-        primaryColor: Colors.teal[200],
+        primaryColor: globals.defaultThemeColor,
       ),
       home: LoadingWidget(),
     );
