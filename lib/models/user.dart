@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wecare/utils/colors.dart';
@@ -59,7 +60,7 @@ class AppUser {
         );
 
   Map<String, Object?> toJson() {
-    return {
+    Map<String, Object?> json = {
       'image_url': image_url,
       'display_name': display_name,
       'first_name': first_name,
@@ -71,10 +72,11 @@ class AppUser {
       'website': website,
       'note': note,
       'color': color,
-      'created_at': (created_at != null)
-          ? created_at!.toIso8601String()
-          : DateTime.now().toIso8601String(),
     };
+    if (created_at == null) {
+      json['created_at'] = FieldValue.serverTimestamp();
+    }
+    return json;
   }
 
   AppUser clone() {

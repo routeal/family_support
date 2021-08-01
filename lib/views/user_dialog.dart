@@ -52,6 +52,10 @@ void userDialog(BuildContext context) {
                 leading: appState.currentUser!.avatar,
                 title: Text(appState.currentUser!.display_name!),
                 subtitle: Text(appState.currentUser!.email!),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    appState.route!.push('/user');
+                  },
               ),
               Divider(
                   color: Colors.black87,
@@ -61,7 +65,7 @@ void userDialog(BuildContext context) {
                   ),
               ListTile(
                   leading: Icon(Icons.people_outlined),
-                  title: Text('Team members'),
+                  title: Text('Your Care Team'),
                   onTap: () {
                     Navigator.of(context).pop();
                     appState.route!.push('/supporters');
