@@ -8,7 +8,8 @@ import 'package:wecare/views/app_state.dart';
 import 'package:wecare/views/auth_page.dart';
 import 'package:wecare/views/customers_page.dart';
 import 'package:wecare/views/home_page.dart';
-import 'package:wecare/views/support_members.dart';
+import 'package:wecare/views/new_team.dart';
+import 'package:wecare/views/team_members.dart';
 import 'package:wecare/views/term_page.dart';
 import 'package:wecare/views/user_props_page.dart';
 import 'package:wecare/widgets/loading.dart';
@@ -32,6 +33,7 @@ RouteMap _signInRouteMap() {
           if (!firebase.auth.currentUser!.emailVerified) return false;
           AppState appState = context.read<AppState>();
           if (appState.currentUser == null) return false;
+          if (appState.currentUser!.teamId == null) return false;
           return true;
         },
         onNavigationFailed: (routeInfo, context) {
@@ -41,6 +43,10 @@ RouteMap _signInRouteMap() {
           AppState appState = context.read<AppState>();
           if (appState.currentUser == null) {
             return Redirect('/user');
+          } else {
+            if (appState.currentUser!.teamId == null) {
+              return Redirect('/team');
+            }
           }
           return Redirect('/');
         },
@@ -75,7 +81,10 @@ RouteMap _signInRouteMap() {
           child: TermPage(),
         ),
     '/supporters': (_) => MaterialPage<void>(
-      child: SupportMembers(),
+      child: TeamMembers(),
+    ),
+    '/team': (_) => MaterialPage<void>(
+      child: JoinTeamPage(),
     ),
   });
 }

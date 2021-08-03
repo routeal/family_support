@@ -31,7 +31,7 @@ class UserProps extends PropsValues {
       _isNewUser = false;
       _user = appState.currentUser!.clone();
       // title is the user's display name
-      title = _user.display_name;
+      title = _user.displayName;
     } else {
       User? user = firebase.auth.currentUser;
       assert(user != null);
@@ -48,20 +48,20 @@ class UserProps extends PropsValues {
     return [
       PropsValueItem(
         type: PropsType.Photo,
-        init: _user.image_url,
+        init: _user.imageUrl,
         onSaved: (String? value) => _user.filepath = value,
         onChanged: (_) => _imageDirty = true,
       ),
       PropsValueItem(
         type: PropsType.InputField,
         label: "Display Name",
-        init: _user.display_name,
+        init: _user.displayName,
         icon: Icons.person_outline,
         onSaved: (String? value) {
           if (value == null || value.isEmpty) {
-            _user.display_name = _user.last_name;
+            _user.displayName = _user.lastName;
           } else {
-            _user.display_name = value;
+            _user.displayName = value;
           }
         },
         onChanged: (_) => _dirty = true,
@@ -69,23 +69,23 @@ class UserProps extends PropsValues {
       PropsValueItem(
         type: PropsType.InputField,
         label: "First Name",
-        init: _user.first_name,
+        init: _user.firstName,
         validator: (String? value) {
           if (value == null || value.isEmpty) return "First Name is required";
           return null;
         },
-        onSaved: (String? value) => _user.first_name = value!,
+        onSaved: (String? value) => _user.firstName = value!,
         onChanged: (_) => _dirty = true,
       ),
       PropsValueItem(
         type: PropsType.InputField,
         label: "Last Name",
-        init: _user.last_name,
+        init: _user.lastName,
         validator: (String? value) {
           if (value == null || value.isEmpty) return "Last Name is required";
           return null;
         },
-        onSaved: (String? value) => _user.last_name = value!,
+        onSaved: (String? value) => _user.lastName = value!,
         onChanged: (_) => _dirty = true,
       ),
       PropsValueItem(
@@ -172,10 +172,10 @@ class UserProps extends PropsValues {
         print('create: ' + imagePath);
 
         // upload the image file
-        _user.image_url = await firebase.uploadFile(imagePath, _user.filepath!);
+        _user.imageUrl = await firebase.uploadFile(imagePath, _user.filepath!);
 
         // update the user with the image url
-        await firebase.updateUserImage(_user.image_url);
+        await firebase.updateUserImage(_user.imageUrl);
       }
 
       // save the user into the local disk
@@ -212,19 +212,19 @@ class UserProps extends PropsValues {
 
         if (_user.filepath?.isEmpty ?? true) {
           print('remove: ' + imagePath);
-          _user.image_url = null;
+          _user.imageUrl = null;
           // delete from storage
           await firebase.deleteFile(imagePath);
           // update the user with the image url
           await firebase.updateUserImage(null);
-        } else if (_user.filepath != appState.currentUser!.image_url) {
+        } else if (_user.filepath != appState.currentUser!.imageUrl) {
           print('replace: ' + imagePath);
 
           // upload the image file
-          _user.image_url =
+          _user.imageUrl =
               await firebase.uploadFile(imagePath, _user.filepath!);
           // update the user with the image url
-          await firebase.updateUserImage(_user.image_url);
+          await firebase.updateUserImage(_user.imageUrl);
         }
       }
 

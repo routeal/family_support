@@ -1,4 +1,13 @@
+import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:share_plus/share_plus.dart';
 
 class Caregiver {
   String displayName;
@@ -20,12 +29,12 @@ class CareManager {
   CareManager({required this.displayName});
 }
 
-class SupportMembers extends StatefulWidget {
+class TeamMembers extends StatefulWidget {
   List<Caregiver> caregivers = [];
   List<Recipient> recipents = [];
   List<Doctor> doctors = [];
   List<CareManager> careManagers = [];
-  SupportMembers() {
+  TeamMembers() {
     caregivers.add(Caregiver(displayName: 'Hiroshi'));
     caregivers.add(Caregiver(displayName: 'Keiko'));
     recipents.add(Recipient(displayName: 'Takahashi'));
@@ -33,10 +42,10 @@ class SupportMembers extends StatefulWidget {
     careManagers.add(CareManager(displayName: 'Fukuchan'));
   }
   @override
-  State<SupportMembers> createState() => _SupportMembers();
+  State<TeamMembers> createState() => _TeamMembers();
 }
 
-class _SupportMembers extends State<SupportMembers> {
+class _TeamMembers extends State<TeamMembers> {
   Widget get caregivers {
     return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,7 +69,8 @@ class _SupportMembers extends State<SupportMembers> {
                   ],
                 );
               }),
-          AddCategoryItem(title: 'Add caregiver', onTap: () => {}),
+          AddCategoryItem(
+              title: 'Add caregiver', onTap: () => _shareQrCode(data: 'tako')),
         ]);
   }
 
@@ -96,7 +106,8 @@ class _SupportMembers extends State<SupportMembers> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
-          const CategoryHeader(icon: Icons.people_outline_outlined, title: 'Doctors'),
+          const CategoryHeader(
+              icon: Icons.people_outline_outlined, title: 'Doctors'),
           ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -144,22 +155,54 @@ class _SupportMembers extends State<SupportMembers> {
         ]);
   }
 
+  Future<void> _shareQrCode({required String data, double? size}) async {
+    Widget widget = Center(
+      child: Container(
+        color: Colors.white,
+        child: QrImage(
+          data: data,
+          version: QrVersions.auto,
+          size: size ?? 300,
+        ),
+      ),
+    );
+
+    final Uint8List? imgBytes = await createImageDataFromWidget(widget: widget);
+
+    if (imgBytes == null) {
+      print('error');
+    } else {
+      final tempDir = await getTemporaryDirectory();
+      final file = await new File('${tempDir.path}/qrimage.png').create();
+      await file.writeAsBytes(imgBytes);
+
+      final box = context.findRenderObject() as RenderBox?;
+
+      await Share.shareFiles([file.path],
+          text: 'Care Team QR Code',
+          subject: 'Care Team QR Code',
+          sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size);
+
+      file.deleteSync();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Team Members')),
+        appBar: AppBar(title: Text('Team Members')),
         body: SingleChildScrollView(
-        child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        caregivers,
-        recipients,
-        careManagers,
-        doctors,
-      ],
-    )));
+            child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            caregivers,
+            recipients,
+            careManagers,
+            doctors,
+          ],
+        )));
   }
 }
 
@@ -200,7 +243,8 @@ class AddCategoryItem extends StatelessWidget {
     return InkWell(
         onTap: onTap,
         child: Container(
-            padding: const EdgeInsets.all(8),
+            padding:
+                const EdgeInsets.only(left: 8, top: 10, bottom: 10, right: 8),
             color: color,
             child: Row(
               children: [
@@ -214,4 +258,46 @@ class AddCategoryItem extends StatelessWidget {
               ],
             )));
   }
+}
+
+Future<Uint8List?> createImageDataFromWidget(
+    {required Widget widget, double? size}) async {
+  final RenderRepaintBoundary repaintBoundary = RenderRepaintBoundary();
+
+  final RenderView renderView = RenderView(
+    window: WidgetsBinding.instance!.window,
+    child: RenderPositionedBox(
+        alignment: Alignment.center, child: repaintBoundary),
+    configuration: ViewConfiguration(
+      size: Size.square(size ?? 300),
+      devicePixelRatio: 1.0,
+    ),
+  );
+
+  final PipelineOwner pipelineOwner = PipelineOwner();
+  final BuildOwner buildOwner = BuildOwner(focusManager: FocusManager());
+
+  //pipelineOwner.rootNode = renderView;
+  renderView.attach(pipelineOwner);
+  renderView.prepareInitialFrame();
+  pipelineOwner.requestVisualUpdate();
+
+  final RenderObjectToWidgetElement<RenderBox> rootElement =
+      RenderObjectToWidgetAdapter<RenderBox>(
+    container: repaintBoundary,
+    child: widget,
+  ).attachToRenderTree(buildOwner);
+
+  buildOwner.buildScope(rootElement);
+  pipelineOwner.flushLayout();
+  pipelineOwner.flushCompositingBits();
+  pipelineOwner.flushPaint();
+  renderView.compositeFrame();
+  pipelineOwner.flushSemantics();
+  buildOwner.finalizeTree();
+
+  final ui.Image image = await repaintBoundary.toImage(pixelRatio: 3);
+  final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+
+  return byteData?.buffer.asUint8List();
 }

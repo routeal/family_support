@@ -50,7 +50,7 @@ void userDialog(BuildContext context) {
               ),
               ListTile(
                 leading: appState.currentUser!.avatar,
-                title: Text(appState.currentUser!.display_name!),
+                title: Text(appState.currentUser!.displayName ?? ''),
                 subtitle: Text(appState.currentUser!.email!),
                   onTap: () {
                     Navigator.of(context).pop();

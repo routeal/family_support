@@ -1,112 +1,149 @@
 import 'dart:convert';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wecare/utils/colors.dart';
 
+class UserRole {
+  static const int caregiver = 1; // 1. person who gives cares
+  static const int recipient = 2; // 2. person who receives cares
+  static const int caremanager = 3; // 3. person who organizes/advices cares
+  static const int practitioner =
+      4; // 4. doctors and nurses who can do medical staff
+}
+
+class UserRoleString {
+  static String? getValue(int role) {
+    switch (role) {
+      case UserRole.caregiver:
+        return 'Caregiver';
+      case UserRole.recipient:
+        return 'Recipient';
+      case UserRole.caremanager:
+        return 'Care Manager';
+      case UserRole.practitioner:
+        return 'Practitioner';
+    }
+  }
+}
+
 class AppUser {
-  String? image_url;
-  String? display_name;
-  String? first_name;
-  String? last_name;
+  String? imageUrl;
+  String? displayName;
+  String? firstName;
+  String? lastName;
   String? company;
   String? phone;
   String? email;
   String? address;
   String? website;
+  int? role; // caregiver, recipient, caremanager, or doctor
+  int? careLevel;
+  String? teamId; // team id where this user belongs to
   String? note;
-  String? filepath;
   String? color;
-  DateTime? created_at;
+  DateTime? createdAt;
+  // only for internal use
+  String? filepath;
 
   AppUser({
-    this.image_url,
-    this.display_name,
-    this.first_name,
-    this.last_name,
+    this.imageUrl,
+    this.displayName,
+    this.firstName,
+    this.lastName,
     this.company,
     this.phone,
     this.email,
     this.address,
     this.website,
+    this.role,
+    this.careLevel,
+    this.teamId,
     this.note,
     this.color,
-    this.created_at,
+    this.createdAt,
     this.filepath,
   });
 
   AppUser.fromJson(Map<String, Object?> json)
       : this(
-          image_url:
-              json['image_url'] == null ? null : json['image_url'] as String,
-          display_name: json['display_name'] == null
+          imageUrl:
+              json['imageUrl'] == null ? null : json['imageUrl'] as String,
+          displayName: json['displayName'] == null
               ? null
-              : json['display_name'] as String,
-          first_name:
-              json['first_name'] == null ? null : json['first_name'] as String,
-          last_name:
-              json['last_name'] == null ? null : json['last_name'] as String,
+              : json['displayName'] as String,
+          firstName:
+              json['firstName'] == null ? null : json['firstName'] as String,
+          lastName:
+              json['lastName'] == null ? null : json['lastName'] as String,
           company: json['company'] == null ? null : json['company']! as String,
           phone: json['phone'] == null ? null : json['phone']! as String,
           email: json['email'] == null ? null : json['email'] as String,
           address: json['address'] == null ? null : json['address']! as String,
           website: json['website'] == null ? null : json['website'] as String,
+          role: json['role'] == null ? null : json['role'] as int,
+          careLevel:
+              json['careLevel'] == null ? null : json['careLevel'] as int,
+          teamId: json['teamId'] == null ? null : json['teamId'] as String,
           note: json['note'] == null ? null : json['note'] as String,
           color: json['color'] == null ? null : json['color'] as String,
-          created_at: json['created_at'] == null
+          createdAt: json['createdAt'] == null
               ? null
-              : DateTime.parse(json['created_at'] as String),
+              : DateTime.parse(json['createdAt'] as String),
         );
 
+  // imageUrl will be set after the photo is stored
   Map<String, Object?> toJson() {
-    Map<String, Object?> json = {
-      'image_url': image_url,
-      'display_name': display_name,
-      'first_name': first_name,
-      'last_name': last_name,
+    return {
+      'displayName': displayName,
+      'firstName': firstName,
+      'lastName': lastName,
       'company': company,
       'phone': phone,
       'email': email,
       'address': address,
       'website': website,
+      'role': role,
+      'careLevel': careLevel,
+      'teamId': teamId,
       'note': note,
       'color': color,
+      'createdAt': DateTime.now().toIso8601String(),
     };
-    if (created_at == null) {
-      json['created_at'] = FieldValue.serverTimestamp();
-    }
-    return json;
   }
 
   AppUser clone() {
     return AppUser(
-      image_url: this.image_url,
-      display_name: this.display_name,
-      first_name: this.first_name,
-      last_name: this.last_name,
+      imageUrl: this.imageUrl,
+      displayName: this.displayName,
+      firstName: this.firstName,
+      lastName: this.lastName,
       company: this.company,
       phone: this.phone,
       email: this.email,
       address: this.address,
       website: this.website,
+      role: this.role,
+      careLevel: this.careLevel,
+      teamId: this.teamId,
       note: this.note,
       color: this.color,
-      created_at: this.created_at,
+      createdAt: this.createdAt,
       filepath: this.filepath,
     );
   }
 
+  // exclude imageUrl for comparison
   Map<String, Object?>? diff(AppUser user) {
     Map<String, Object?> map = Map();
-    if (display_name != user.display_name) {
-      map['display_name'] = user.display_name;
+    if (displayName != user.displayName) {
+      map['displayName'] = user.displayName;
     }
-    if (first_name != user.first_name) {
-      map['first_name'] = user.first_name;
+    if (firstName != user.firstName) {
+      map['firstName'] = user.firstName;
     }
-    if (last_name != user.last_name) {
-      map['last_name'] = user.last_name;
+    if (lastName != user.lastName) {
+      map['lastName'] = user.lastName;
     }
     if (company != user.company) {
       map['company'] = user.company;
@@ -114,11 +151,23 @@ class AppUser {
     if (phone != user.phone) {
       map['phone'] = user.phone;
     }
+    if (email != user.email) {
+      map['email'] = user.email;
+    }
     if (address != user.address) {
       map['address'] = user.address;
     }
     if (website != user.website) {
       map['website'] = user.website;
+    }
+    if (role != user.role) {
+      map['role'] = user.role;
+    }
+    if (careLevel != user.careLevel) {
+      map['careLevel'] = user.careLevel;
+    }
+    if (teamId != user.teamId) {
+      map['teamId'] = user.teamId;
     }
     if (note != user.note) {
       map['note'] = user.note;
@@ -129,6 +178,7 @@ class AppUser {
     return map.isNotEmpty ? map : null;
   }
 
+  // load from local device
   static Future<AppUser?> load() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userPref = prefs.getString('user');
@@ -140,6 +190,7 @@ class AppUser {
     return null;
   }
 
+  // save to local device
   static Future<void> save(AppUser? user) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (user != null) {
@@ -151,19 +202,19 @@ class AppUser {
 
   Widget get avatar {
     late Widget icon;
-    if (image_url != null) {
+    if (imageUrl != null) {
       icon = CircleAvatar(
-        backgroundImage: NetworkImage(image_url!),
+        backgroundImage: NetworkImage(imageUrl!),
       );
     } else if (color != null) {
       icon = CircleAvatar(
-        child: Text(display_name![0]),
+        child: Text(displayName?[0] ?? ''),
         backgroundColor: HexColor(color!),
       );
     } else {
       icon = CircleAvatar(
         child: Text(
-          display_name![0],
+          displayName![0],
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.pinkAccent,

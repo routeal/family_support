@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_functions/cloud_functions.dart';
+//import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -149,6 +149,7 @@ class FirebaseService {
   /// Emulator
   ////////////////////////////////////////////////////////////////////////////
 
+/*
   void setupEmulator() async {
     // authentication
     FirebaseAuth.instance.useEmulator('http://localhost:9099');
@@ -164,7 +165,8 @@ class FirebaseService {
     FirebaseStorage.instance.useEmulator(host: 'localhost', port: 9199);
 
     // cloud functions
-    FirebaseFunctions.instance
-        .useFunctionsEmulator(origin: 'http://localhost:5001');
+//    FirebaseFunctions.instance
+//        .useFunctionsEmulator(origin: 'http://localhost:5001');
   }
+*/
 }
