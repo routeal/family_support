@@ -188,8 +188,12 @@ class _PropsImageItemImageState extends State<_PropsImageItemState> {
       );
     } else {
       icon = CircleAvatar(
-        child: Icon(Icons.add_a_photo_outlined),
+        child: Icon(
+            Icons.add_a_photo_outlined,
+            size: 32
+        ),
         foregroundColor: Colors.white,
+        backgroundColor: Colors.lightBlueAccent,
         radius: 32,
       );
     }

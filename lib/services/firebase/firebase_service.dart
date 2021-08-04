@@ -7,6 +7,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:wecare/models/customer.dart';
+import 'package:wecare/models/team.dart';
 import 'package:wecare/models/user.dart';
 
 class FirebaseService {
@@ -76,6 +77,7 @@ class FirebaseService {
   }
 
   Future<void> createUser(AppUser user) {
+    user.id = user.id ?? auth.currentUser!.uid;
     return usersRef.doc(auth.currentUser!.uid).set(user);
   }
 
@@ -85,6 +87,34 @@ class FirebaseService {
 
   Future<void> updateUserImage(String? url) {
     return usersRef.doc(auth.currentUser!.uid).update({'image_url':url});
+  }
+
+  ////////////////////////////////////////////////////////////////////////////
+  /// Teams
+  ////////////////////////////////////////////////////////////////////////////
+
+  CollectionReference<Team?> get teamsRef =>
+      firestore.collection('teams').withConverter<Team>(
+        fromFirestore: (snapshots, _) =>
+            Team.fromJson(snapshots.data()!),
+        toFirestore: (Team, _) => Team.toJson(),
+      );
+
+  Future<Team?> getTeam(String id) {
+    return teamsRef
+        .doc(id)
+        .get()
+        .then((snapshot) => snapshot.data()!);
+  }
+
+  Future<void> createTeam(Team team) {
+    final ref = teamsRef.doc();
+    team.id = ref.id;
+    return ref.set(team);
+  }
+
+  Future<void> updateTeam(String? id, Map<String, Object?> data) {
+    return teamsRef.doc(id).update(data);
   }
 
   ////////////////////////////////////////////////////////////////////////////

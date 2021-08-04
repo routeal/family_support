@@ -94,7 +94,7 @@ class _InitFirebaseState extends State<InitFirebase>
 
     if (widget != null) {
       return MaterialApp(
-        theme: ThemeData(primaryColor: globals.defaultThemeColor),
+        theme: ThemeData(primaryColor: globals.defaultScaffoldColor),
         home: widget,
       );
     }

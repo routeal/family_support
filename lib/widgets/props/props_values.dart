@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum PropsType { InputField, Photo, Error, Color }
+enum PropsType { InputField, Photo, Error, Color, Role, CareLevel }
 
 class PropsValueItem {
   PropsType type;
@@ -16,7 +16,7 @@ class PropsValueItem {
     required this.type,
     this.init,
     this.label,
-    required this.onSaved,
+    this.onSaved,
     this.validator,
     this.onChanged,
     this.icon,

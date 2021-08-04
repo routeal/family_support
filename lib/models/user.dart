@@ -27,7 +27,33 @@ class UserRoleString {
   }
 }
 
+const List<Map<String, String>> UserRoles = [
+  {'name': 'Caregiver', 'value': '1', }, //UserRole.caregiver},
+  {'name': 'Recipient', 'value': '2', }, //UserRole.recipient},
+  {'name': 'Care Manager', 'value': '3', }, //UserRole.caremanager},
+  {'name': 'Practitioner', 'value': '4', }, //UserRole.practitioner},
+];
+
+class CareLevel {
+  static const int none = 0;
+  static const int one = 1;
+  static const int two = 2;
+  static const int three = 3;
+  static const int four = 4;
+  static const int five = 5;
+}
+
+const List<Map<String, String>> CareLevels = [
+  {'name': 'Not Available', 'value': '0', },
+  {'name': 'Care Level 1', 'value': '1', },
+  {'name': 'Care Level 2', 'value': '2', },
+  {'name': 'Care Level 3', 'value': '3', },
+  {'name': 'Care Level 4', 'value': '4', },
+  {'name': 'Care Level 5', 'value': '5', },
+];
+
 class AppUser {
+  String? id;
   String? imageUrl;
   String? displayName;
   String? firstName;
@@ -47,6 +73,7 @@ class AppUser {
   String? filepath;
 
   AppUser({
+    this.id,
     this.imageUrl,
     this.displayName,
     this.firstName,
@@ -67,8 +94,10 @@ class AppUser {
 
   AppUser.fromJson(Map<String, Object?> json)
       : this(
-          imageUrl:
-              json['imageUrl'] == null ? null : json['imageUrl'] as String,
+    id:
+              json['id'] == null ? null : json['id'] as String,
+    imageUrl:
+    json['imageUrl'] == null ? null : json['imageUrl'] as String,
           displayName: json['displayName'] == null
               ? null
               : json['displayName'] as String,
@@ -95,6 +124,7 @@ class AppUser {
   // imageUrl will be set after the photo is stored
   Map<String, Object?> toJson() {
     return {
+      'id': id,
       'displayName': displayName,
       'firstName': firstName,
       'lastName': lastName,
@@ -114,6 +144,7 @@ class AppUser {
 
   AppUser clone() {
     return AppUser(
+      id: this.id,
       imageUrl: this.imageUrl,
       displayName: this.displayName,
       firstName: this.firstName,
@@ -136,6 +167,9 @@ class AppUser {
   // exclude imageUrl for comparison
   Map<String, Object?>? diff(AppUser user) {
     Map<String, Object?> map = Map();
+    if (id != user.id) {
+      map['id'] = user.id;
+    }
     if (displayName != user.displayName) {
       map['displayName'] = user.displayName;
     }
@@ -214,7 +248,7 @@ class AppUser {
     } else {
       icon = CircleAvatar(
         child: Text(
-          displayName![0],
+          displayName?[0] ?? 'A',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.pinkAccent,

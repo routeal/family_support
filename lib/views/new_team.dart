@@ -4,10 +4,14 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/src/provider.dart';
+import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:qr_code_tools/qr_code_tools.dart';
+import 'package:wecare/models/team.dart';
+import 'package:wecare/models/user.dart';
+import 'package:wecare/services/firebase/firebase_service.dart';
 import 'package:wecare/views/app_state.dart';
+import 'package:wecare/widgets/dialogs.dart';
 
 class JoinTeamPage extends StatelessWidget {
   @override
@@ -25,11 +29,13 @@ class JoinTeamPage extends StatelessWidget {
                   'Care team is a group of members who provide and receive care service.   The members typically include a family of caregivers and recipients, care managers, and medical practitioners.',
                   style: Theme.of(context).textTheme.headline5,
                 ),
+                /*
                 Spacer(),
                 Text(
                   'You need to create a new team or join a team to continue.',
                   style: Theme.of(context).textTheme.headline5,
                 ),
+                */
                 Spacer(flex: 2),
                 Align(
                   child: Wrap(
@@ -129,7 +135,9 @@ class NewTeamPage extends StatelessWidget {
                         children: [
                           Spacer(),
                           ElevatedButton(
-                            onPressed: () {submit(context); },
+                            onPressed: () {
+                              submit(context);
+                            },
                             child: Text(
                               'Submit',
                             ),
@@ -143,15 +151,52 @@ class NewTeamPage extends StatelessWidget {
                 ))));
   }
 
-  void submit(BuildContext context) {
+  Future<void> submit(BuildContext context) async {
+    if (controller.text.isEmpty) {
+      return;
+    }
+
+    // display loading icon
+    loadingDialog(context);
+
     AppState appState = context.read<AppState>();
 
-    print(controller.text);
-    appState.currentUser!.teamId = controller.text;
+    String? error;
 
+    try {
+      FirebaseService firebase = context.read<FirebaseService>();
+
+      final team = Team(name: controller.text);
+
+      await firebase.createTeam(team);
+
+      appState.currentTeam = team;
+
+      if (appState.currentUser == null) {
+        appState.currentUser = AppUser(teamId: team.id,
+            email: firebase.auth.currentUser?.email);
+        await firebase.createUser(appState.currentUser!);
+      } else {
+        appState.currentUser!.teamId = team.id;
+      }
+
+      controller.clear();
+    } catch (e) {
+      error = e.toString();
+    }
+
+    // loading
     Navigator.of(context).pop();
 
-    appState.route!.replace('/');
+    // current page
+    Navigator.of(context).pop();
+
+    if (error != null) {
+      // context comes from scaffold
+      showSnackBar(context: context, message: error);
+    } else {
+      appState.route!.push('/');
+    }
   }
 }
 
@@ -252,7 +297,7 @@ class _ScanTeamQRPageState extends State<ScanTeamQRPage> {
   void _getPhotoByGallery() async {
     picker.pickImage(source: ImageSource.gallery).then((XFile? value) {
       if (value == null) {
-        throw('Unknown error: try again');
+        throw ('Unknown error: try again');
       }
       return QrCodeToolsPlugin.decodeFrom(value.path);
     }).then((String value) {

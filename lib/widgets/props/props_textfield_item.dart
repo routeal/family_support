@@ -36,7 +36,7 @@ class _PropsTextFieldItemState extends State<PropsTextFieldItem> {
           icon: Icon(
             widget.icon ?? Icons.person,
             color: (widget.icon == null)
-                ? Theme.of(context).canvasColor
+                ? Theme.of(context).scaffoldBackgroundColor
                 : Theme.of(context).iconTheme.color,
           ),
           labelText: widget.label,
