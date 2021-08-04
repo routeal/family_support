@@ -86,7 +86,7 @@ class FirebaseService {
   }
 
   Future<void> updateUserImage(String? url) {
-    return usersRef.doc(auth.currentUser!.uid).update({'image_url':url});
+    return usersRef.doc(auth.currentUser!.uid).update({'image_url': url});
   }
 
   ////////////////////////////////////////////////////////////////////////////
@@ -95,16 +95,12 @@ class FirebaseService {
 
   CollectionReference<Team?> get teamsRef =>
       firestore.collection('teams').withConverter<Team>(
-        fromFirestore: (snapshots, _) =>
-            Team.fromJson(snapshots.data()!),
-        toFirestore: (Team, _) => Team.toJson(),
-      );
+            fromFirestore: (snapshots, _) => Team.fromJson(snapshots.data()!),
+            toFirestore: (Team, _) => Team.toJson(),
+          );
 
   Future<Team?> getTeam(String id) {
-    return teamsRef
-        .doc(id)
-        .get()
-        .then((snapshot) => snapshot.data()!);
+    return teamsRef.doc(id).get().then((snapshot) => snapshot.data()!);
   }
 
   Future<void> createTeam(Team team) {

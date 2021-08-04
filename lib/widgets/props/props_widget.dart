@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/src/provider.dart';
+import 'package:provider/provider.dart';
 import 'package:wecare/services/firebase/firebase_service.dart';
 import 'package:wecare/widgets/props/props_carelevel_item.dart';
 import 'package:wecare/widgets/props/props_color_item.dart';

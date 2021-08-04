@@ -6,11 +6,10 @@ import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
 
 class FatalErrorWidget extends StatelessWidget {
-  String? error;
+  final String defaultError = 'Oops, something went wrong.';
+  final String? error;
 
-  FatalErrorWidget({this.error}) {
-    error ??= 'Oops, something went wrong.';
-  }
+  FatalErrorWidget({this.error});
 
   void tryLater() {
     if (Platform.isAndroid) {
@@ -38,7 +37,7 @@ class FatalErrorWidget extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: Text(error!,
+              child: Text(error ?? defaultError,
                   style: Theme.of(context).primaryTextTheme.headline5),
             ),
             Flexible(

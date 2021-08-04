@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/src/provider.dart';
+import 'package:provider/provider.dart';
 import 'package:wecare/services/firebase/firebase_service.dart';
 import 'package:wecare/views/app_state.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -52,10 +52,10 @@ void userDialog(BuildContext context) {
                 leading: appState.currentUser!.avatar,
                 title: Text(appState.currentUser!.displayName ?? ''),
                 subtitle: Text(appState.currentUser!.email!),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    appState.route!.push('/user');
-                  },
+                onTap: () {
+                  Navigator.of(context).pop();
+                  appState.route!.push('/user');
+                },
               ),
               Divider(
                   color: Colors.black87,

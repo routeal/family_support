@@ -22,7 +22,7 @@ class PropsImageItem extends FormField<String> {
 
 class _PropsImageItemState extends StatefulWidget {
   final FormFieldState<String> state;
-  ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onChanged;
 
   _PropsImageItemState({required this.state, required this.onChanged});
 
@@ -135,7 +135,7 @@ class _PropsImageItemImageState extends State<_PropsImageItemState> {
   }
 
   Future<void> getImage(ImageSource source) async {
-    final pickedFile = await _picker.getImage(source: source);
+    final pickedFile = await _picker.pickImage(source: source);
     if (pickedFile != null) {
       File file = File(pickedFile.path);
       if (file.existsSync()) {
@@ -188,10 +188,7 @@ class _PropsImageItemImageState extends State<_PropsImageItemState> {
       );
     } else {
       icon = CircleAvatar(
-        child: Icon(
-            Icons.add_a_photo_outlined,
-            size: 32
-        ),
+        child: Icon(Icons.add_a_photo_outlined, size: 32),
         foregroundColor: Colors.white,
         backgroundColor: Colors.lightBlueAccent,
         radius: 32,

@@ -26,32 +26,16 @@ class PropsValueItem {
 
 abstract class PropsValues {
   // title in AppBar
-  String? _title;
-  String? get title => _title;
-  set title(String? str) {
-    _title = str;
-  }
+  String? title;
 
   // label string for save button
-  String? _saveButtonLabel;
-  String? get saveButtonLabel => _saveButtonLabel;
-  set saveButtonLabel(String? str) {
-    _saveButtonLabel = str;
-  }
+  String? saveButtonLabel;
 
   // label string for logout button, if it's empty, logout won't be created
-  String? _logoutButtonLabel;
-  String? get logoutButtonLabel => _logoutButtonLabel;
-  set logoutButtonLabel(String? str) {
-    _logoutButtonLabel = str;
-  }
+  String? logoutButtonLabel;
 
   // form key for save and validate
-  GlobalKey<FormState>? _formKey;
-  GlobalKey<FormState>? get key => _formKey;
-  set key(GlobalKey<FormState>? k) {
-    _formKey = k;
-  }
+  GlobalKey<FormState>? key;
 
   bool get dirty;
 

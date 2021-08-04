@@ -28,10 +28,22 @@ class UserRoleString {
 }
 
 const List<Map<String, String>> UserRoles = [
-  {'name': 'Caregiver', 'value': '1', }, //UserRole.caregiver},
-  {'name': 'Recipient', 'value': '2', }, //UserRole.recipient},
-  {'name': 'Care Manager', 'value': '3', }, //UserRole.caremanager},
-  {'name': 'Practitioner', 'value': '4', }, //UserRole.practitioner},
+  {
+    'name': 'Caregiver',
+    'value': '1',
+  }, //UserRole.caregiver},
+  {
+    'name': 'Recipient',
+    'value': '2',
+  }, //UserRole.recipient},
+  {
+    'name': 'Care Manager',
+    'value': '3',
+  }, //UserRole.caremanager},
+  {
+    'name': 'Practitioner',
+    'value': '4',
+  }, //UserRole.practitioner},
 ];
 
 class CareLevel {
@@ -44,12 +56,30 @@ class CareLevel {
 }
 
 const List<Map<String, String>> CareLevels = [
-  {'name': 'Not Available', 'value': '0', },
-  {'name': 'Care Level 1', 'value': '1', },
-  {'name': 'Care Level 2', 'value': '2', },
-  {'name': 'Care Level 3', 'value': '3', },
-  {'name': 'Care Level 4', 'value': '4', },
-  {'name': 'Care Level 5', 'value': '5', },
+  {
+    'name': 'Not Available',
+    'value': '0',
+  },
+  {
+    'name': 'Care Level 1',
+    'value': '1',
+  },
+  {
+    'name': 'Care Level 2',
+    'value': '2',
+  },
+  {
+    'name': 'Care Level 3',
+    'value': '3',
+  },
+  {
+    'name': 'Care Level 4',
+    'value': '4',
+  },
+  {
+    'name': 'Care Level 5',
+    'value': '5',
+  },
 ];
 
 class AppUser {
@@ -94,10 +124,9 @@ class AppUser {
 
   AppUser.fromJson(Map<String, Object?> json)
       : this(
-    id:
-              json['id'] == null ? null : json['id'] as String,
-    imageUrl:
-    json['imageUrl'] == null ? null : json['imageUrl'] as String,
+          id: json['id'] == null ? null : json['id'] as String,
+          imageUrl:
+              json['imageUrl'] == null ? null : json['imageUrl'] as String,
           displayName: json['displayName'] == null
               ? null
               : json['displayName'] as String,

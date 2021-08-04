@@ -39,7 +39,8 @@ class _PropsCareLevelFormItem extends StatefulWidget {
       this.enabled});
 
   @override
-  _PropsCareLevelFormItemState createState() => _PropsCareLevelFormItemState(state);
+  _PropsCareLevelFormItemState createState() =>
+      _PropsCareLevelFormItemState(state);
 }
 
 class _PropsCareLevelFormItemState extends State<_PropsCareLevelFormItem> {

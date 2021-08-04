@@ -26,10 +26,10 @@ class PropsColorItem extends FormField<String> {
 
 class _PropsColorFormItem extends StatefulWidget {
   final FormFieldState<String> state;
-  ValueChanged<String>? onChanged;
-  IconData? icon;
-  String? label;
-  bool? enabled;
+  final ValueChanged<String>? onChanged;
+  final IconData? icon;
+  final String? label;
+  final bool? enabled;
 
   _PropsColorFormItem(
       {required this.state,

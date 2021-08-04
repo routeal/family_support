@@ -22,16 +22,14 @@ class PropsTextItem extends StatefulWidget {
 }
 
 class _PropsTextItemState extends State<PropsTextItem> {
-
   @override
   Widget build(BuildContext context) {
     //return Container();
     return Padding(
-      padding: EdgeInsetsDirectional.only(start: 8, end: 8),
-      child: Center(
-        child: Text(widget.label!),
-      )
-    );
+        padding: EdgeInsetsDirectional.only(start: 8, end: 8),
+        child: Center(
+          child: Text(widget.label!),
+        ));
   }
 
   @override

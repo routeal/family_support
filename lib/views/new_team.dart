@@ -173,8 +173,8 @@ class NewTeamPage extends StatelessWidget {
       appState.currentTeam = team;
 
       if (appState.currentUser == null) {
-        appState.currentUser = AppUser(teamId: team.id,
-            email: firebase.auth.currentUser?.email);
+        appState.currentUser =
+            AppUser(teamId: team.id, email: firebase.auth.currentUser?.email);
         await firebase.createUser(appState.currentUser!);
       } else {
         appState.currentUser!.teamId = team.id;

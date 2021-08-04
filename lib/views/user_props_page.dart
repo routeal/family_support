@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wecare/models/team.dart';
@@ -158,7 +157,7 @@ class UserProps extends PropsValues {
         onChanged: (_) => _dirty = true,
       ),
     ];
-}
+  }
 
   List<PropsValueItem> recipient_items() {
     return [
@@ -698,9 +697,9 @@ class UserProps extends PropsValues {
 
       // update the team
       if (!_team.isMember(_user)) {
-        final tmp = _team.clone();
-        if (tmp.addMember(_user)) {
-          final Map<String, Object?>? updates = _team.diff(tmp);
+        final orig = _team.clone();
+        if (_team.addMember(_user)) {
+          final Map<String, Object?>? updates = orig.diff(_team);
           if (updates != null) {
             await firebase.updateTeam(_team.id, updates);
           }

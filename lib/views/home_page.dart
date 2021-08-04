@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:provider/src/provider.dart';
+import 'package:provider/provider.dart';
 import 'package:wecare/views/app_state.dart';
 import 'package:wecare/views/customers_page.dart';
 import 'package:wecare/views/user_dialog.dart';
@@ -87,23 +87,20 @@ class EventPage extends StatelessWidget {
 class ShiftPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(child: Text('Shift page')));
+    return Scaffold(body: Center(child: Text('Shift page')));
   }
 }
 
 class ChatPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(child: Text('Chat page')));
+    return Scaffold(body: Center(child: Text('Chat page')));
   }
 }
 
 class AlbumPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(child: Text('Album page')));
+    return Scaffold(body: Center(child: Text('Album page')));
   }
 }
