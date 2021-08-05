@@ -69,24 +69,27 @@ class FirebaseService {
             toFirestore: (AppUser, _) => AppUser.toJson(),
           );
 
-  Future<AppUser?> getUser() {
+  Future<AppUser?> getUser(String uid) {
     return usersRef
-        .doc(auth.currentUser!.uid)
+        .doc(uid)
         .get()
         .then((snapshot) => snapshot.data()!);
   }
 
   Future<void> createUser(AppUser user) {
-    user.id = user.id ?? auth.currentUser!.uid;
-    return usersRef.doc(auth.currentUser!.uid).set(user);
+    if (user.id == null) {
+      final ref = usersRef.doc();
+      user.id = ref.id;
+    }
+    return usersRef.doc(user.id).set(user);
   }
 
-  Future<void> updateUser(Map<String, Object?> data) {
-    return usersRef.doc(auth.currentUser!.uid).update(data);
+  Future<void> updateUser(String uid, Map<String, Object?> data) {
+    return usersRef.doc(uid).update(data);
   }
 
-  Future<void> updateUserImage(String? url) {
-    return usersRef.doc(auth.currentUser!.uid).update({'image_url': url});
+  Future<void> updateUserImage(String uid, String? url) {
+    return usersRef.doc(uid).update({'image_url': url});
   }
 
   ////////////////////////////////////////////////////////////////////////////
@@ -142,16 +145,16 @@ class FirebaseService {
   /// Storage
   ////////////////////////////////////////////////////////////////////////////
 
-  String _userImagePath() {
-    return 'users/' + auth.currentUser!.uid + '/images';
+  String _userImagePath(String uid) {
+    return 'users/' + uid + '/images';
   }
 
-  String userImagePath() {
-    return _userImagePath() + '/user_profile.jpg';
+  String userProfileImagePath(String uid) {
+    return _userImagePath(uid) + '/user_profile.jpg';
   }
 
   String customerImagePath(String id) {
-    return _userImagePath() + '/' + id + '/customer_profile.jpg';
+    return _userImagePath(id) + '/' + id + '/customer_profile.jpg';
   }
 
   Future<String?> uploadFile(String destination, String localPath) {

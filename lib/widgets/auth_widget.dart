@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-final double loginWidgetWidth = 320;
-final double cardElevation = 20;
-final double submitButtonHeight = 38;
-final double submitButtonWidth = 140;
+const double loginWidgetWidth = 320;
+const double cardElevation = 20;
+const double submitButtonHeight = 38;
+const double submitButtonWidth = 140;
 
 typedef SubmitCallback = Future<String?>? Function(
     BuildContext context, String email, String password);
@@ -136,15 +136,15 @@ class _AuthWidgetState extends State<AuthWidget> {
 
   @override
   Widget build(BuildContext context) {
-    Color bgColor = Theme.of(context).primaryColor;
-    return LayoutBuilder(
+    //Color bgColor = Theme.of(context).primaryColor;
+    return Scaffold(body: Container(child: LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         return SingleChildScrollView(
           child: ConstrainedBox(
             constraints: BoxConstraints(minHeight: constraints.maxHeight),
             child: IntrinsicHeight(
               child: Container(
-                color: bgColor,
+                //color: bgColor,
                 child: Center(
                   child: Column(
                     children: [
@@ -178,7 +178,7 @@ class _AuthWidgetState extends State<AuthWidget> {
           ),
         );
       },
-    );
+    )));
   }
 }
 
@@ -244,7 +244,7 @@ class _EmailVerificationSentWidgetState
             onPressed: _hasSent ? null : submit,
             child: Text('Resend Email',
                 style: TextStyle(
-                  color: Theme.of(context).canvasColor,
+                  //color: Theme.of(context).canvasColor,
                   fontSize: 16,
                 )),
             style: ButtonStyle(
@@ -399,7 +399,7 @@ class _PasswordResetSentWidgetState extends State<_PasswordResetSentWidget>
             onPressed: _hasSent ? null : submit,
             child: Text('Resend Email',
                 style: TextStyle(
-                  color: Theme.of(context).canvasColor,
+                  //color: Theme.of(context).canvasColor,
                   fontSize: 16,
                 )),
             style: ButtonStyle(
@@ -572,7 +572,7 @@ class _ForgotPasswordWidgetState extends State<_ForgotPasswordWidget>
             onPressed: submit,
             child: Text('RECOVER',
                 style: TextStyle(
-                  color: Theme.of(context).canvasColor,
+                  //color: Theme.of(context).canvasColor,
                   fontSize: 16,
                 )),
             style: ButtonStyle(
@@ -836,7 +836,7 @@ class _LoginWidgetState extends State<_LoginWidget> with LoginWidgetCommon {
             'Forgot Password?',
             style: TextStyle(
               fontSize: Theme.of(context).textTheme.subtitle1!.fontSize,
-              color: Theme.of(context).primaryColor,
+              //color: Theme.of(context).primaryColor,
             ),
           ),
           onPressed: widget.notifyParent,
@@ -857,7 +857,7 @@ class _LoginWidgetState extends State<_LoginWidget> with LoginWidgetCommon {
               onPressed: callback,
               child: Text(label,
                   style: TextStyle(
-                    color: Theme.of(context).canvasColor,
+                    //color: Theme.of(context).canvasColor,
                     fontSize: 16,
                   )),
               style: ButtonStyle(

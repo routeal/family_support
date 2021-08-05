@@ -154,6 +154,7 @@ class AppUser {
   Map<String, Object?> toJson() {
     return {
       'id': id,
+      'imageUrl': imageUrl,
       'displayName': displayName,
       'firstName': firstName,
       'lastName': lastName,

@@ -6,8 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:wecare/models/user.dart';
+import 'package:wecare/views/app_state.dart';
+import 'package:wecare/views/user_page.dart';
 
 class Caregiver {
   String displayName;
@@ -19,9 +23,9 @@ class Recipient {
   Recipient({required this.displayName});
 }
 
-class Doctor {
+class Practitioner {
   String displayName;
-  Doctor({required this.displayName});
+  Practitioner({required this.displayName});
 }
 
 class CareManager {
@@ -32,13 +36,13 @@ class CareManager {
 class TeamMembers extends StatefulWidget {
   List<Caregiver> caregivers = [];
   List<Recipient> recipents = [];
-  List<Doctor> doctors = [];
+  List<Practitioner> doctors = [];
   List<CareManager> careManagers = [];
   TeamMembers() {
     caregivers.add(Caregiver(displayName: 'Hiroshi'));
     caregivers.add(Caregiver(displayName: 'Keiko'));
     recipents.add(Recipient(displayName: 'Takahashi'));
-    doctors.add(Doctor(displayName: 'Black Jack'));
+    doctors.add(Practitioner(displayName: 'Black Jack'));
     careManagers.add(CareManager(displayName: 'Fukuchan'));
   }
   @override
@@ -46,7 +50,18 @@ class TeamMembers extends StatefulWidget {
 }
 
 class _TeamMembers extends State<TeamMembers> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  void getMembers() {
+    AppState appState = context.read<AppState>();
+    //appState.currentTeam.caregivers.
+  }
+
   Widget get caregivers {
+    AppState appState = context.read<AppState>();
     return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -57,24 +72,28 @@ class _TeamMembers extends State<TeamMembers> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               scrollDirection: Axis.vertical,
-              itemCount: widget.caregivers.length,
+              itemCount: appState.caregivers.length,
               itemBuilder: (context, index) {
                 return Column(
                   children: <Widget>[
-                    ListTile(
-                      leading: CircleAvatar(),
-                      title: Text(widget.caregivers[index].displayName),
-                    ),
+                    ListUserItem(user: appState.caregivers[index]),
                     const Divider(),
                   ],
                 );
               }),
           AddCategoryItem(
-              title: 'Add caregiver', onTap: () => _shareQrCode(data: 'tako')),
+              title: 'Add caregiver',
+              onTap: () {
+                final teamId = appState.currentTeam!.id!;
+                final role = UserRole.caregiver.toString();
+                final data = teamId + ':' + role;
+                shareQrCode(data: data);
+              }),
         ]);
   }
 
   Widget get recipients {
+    AppState appState = context.read<AppState>();
     return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -85,29 +104,33 @@ class _TeamMembers extends State<TeamMembers> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               scrollDirection: Axis.vertical,
-              itemCount: widget.recipents.length,
+              itemCount: appState.recipients.length,
               itemBuilder: (context, index) {
                 return Column(
                   children: <Widget>[
-                    ListTile(
-                      leading: CircleAvatar(),
-                      title: Text(widget.recipents[index].displayName),
-                    ),
+                    ListUserItem(user: appState.recipients[index]),
                     const Divider(),
                   ],
                 );
               }),
-          AddCategoryItem(title: 'Add recipient', onTap: () => {}),
+          AddCategoryItem(
+              title: 'Add recipient',
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => AddUserPage(
+                      title: 'New Recipient', role: UserRole.recipient),
+                ));
+              }),
         ]);
   }
 
-  Widget get doctors {
+  Widget get practitioners {
     return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           const CategoryHeader(
-              icon: Icons.people_outline_outlined, title: 'Doctors'),
+              icon: Icons.people_outline_outlined, title: 'Practitioners'),
           ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -124,7 +147,7 @@ class _TeamMembers extends State<TeamMembers> {
                   ],
                 );
               }),
-          AddCategoryItem(title: 'Add doctor', onTap: () => {}),
+          AddCategoryItem(title: 'Add practitioner', onTap: () => {}),
         ]);
   }
 
@@ -155,7 +178,7 @@ class _TeamMembers extends State<TeamMembers> {
         ]);
   }
 
-  Future<void> _shareQrCode({required String data, double? size}) async {
+  Future<void> shareQrCode({required String data, double? size}) async {
     Widget widget = Center(
       child: Container(
         color: Colors.white,
@@ -187,22 +210,34 @@ class _TeamMembers extends State<TeamMembers> {
     }
   }
 
+  Future _refresh() async {
+    await Future.delayed(Duration(seconds: 1));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(title: Text('Team Members')),
-        body: SingleChildScrollView(
-            child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            caregivers,
-            recipients,
-            careManagers,
-            doctors,
-          ],
-        )));
+        body: LayoutBuilder(builder: (context, constraints) {
+          return RefreshIndicator(
+              onRefresh: _refresh,
+              child: SingleChildScrollView(
+                  physics: AlwaysScrollableScrollPhysics(),
+                  child: ConstrainedBox(
+                      constraints:
+                          BoxConstraints(minHeight: constraints.maxHeight),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        //mainAxisSize: MainAxisSize.max,
+                        children: <Widget>[
+                          caregivers,
+                          recipients,
+                          careManagers,
+                          practitioners,
+                        ],
+                      ))));
+        }));
   }
 }
 
@@ -229,6 +264,18 @@ class CategoryHeader extends StatelessWidget {
             ),
           ],
         ));
+  }
+}
+
+class ListUserItem extends StatelessWidget {
+  final AppUser user;
+  const ListUserItem({Key? key, required this.user}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(leading: user.avatar, title: Text(user.displayName!), onTap: () {
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => UpdateUserPage(user: user)));
+    });
   }
 }
 

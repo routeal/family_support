@@ -28,11 +28,16 @@ abstract class PropsValues {
   // title in AppBar
   String? title;
 
-  // label string for save button
-  String? saveButtonLabel;
-
   // label string for logout button, if it's empty, logout won't be created
   String? logoutButtonLabel;
+
+  PropsValues({
+    this.title,
+    this.logoutButtonLabel,
+  });
+
+  // label string for save button
+  String? saveButtonLabel;
 
   // form key for save and validate
   GlobalKey<FormState>? key;

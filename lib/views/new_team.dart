@@ -17,7 +17,18 @@ class JoinTeamPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text('Care Team')),
+        appBar: AppBar(
+          title: Text('Care Team'),
+          actions: [
+            TextButton(
+                child:
+                    Text('Logout', style: Theme.of(context).textTheme.button),
+                onPressed: () {
+                  FirebaseService firebase = context.read<FirebaseService>();
+                  firebase.signOut();
+                })
+          ],
+        ),
         body: Padding(
             padding: EdgeInsets.all(32),
             child: Column(
@@ -174,7 +185,8 @@ class NewTeamPage extends StatelessWidget {
 
       if (appState.currentUser == null) {
         appState.currentUser =
-            AppUser(teamId: team.id, email: firebase.auth.currentUser?.email);
+            AppUser(id: firebase.auth.currentUser?.uid,
+                teamId: team.id, email: firebase.auth.currentUser?.email);
         await firebase.createUser(appState.currentUser!);
       } else {
         appState.currentUser!.teamId = team.id;
@@ -185,11 +197,7 @@ class NewTeamPage extends StatelessWidget {
       error = e.toString();
     }
 
-    // loading
-    Navigator.of(context).pop();
-
-    // current page
-    Navigator.of(context).pop();
+    Navigator.of(context).popUntil((route) => route.isFirst);
 
     if (error != null) {
       // context comes from scaffold

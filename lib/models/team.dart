@@ -58,9 +58,9 @@ class Team {
       createdAt: this.createdAt,
     );
     team.caregivers = List<String>.from(this.caregivers);
-    team.recipients = this.recipients;
-    team.caremanagers = this.caremanagers;
-    team.practitioners = this.practitioners;
+    team.recipients = List<String>.from(this.recipients);
+    team.caremanagers = List<String>.from(this.caremanagers);
+    team.practitioners = List<String>.from(this.practitioners);
     return team;
   }
 

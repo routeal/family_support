@@ -15,16 +15,16 @@ import 'package:wecare/views/home_page.dart';
 import 'package:wecare/views/new_team.dart';
 import 'package:wecare/views/team_members.dart';
 import 'package:wecare/views/term_page.dart';
-import 'package:wecare/views/user_props_page.dart';
+import 'package:wecare/views/user_page.dart';
 import 'package:wecare/widgets/loading.dart';
 
-final _signOutRouteMap = RouteMap(routes: {
-  '/': (routeInfo) {
-    return MaterialPage<void>(
-      child: AuthPage(),
-    );
-  }
-});
+RouteMap _signOutRouteMap() {
+  return RouteMap(routes: {
+    '/': (_) => MaterialPage<void>(
+          child: AuthPage(),
+        ),
+  });
+}
 
 RouteMap _signInRouteMap() {
   return RouteMap(routes: {
@@ -34,9 +34,16 @@ RouteMap _signInRouteMap() {
           FirebaseService firebase = context.read<FirebaseService>();
           if (!firebase.auth.currentUser!.emailVerified) return false;
           AppState appState = context.read<AppState>();
-          if (appState.currentUser == null && appState.currentTeam == null) return false;
+          if (appState.currentUser == null && appState.currentTeam == null) {
+            print("no currentuser no currentteam");
+            return false;
+          }
           if (appState.currentUser == null ||
-              appState.currentUser!.role == null) return false;
+              appState.currentUser!.role == null) {
+            print("no currentuser or role");
+            return false;
+          }
+          print("can navigate");
           return true;
         },
         onNavigationFailed: (routeInfo, context) {
@@ -46,8 +53,11 @@ RouteMap _signInRouteMap() {
           AppState appState = context.read<AppState>();
           if (appState.currentUser == null && appState.currentTeam == null) {
             return Redirect('/team');
-          } else if (appState.currentUser == null ||
+          }
+          if (appState.currentUser == null ||
               appState.currentUser!.role == null) {
+            print('user redirect');
+            //return Redirect('/user?title=\'Your Profile\'?logout=\'Logout\'');
             return Redirect('/user');
           }
           return Redirect('/');
@@ -73,7 +83,7 @@ RouteMap _signInRouteMap() {
     '/album': (_) => MaterialPage<void>(
           child: AlbumPage(),
         ),
-    '/user': (_) => MaterialPage<void>(
+    '/user': (route) => MaterialPage<void>(
           child: UserPropsPage(),
         ),
     '/verify': (_) => MaterialPage<void>(
@@ -96,38 +106,98 @@ class Launcher extends StatelessWidget {
   // then check the server
   Future<AppUser?> loadUser(BuildContext context) async {
     FirebaseService firebase = context.read<FirebaseService>();
-    /*
     if (firebase.auth.currentUser == null) {
       // delete the previous user if any
-      AppUser.save(null);
+      await AppUser.save(null);
       return null;
     } else {
       AppUser? user = await AppUser.load();
       if (user == null) {
-        user = await firebase.getUser();
+        user = await firebase.getUser(firebase.auth.currentUser!.uid);
         if (user != null) {
           await AppUser.save(user);
         }
       }
       return user;
     }
-    */
-    return await firebase.getUser();
   }
 
   Future<Team?> loadTeam(BuildContext context, AppUser? user) async {
     if (user == null || user.teamId == null) {
+      await Team.save(null);
       return null;
     }
-    FirebaseService firebase = context.read<FirebaseService>();
-    return await firebase.getTeam(user.teamId!);
+    Team? team = await Team.load();
+    if (team == null) {
+      FirebaseService firebase = context.read<FirebaseService>();
+      team = await firebase.getTeam(user.teamId!);
+      if (team != null) {
+        await Team.save(team);
+      }
+    }
+    return team;
   }
 
   Future<void> loadAppState(BuildContext context) async {
     AppState appState = context.read<AppState>();
     appState.currentUser = await loadUser(context);
+    if (appState.currentUser != null) {
+      print("init user loaded: " + appState.currentUser!.toJson().toString());
+    } else {
+      print("init user loaded: none");
+    }
     appState.currentTeam = await loadTeam(context, appState.currentUser);
-    print(appState.currentTeam!.toJson().toString());
+    if (appState.currentTeam != null) {
+      FirebaseService firebase = context.read<FirebaseService>();
+      for (String id in appState.currentTeam!.caregivers) {
+        final contain = appState.caregivers.where((v) => v.id == id);
+        if (contain.isNotEmpty) continue;
+        if (id == appState.currentUser!.id) {
+          appState.caregivers.add(appState.currentUser!);
+        } else {
+          AppUser? user = await firebase.getUser(id);
+          if (user != null) {
+            appState.caregivers.add(user);
+          }
+        }
+      }
+      for (String id in appState.currentTeam!.recipients) {
+        final contain = appState.recipients.where((v) => v.id == id);
+        if (contain.isNotEmpty) continue;
+        if (id == appState.currentUser!.id) {
+          appState.recipients.add(appState.currentUser!);
+        } else {
+          AppUser? user = await firebase.getUser(id);
+          if (user != null) {
+            appState.recipients.add(user);
+          }
+        }
+      }
+      for (String id in appState.currentTeam!.caremanagers) {
+        final contain = appState.caremanagers.where((v) => v.id == id);
+        if (contain.isNotEmpty) continue;
+        if (id == appState.currentUser!.id) {
+          appState.caremanagers.add(appState.currentUser!);
+        } else {
+          AppUser? user = await firebase.getUser(id);
+          if (user != null) {
+            appState.caremanagers.add(user);
+          }
+        }
+      }
+      for (String id in appState.currentTeam!.practitioners) {
+        final contain = appState.practitioners.where((v) => v.id == id);
+        if (contain.isNotEmpty) continue;
+        if (id == appState.currentUser!.id) {
+          appState.practitioners.add(appState.currentUser!);
+        } else {
+          AppUser? user = await firebase.getUser(id);
+          if (user != null) {
+            appState.practitioners.add(user);
+          }
+        }
+      }
+    }
     return;
   }
 
@@ -147,7 +217,7 @@ class Launcher extends StatelessWidget {
           if (firebase.auth.currentUser == null) {
             print('FutureBuilder: login route');
             appState.route = RoutemasterDelegate(routesBuilder: (context) {
-              return _signOutRouteMap;
+              return _signOutRouteMap();
             });
           } else {
             print('FutureBuilder: app route');
@@ -161,11 +231,13 @@ class Launcher extends StatelessWidget {
               scaffoldBackgroundColor: globals.defaultScaffoldColor,
               appBarTheme: AppBarTheme(
                 color: globals.defaultThemeColor,
+                brightness: Brightness.light,
                 titleTextStyle: TextStyle(
                   fontSize: 20,
                   color: Colors.blueGrey,
                   fontWeight: FontWeight.bold,
                 ),
+                textTheme: Theme.of(context).textTheme,
               ),
             ),
             routeInformationParser: RoutemasterParser(),
