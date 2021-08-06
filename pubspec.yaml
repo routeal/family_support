@@ -57,6 +57,7 @@ dependencies:
   share_plus: ^2.1.4
   qr_code_tools: ^0.0.7
   collection: ^1.15.0
+  tuple: ^2.0.0
 
 dev_dependencies:
   flutter_test:

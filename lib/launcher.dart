@@ -145,6 +145,7 @@ class Launcher extends StatelessWidget {
   }
 
   Future<void> loadAppState(BuildContext context) async {
+    print('loadAppState');
     AppState appState = context.read<AppState>();
     appState.currentUser = await loadUser(context);
     appState.currentTeam = await loadTeam(context, appState.currentUser);
