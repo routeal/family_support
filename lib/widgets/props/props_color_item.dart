@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:wecare/utils/colors.dart';
 
@@ -96,7 +98,7 @@ class _PropsColorFormItemState extends State<_PropsColorFormItem> {
   void initState() {
     super.initState();
     value = FavoriteColors.firstWhere((e) => e['value'] == state.value,
-        orElse: () => FavoriteColors[0]);
+        orElse: () => FavoriteColors[Random().nextInt(FavoriteColors.length)]);
     state.setValue(value!['value']);
   }
 

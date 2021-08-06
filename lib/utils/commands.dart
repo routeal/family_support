@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+/*
 Future<void> exitApp() async {
   if (Platform.isIOS) {
     Future.delayed(const Duration(milliseconds: 1000), () {
@@ -15,7 +16,10 @@ Future<void> exitApp() async {
     });
   }
 }
+*/
 
+/*
 int getRandomPrimaryColor() {
   return Colors.primaries[Random().nextInt(Colors.primaries.length)].value;
 }
+*/

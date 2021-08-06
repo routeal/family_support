@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -13,38 +13,7 @@ import 'package:wecare/models/user.dart';
 import 'package:wecare/views/app_state.dart';
 import 'package:wecare/views/user_page.dart';
 
-class Caregiver {
-  String displayName;
-  Caregiver({required this.displayName});
-}
-
-class Recipient {
-  String displayName;
-  Recipient({required this.displayName});
-}
-
-class Practitioner {
-  String displayName;
-  Practitioner({required this.displayName});
-}
-
-class CareManager {
-  String displayName;
-  CareManager({required this.displayName});
-}
-
 class TeamMembers extends StatefulWidget {
-  List<Caregiver> caregivers = [];
-  List<Recipient> recipents = [];
-  List<Practitioner> doctors = [];
-  List<CareManager> careManagers = [];
-  TeamMembers() {
-    caregivers.add(Caregiver(displayName: 'Hiroshi'));
-    caregivers.add(Caregiver(displayName: 'Keiko'));
-    recipents.add(Recipient(displayName: 'Takahashi'));
-    doctors.add(Practitioner(displayName: 'Black Jack'));
-    careManagers.add(CareManager(displayName: 'Fukuchan'));
-  }
   @override
   State<TeamMembers> createState() => _TeamMembers();
 }
@@ -53,11 +22,6 @@ class _TeamMembers extends State<TeamMembers> {
   @override
   void initState() {
     super.initState();
-  }
-
-  void getMembers() {
-    AppState appState = context.read<AppState>();
-    //appState.currentTeam.caregivers.
   }
 
   Widget get caregivers {
@@ -125,6 +89,7 @@ class _TeamMembers extends State<TeamMembers> {
   }
 
   Widget get practitioners {
+    AppState appState = context.read<AppState>();
     return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -135,23 +100,28 @@ class _TeamMembers extends State<TeamMembers> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               scrollDirection: Axis.vertical,
-              itemCount: widget.recipents.length,
+              itemCount: appState.practitioners.length,
               itemBuilder: (context, index) {
                 return Column(
                   children: <Widget>[
-                    ListTile(
-                      leading: CircleAvatar(),
-                      title: Text(widget.doctors[index].displayName),
-                    ),
+                    ListUserItem(user: appState.practitioners[index]),
                     const Divider(),
                   ],
                 );
               }),
-          AddCategoryItem(title: 'Add practitioner', onTap: () => {}),
+          AddCategoryItem(
+              title: 'Add practitioner',
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => AddUserPage(
+                      title: 'New Practitioner', role: UserRole.practitioner),
+                ));
+              }),
         ]);
   }
 
   Widget get careManagers {
+    AppState appState = context.read<AppState>();
     return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -162,19 +132,23 @@ class _TeamMembers extends State<TeamMembers> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               scrollDirection: Axis.vertical,
-              itemCount: widget.recipents.length,
+              itemCount: appState.caremanagers.length,
               itemBuilder: (context, index) {
                 return Column(
                   children: <Widget>[
-                    ListTile(
-                      leading: CircleAvatar(),
-                      title: Text(widget.careManagers[index].displayName),
-                    ),
+                    ListUserItem(user: appState.caremanagers[index]),
                     const Divider(),
                   ],
                 );
               }),
-          AddCategoryItem(title: 'Add care manager', onTap: () => {}),
+          AddCategoryItem(
+              title: 'Add care manager',
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => AddUserPage(
+                      title: 'New Care Manager', role: UserRole.caremanager),
+                ));
+              }),
         ]);
   }
 
@@ -217,7 +191,7 @@ class _TeamMembers extends State<TeamMembers> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text('Team Members')),
+        appBar: AppBar(title: Text('Your Care Team')),
         body: LayoutBuilder(builder: (context, constraints) {
           return RefreshIndicator(
               onRefresh: _refresh,
@@ -229,7 +203,6 @@ class _TeamMembers extends State<TeamMembers> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.start,
-                        //mainAxisSize: MainAxisSize.max,
                         children: <Widget>[
                           caregivers,
                           recipients,
@@ -272,10 +245,13 @@ class ListUserItem extends StatelessWidget {
   const ListUserItem({Key? key, required this.user}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return ListTile(leading: user.avatar, title: Text(user.displayName!), onTap: () {
-      Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => UpdateUserPage(user: user)));
-    });
+    return ListTile(
+        leading: user.avatar,
+        title: Text(user.displayName!),
+        onTap: () {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => UpdateUserPage(user: user)));
+        });
   }
 }
 

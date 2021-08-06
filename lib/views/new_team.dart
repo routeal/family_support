@@ -184,9 +184,10 @@ class NewTeamPage extends StatelessWidget {
       appState.currentTeam = team;
 
       if (appState.currentUser == null) {
-        appState.currentUser =
-            AppUser(id: firebase.auth.currentUser?.uid,
-                teamId: team.id, email: firebase.auth.currentUser?.email);
+        appState.currentUser = AppUser(
+            id: firebase.auth.currentUser?.uid,
+            teamId: team.id,
+            email: firebase.auth.currentUser?.email);
         await firebase.createUser(appState.currentUser!);
       } else {
         appState.currentUser!.teamId = team.id;
@@ -197,6 +198,7 @@ class NewTeamPage extends StatelessWidget {
       error = e.toString();
     }
 
+    // pop down all the way to the current page
     Navigator.of(context).popUntil((route) => route.isFirst);
 
     if (error != null) {
@@ -318,8 +320,105 @@ class _ScanTeamQRPageState extends State<ScanTeamQRPage> {
     });
   }
 
-  void _onQrCodeLoaded() {
-    print(_data);
+  void _onQrCodeLoaded() async {
+    AppState appState = context.read<AppState>();
+
+    String? error;
+
+    try {
+      if (_data.isEmpty) {
+        throw ('Not able to read, try with another QR');
+      }
+
+      String? teamId;
+      int? role;
+      List<String>? parts;
+
+      int idx = _data.indexOf(":");
+      if (idx > 0 && idx < _data.length) {
+        parts = [
+          _data.substring(0, idx).trim(),
+          _data.substring(idx + 1).trim()
+        ];
+      }
+      if (parts?.length == 2) {
+        teamId = parts![0];
+        role = int.parse(parts[1]);
+      }
+      if (teamId == null || role == null) {
+        throw ('Not able to read, try with another QR');
+      }
+
+      FirebaseService firebase = context.read<FirebaseService>();
+      Team? team = await firebase.getTeam(teamId);
+      if (team == null) {
+        throw ('Not able to find your care team, try with another QR');
+      }
+
+      appState.currentTeam = team;
+
+      if (appState.currentUser == null) {
+        appState.currentUser = AppUser(
+            id: firebase.auth.currentUser?.uid,
+            teamId: teamId,
+            role: role,
+            email: firebase.auth.currentUser?.email);
+        await firebase.createUser(appState.currentUser!);
+      } else {
+        appState.currentUser!.teamId = team.id;
+      }
+    } catch (e) {
+      error = e.toString();
+    }
+
+    if (error != null) {
+      await showMessageDialog(
+          context: context, title: 'Error', message: error, color: Colors.red);
+      return;
+    }
+
+    await showDialog(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        Future.delayed(Duration(seconds: 15), () {
+          Navigator.of(context).pop(true);
+        });
+        AppState appState = context.read<AppState>();
+        return AlertDialog(
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('You have successfully joined the care team:'),
+                Padding(
+                    padding: EdgeInsets.all(12),
+                    child: Center(
+                      child: Text(appState.currentTeam!.name ?? '',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 24,
+                              color: Colors.blueGrey)),
+                    )),
+                Text('Continue to your profile to finish signup.'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    // pop down all the way to the current page
+    Navigator.of(context).popUntil((route) => route.isFirst);
+
+    appState.route!.push('/');
   }
 
   @override

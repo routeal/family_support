@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum PropsType { InputField, Photo, Error, Color, Role, CareLevel }
+enum PropsType { InputField, Photo, Error, Color, Role, CareLevel, None }
 
 class PropsValueItem {
   PropsType type;

@@ -1,23 +1,35 @@
 import 'package:flutter/material.dart';
 
-Future<void> showMyDialog(BuildContext context) async {
+Future<void> showMessageDialog({
+  required BuildContext context,
+  String? title,
+  required String message,
+  String? ok,
+  bool? dismissible,
+  Color? color,
+}) async {
   return showDialog<void>(
     context: context,
-    barrierDismissible: false, // user must tap button!
+    barrierDismissible: dismissible ?? true, // user must tap button!
     builder: (BuildContext context) {
       return AlertDialog(
-        title: const Text('AlertDialog Title'),
+        title: ((title != null)
+            ? Text(title,
+                style: TextStyle(color: color ?? Theme.of(context).buttonColor))
+            : null),
         content: SingleChildScrollView(
           child: ListBody(
-            children: const <Widget>[
-              Text('This is a demo alert dialog.'),
-              Text('Would you like to approve of this message?'),
+            children: <Widget>[
+              Text(
+                message,
+                style: TextStyle(color: color ?? Theme.of(context).buttonColor),
+              ),
             ],
           ),
         ),
         actions: <Widget>[
           TextButton(
-            child: const Text('Approve'),
+            child: ((ok != null) ? Text(ok) : Text('OK')),
             onPressed: () {
               Navigator.of(context).pop();
             },
@@ -27,7 +39,6 @@ Future<void> showMyDialog(BuildContext context) async {
     },
   );
 }
-
 
 Future<void> loadingDialog(BuildContext context) async {
   return showDialog(

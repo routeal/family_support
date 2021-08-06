@@ -39,8 +39,8 @@ RouteMap _signInRouteMap() {
             return false;
           }
           if (appState.currentUser == null ||
-              appState.currentUser!.role == null) {
-            print("no currentuser or role");
+              appState.currentUser!.displayName == null) {
+            print("no currentuser or displayName");
             return false;
           }
           print("can navigate");
@@ -55,9 +55,8 @@ RouteMap _signInRouteMap() {
             return Redirect('/team');
           }
           if (appState.currentUser == null ||
-              appState.currentUser!.role == null) {
+              appState.currentUser!.displayName == null) {
             print('user redirect');
-            //return Redirect('/user?title=\'Your Profile\'?logout=\'Logout\'');
             return Redirect('/user');
           }
           return Redirect('/');
@@ -115,8 +114,11 @@ class Launcher extends StatelessWidget {
       if (user == null) {
         user = await firebase.getUser(firebase.auth.currentUser!.uid);
         if (user != null) {
+          print("init user from net: " + user.toJson().toString());
           await AppUser.save(user);
         }
+      } else {
+        print("init user from local: " + user.toJson().toString());
       }
       return user;
     }
@@ -132,8 +134,11 @@ class Launcher extends StatelessWidget {
       FirebaseService firebase = context.read<FirebaseService>();
       team = await firebase.getTeam(user.teamId!);
       if (team != null) {
+        print("init team from net: " + team.toJson().toString());
         await Team.save(team);
       }
+    } else {
+      print("init team from local: " + team.toJson().toString());
     }
     return team;
   }
@@ -141,11 +146,6 @@ class Launcher extends StatelessWidget {
   Future<void> loadAppState(BuildContext context) async {
     AppState appState = context.read<AppState>();
     appState.currentUser = await loadUser(context);
-    if (appState.currentUser != null) {
-      print("init user loaded: " + appState.currentUser!.toJson().toString());
-    } else {
-      print("init user loaded: none");
-    }
     appState.currentTeam = await loadTeam(context, appState.currentUser);
     if (appState.currentTeam != null) {
       FirebaseService firebase = context.read<FirebaseService>();
