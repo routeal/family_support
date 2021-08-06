@@ -147,57 +147,6 @@ class Launcher extends StatelessWidget {
     AppState appState = context.read<AppState>();
     appState.currentUser = await loadUser(context);
     appState.currentTeam = await loadTeam(context, appState.currentUser);
-    if (appState.currentTeam != null) {
-      FirebaseService firebase = context.read<FirebaseService>();
-      for (String id in appState.currentTeam!.caregivers) {
-        final contain = appState.caregivers.where((v) => v.id == id);
-        if (contain.isNotEmpty) continue;
-        if (id == appState.currentUser!.id) {
-          appState.caregivers.add(appState.currentUser!);
-        } else {
-          AppUser? user = await firebase.getUser(id);
-          if (user != null) {
-            appState.caregivers.add(user);
-          }
-        }
-      }
-      for (String id in appState.currentTeam!.recipients) {
-        final contain = appState.recipients.where((v) => v.id == id);
-        if (contain.isNotEmpty) continue;
-        if (id == appState.currentUser!.id) {
-          appState.recipients.add(appState.currentUser!);
-        } else {
-          AppUser? user = await firebase.getUser(id);
-          if (user != null) {
-            appState.recipients.add(user);
-          }
-        }
-      }
-      for (String id in appState.currentTeam!.caremanagers) {
-        final contain = appState.caremanagers.where((v) => v.id == id);
-        if (contain.isNotEmpty) continue;
-        if (id == appState.currentUser!.id) {
-          appState.caremanagers.add(appState.currentUser!);
-        } else {
-          AppUser? user = await firebase.getUser(id);
-          if (user != null) {
-            appState.caremanagers.add(user);
-          }
-        }
-      }
-      for (String id in appState.currentTeam!.practitioners) {
-        final contain = appState.practitioners.where((v) => v.id == id);
-        if (contain.isNotEmpty) continue;
-        if (id == appState.currentUser!.id) {
-          appState.practitioners.add(appState.currentUser!);
-        } else {
-          AppUser? user = await firebase.getUser(id);
-          if (user != null) {
-            appState.practitioners.add(user);
-          }
-        }
-      }
-    }
     return;
   }
 
