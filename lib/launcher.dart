@@ -15,6 +15,7 @@ import 'package:wecare/views/home_page.dart';
 import 'package:wecare/views/new_team.dart';
 import 'package:wecare/views/team_members.dart';
 import 'package:wecare/views/term_page.dart';
+import 'package:wecare/views/timeline_page.dart';
 import 'package:wecare/views/user_page.dart';
 import 'package:wecare/widgets/loading.dart';
 
@@ -68,7 +69,7 @@ RouteMap _signInRouteMap() {
       );
     },
     '/timeline': (_) => MaterialPage<void>(
-          child: CustomersPage(),
+          child: TimelinePage(),
         ),
     '/event': (_) => MaterialPage<void>(
           child: EventPage(),

@@ -4,8 +4,10 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:wecare/models/user.dart';
 import 'package:wecare/services/firebase/firebase_service.dart';
+import 'package:wecare/utils/colors.dart';
 import 'package:wecare/views/app_state.dart';
 import 'package:wecare/views/customers_page.dart';
+import 'package:wecare/views/timeline_page.dart';
 import 'package:wecare/views/user_dialog.dart';
 
 class HomePage extends StatefulWidget {
@@ -122,7 +124,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   static List<Widget> _pageList = [
-    CustomersPage(),
+    TimelinePage(),
     EventPage(),
     ShiftPage(),
     ChatPage(),
