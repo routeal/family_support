@@ -5,7 +5,7 @@ import 'package:intl/intl.dart' as intl;
 import 'package:tuple/tuple.dart';
 import 'package:wecare/models/timeline.dart';
 import 'package:wecare/models/user.dart';
-import 'package:wecare/utils/string.dart';
+import 'package:wecare/utils/extensions.dart';
 
 class CareItemLabel {
   int? type;

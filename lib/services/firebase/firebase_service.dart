@@ -6,7 +6,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
-import 'package:wecare/models/customer.dart';
 import 'package:wecare/models/team.dart';
 import 'package:wecare/models/user.dart';
 
@@ -70,10 +69,7 @@ class FirebaseService {
           );
 
   Future<AppUser?> getUser(String uid) {
-    return usersRef
-        .doc(uid)
-        .get()
-        .then((snapshot) => snapshot.data()!);
+    return usersRef.doc(uid).get().then((snapshot) => snapshot.data()!);
   }
 
   Future<void> createUser(AppUser user) {
@@ -114,31 +110,6 @@ class FirebaseService {
 
   Future<void> updateTeam(String? id, Map<String, Object?> data) {
     return teamsRef.doc(id).update(data);
-  }
-
-  ////////////////////////////////////////////////////////////////////////////
-  /// Customer
-  ////////////////////////////////////////////////////////////////////////////
-
-  CollectionReference<Customer> get customersRef => FirebaseFirestore.instance
-      .collection('users')
-      .doc(auth.currentUser!.uid)
-      .collection('customers')
-      .withConverter<Customer>(
-        fromFirestore: (snapshots, _) => Customer.fromJson(snapshots.data()!),
-        toFirestore: (customer, _) => customer.toJson(),
-      );
-
-  Future<DocumentReference<Customer>> createCustomer(Customer customer) {
-    return customersRef.add(customer);
-  }
-
-  Future<void> updateCustomer(String customerId, Map<String, Object?> data) {
-    return customersRef.doc(customerId).update(data);
-  }
-
-  Future<void> updateCustomerImage(String customerId, String? url) {
-    return customersRef.doc(customerId).update({'imageUrl': url});
   }
 
   ////////////////////////////////////////////////////////////////////////////

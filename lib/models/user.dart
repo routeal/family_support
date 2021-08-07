@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wecare/utils/colors.dart';
@@ -26,25 +27,6 @@ class UserRoleString {
     }
   }
 }
-
-const List<Map<String, String>> UserRoles = [
-  {
-    'name': 'Caregiver',
-    'value': '1',
-  }, //UserRole.caregiver},
-  {
-    'name': 'Recipient',
-    'value': '2',
-  }, //UserRole.recipient},
-  {
-    'name': 'Care Manager',
-    'value': '3',
-  }, //UserRole.caremanager},
-  {
-    'name': 'Practitioner',
-    'value': '4',
-  }, //UserRole.practitioner},
-];
 
 class CareLevel {
   static const int none = 0;
@@ -268,7 +250,7 @@ class AppUser {
     late Widget icon;
     if (imageUrl != null) {
       icon = CircleAvatar(
-        backgroundImage: NetworkImage(imageUrl!),
+        backgroundImage: CachedNetworkImageProvider(imageUrl!),
       );
     } else if (color != null) {
       icon = CircleAvatar(

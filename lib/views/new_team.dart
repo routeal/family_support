@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -177,12 +178,21 @@ class NewTeamPage extends StatelessWidget {
     try {
       FirebaseService firebase = context.read<FirebaseService>();
 
-      final team = Team(name: controller.text);
+      // create a list of empty member arrays
+      var groups = <Group>[];
+      groups.add(Group(role: UserRole.caregiver, members: []));
+      groups.add(Group(role: UserRole.recipient, members: []));
+      groups.add(Group(role: UserRole.caremanager, members: []));
+      groups.add(Group(role: UserRole.practitioner, members: []));
+
+      final team = Team(name: controller.text, groups: groups);
 
       await firebase.createTeam(team);
 
       appState.currentTeam = team;
 
+      // now the user has its team id, but the team dosen't have
+      // the user id in the team groups yet.
       if (appState.currentUser == null) {
         appState.currentUser = AppUser(
             id: firebase.auth.currentUser?.uid,
@@ -203,7 +213,15 @@ class NewTeamPage extends StatelessWidget {
 
     if (error != null) {
       // context comes from scaffold
-      showSnackBar(context: context, message: error);
+      // FIXME:  TODO: need change
+      Fluttertoast.showToast(
+          msg: error,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 10,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
     } else {
       appState.route!.push('/');
     }
@@ -355,6 +373,7 @@ class _ScanTeamQRPageState extends State<ScanTeamQRPage> {
         throw ('Not able to find your care team, try with another QR');
       }
 
+      // at the moment, user won't be added to the team
       appState.currentTeam = team;
 
       if (appState.currentUser == null) {

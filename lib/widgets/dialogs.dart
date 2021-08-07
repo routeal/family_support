@@ -50,30 +50,3 @@ Future<void> loadingDialog(BuildContext context) async {
         );
       });
 }
-
-void showSnackBar(
-    {required BuildContext context,
-    required String message,
-    IconData icon = Icons.error_outline_outlined,
-    int seconds = 3}) {
-  final snackBar = SnackBar(
-    content: Row(
-      children: <Widget>[
-        Padding(
-          padding: EdgeInsets.only(right: 8.0),
-          child: Icon(
-            icon,
-            color: Colors.white,
-          ),
-        ),
-        // add your preferred text content here
-        Expanded(
-          child: Text(message),
-        ),
-      ],
-    ),
-    // the duration of your snack-bar
-    duration: Duration(seconds: seconds),
-  );
-  ScaffoldMessenger.of(context).showSnackBar(snackBar);
-}

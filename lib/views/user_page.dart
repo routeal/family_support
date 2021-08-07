@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:wecare/models/team.dart';
 import 'package:wecare/models/user.dart';
@@ -54,7 +55,7 @@ class UserProps extends PropsValues {
   final int? role;
 
   late AppUser newUser;
-  late Team _team;
+  late Team team;
 
   bool _imageDirty = false;
   bool _dirty = false;
@@ -78,7 +79,7 @@ class UserProps extends PropsValues {
       newUser = user!.clone();
     }
 
-    _team = appState.currentTeam!;
+    team = appState.currentTeam!;
   }
 
   bool get dirty => _dirty || _imageDirty;
@@ -96,7 +97,7 @@ class UserProps extends PropsValues {
               type: PropsType.InputField,
               enabled: false,
               label: "Your Care Team",
-              init: _team.name,
+              init: team.name,
               icon: Icons.group_work_rounded,
             )
           : PropsValueItem(type: PropsType.None)),
@@ -213,7 +214,6 @@ class UserProps extends PropsValues {
   Future<String?> upload(BuildContext context) async {
     String? error;
     try {
-      AppState appState = context.read<AppState>();
       FirebaseService firebase = context.read<FirebaseService>();
 
       // upload the user
@@ -222,79 +222,51 @@ class UserProps extends PropsValues {
       } else {
         final Map<String, Object?>? updates = user!.diff(newUser);
         if (updates != null) {
-          await firebase.updateUser(user!.id!, updates);
-        } else {
-          _dirty = false;
-        }
-      }
-
-      // image
-      if (_imageDirty) {
-        print('imageDirty');
-        String imagePath = firebase.userProfileImagePath(newUser.id!);
-        if (newUser.filepath?.isEmpty ?? true) {
-          // remove
-          newUser.imageUrl = null;
-          // delete from storage
-          await firebase.deleteFile(imagePath);
-          // update the user with the image url
-          await firebase.updateUserImage(newUser.id!, null);
-        } else {
-          // upload the image file
-          newUser.imageUrl =
-              await firebase.uploadFile(imagePath, newUser.filepath!);
-          // update the user with the image url
-          await firebase.updateUserImage(newUser.id!, newUser.imageUrl);
-        }
-      }
-
-      // update the team, _team is appState.currentTeam
-      if (!_team.isMember(newUser)) {
-        final orig = _team.clone();
-        if (_team.addMember(newUser)) {
-          final Map<String, Object?>? updates = orig.diff(_team);
-          if (updates != null) {
-            /*
+          /*
             updates.entries.forEach((entry) {
               print('${entry.key}:${entry.value}');
             });
             */
-            await firebase.updateTeam(_team.id, updates);
-
-            // save to the local
-            await Team.save(_team);
-          }
+          await firebase.updateUser(user!.id!, updates);
         }
       }
 
-      // update appState's users
-      if (_dirty || _imageDirty) {
-        updateAppStateUser(appState, newUser);
+      // image has been changed
+      if (_imageDirty) {
+        String imagePath = firebase.userProfileImagePath(newUser.id!);
+
+        if (newUser.filepath?.isEmpty ?? true) {
+          // remove
+          newUser.imageUrl = null;
+
+          // delete from storage
+          await firebase.deleteFile(imagePath);
+        } else {
+          // upload the image file
+          newUser.imageUrl =
+              await firebase.uploadFile(imagePath, newUser.filepath!);
+        }
+
+        // update the user's imageUrl
+        await firebase.updateUserImage(newUser.id!, newUser.imageUrl);
+      }
+
+      bool updated = await team.addMember(context, newUser);
+      if (updated) {
+        Team.save(team);
+      }
+
+      // save the user
+      AppState appState = Provider.of<AppState>(context, listen: false);
+      if (appState.currentUser!.id == newUser.id) {
+        appState.currentUser = newUser;
+        AppUser.save(newUser);
       }
     } catch (e) {
       error = e.toString();
       print(error);
     }
     return error;
-  }
-
-  void updateAppStateUser(AppState appState, AppUser appUser) async {
-    if (appUser == appState.currentUser) {
-      await AppUser.save(appUser);
-      appState.currentUser = appUser;
-    } else if (appUser.role == UserRole.caregiver) {
-      appState.caregivers.removeWhere((u) => u.id == appUser.id);
-      appState.caregivers.add(appUser);
-    } else if (appUser.role == UserRole.recipient) {
-      appState.recipients.removeWhere((u) => u.id == appUser.id);
-      appState.recipients.add(appUser);
-    } else if (appUser.role == UserRole.caremanager) {
-      appState.caremanagers.add(appUser);
-      appState.caremanagers.add(appUser);
-    } else if (appUser.role == UserRole.practitioner) {
-      appState.practitioners.add(appUser);
-      appState.practitioners.add(appUser);
-    }
   }
 
   Future<void> submit(BuildContext context) async {
@@ -316,8 +288,14 @@ class UserProps extends PropsValues {
     Navigator.of(context).pop();
 
     if (error != null) {
-      // context comes from scaffold
-      showSnackBar(context: context, message: error);
+      Fluttertoast.showToast(
+          msg: error,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 10,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
     } else {
       // replace the current page with the root page
       AppState appState = context.read<AppState>();

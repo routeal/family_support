@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:wecare/models/user.dart';
 
+final List<Map<String, String>> UserRoles = [
+  {'name': 'Caregiver', 'value': UserRole.caregiver.toString()},
+  {'name': 'Recipient', 'value': UserRole.recipient.toString()},
+  {'name': 'Care Manager', 'value': UserRole.caremanager.toString()},
+  {'name': 'Practitioner', 'value': UserRole.practitioner.toString()},
+];
+
 class PropsRoleItem extends FormField<String> {
   PropsRoleItem({
     String? initialValue,

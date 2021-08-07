@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wecare/globals.dart' as globals;
+import 'package:wecare/models/team.dart';
 import 'package:wecare/models/user.dart';
 import 'package:wecare/services/firebase/firebase_service.dart';
 import 'package:wecare/views/app_state.dart';
@@ -30,6 +31,9 @@ class _TimelinePageState extends State<TimelinePage>
     assert(appState.currentUser != null);
     assert(appState.currentTeam != null);
 
+    appState.currentTeam!.getMembers(context);
+
+    /*
     if (appState.caregivers.isNotEmpty) return;
 
     FirebaseService firebase = context.read<FirebaseService>();
@@ -133,6 +137,7 @@ class _TimelinePageState extends State<TimelinePage>
     if (idx >= 0) {
       appState.practitioners.insert(0, appState.practitioners.removeAt(idx));
     }
+    */
   }
 
   @override
@@ -148,8 +153,18 @@ class _TimelinePageState extends State<TimelinePage>
           double fontSize =
               Theme.of(context).textTheme.subtitle1?.fontSize ?? 18;
 
+          Group? recipients = appState.currentTeam!.groups
+              ?.singleWhere((group) => group.role == UserRole.recipient);
+          if (recipients == null) {
+            return Container();
+          }
+          final users = recipients.users;
+          if (users.isEmpty) {
+            return Container();
+          }
+
           return DefaultTabController(
-              length: appState.recipients.length,
+              length: users.length,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: <Widget>[
@@ -166,7 +181,7 @@ class _TimelinePageState extends State<TimelinePage>
                         labelColor: Colors.black,
                         unselectedLabelColor: Colors.black45,
                         isScrollable: false,
-                        tabs: appState.recipients.map<Widget>((item) {
+                        tabs: users.map<Widget>((item) {
                           return Container(
                             padding: const EdgeInsets.fromLTRB(0, 6, 0, 6),
                             child: Row(
@@ -194,13 +209,16 @@ class _TimelinePageState extends State<TimelinePage>
                       child: TabBarView(
                         physics: NeverScrollableScrollPhysics(),
                         //controller: _tabController,
-                        children: appState.recipients.map<Widget>((item) {
+                        children: users.map<Widget>((item) {
                           return CareTimelineMatrix(
                             topBarBackgroundColor: globals.defaultThemeColor,
                             sideBarBackgroundColor: globals.defaultThemeColor,
-                            chooserFontSize: Theme.of(context).textTheme.button?.fontSize,
-                            topBarFontSize: Theme.of(context).textTheme.caption?.fontSize,
-                            sideBarFontSize: Theme.of(context).textTheme.caption?.fontSize,
+                            chooserFontSize:
+                                Theme.of(context).textTheme.button?.fontSize,
+                            topBarFontSize:
+                                Theme.of(context).textTheme.caption?.fontSize,
+                            sideBarFontSize:
+                                Theme.of(context).textTheme.caption?.fontSize,
                             startTime: 8,
                             workHours: 12,
                             recipient: item,

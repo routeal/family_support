@@ -23,7 +23,7 @@ extension StringExtension on String {
   }
 }
 
-extension DateHelpers on DateTime {
+extension DateExtension on DateTime {
   bool isToday() {
     final now = DateTime.now();
     return now.day == this.day &&
