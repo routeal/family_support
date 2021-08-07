@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wecare/models/team.dart';
+import 'package:wecare/models/user.dart';
 import 'package:wecare/services/firebase/firebase_service.dart';
 import 'package:wecare/views/app_state.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void userDialog(BuildContext context) {
   AppState appState = context.read<AppState>();
+
+  Future<void> signOut() async {
+    FirebaseService firebase = context.read<FirebaseService>();
+    await firebase.signOut();
+
+    await AppUser.save(null);
+    await Team.save(null);
+  }
 
   Dialog _dialog = Dialog(
       shape: RoundedRectangleBorder(
@@ -90,10 +100,7 @@ void userDialog(BuildContext context) {
               ListTile(
                 leading: Icon(Icons.logout_outlined),
                 title: Text('Sign Out'),
-                onTap: () {
-                  FirebaseService firebase = context.read<FirebaseService>();
-                  firebase.signOut();
-                },
+                onTap: () => signOut(),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

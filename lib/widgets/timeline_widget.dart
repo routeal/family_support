@@ -94,6 +94,9 @@ class CareItemSelection {
         other.timeSlot == timeSlot &&
         other.itemType == itemType;
   }
+
+  @override
+  int get hashCode => (timeSlot.hashCode + itemType.hashCode);
 }
 
 enum TimelineEventType {
@@ -302,9 +305,10 @@ class _DaySelector extends State<DayChooser> {
             return DropdownMenuItem<DateTime>(
               value: value,
               child: Text(
-                intl.DateFormat('d (E)').format(value),
+                intl.DateFormat('M/d (E)').format(value),
                 style: TextStyle(
                     fontSize: widget.fontSize,
+                    fontWeight: value.isToday() ? FontWeight.bold : FontWeight.normal,
                     color: getDayColor(value.year, value.month, value.day)),
               ),
             );

@@ -1,10 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wecare/globals.dart' as globals;
 import 'package:wecare/models/user.dart';
 import 'package:wecare/services/firebase/firebase_service.dart';
-import 'package:wecare/utils/colors.dart';
-import 'package:wecare/globals.dart' as globals;
 import 'package:wecare/views/app_state.dart';
 import 'package:wecare/widgets/loading.dart';
 import 'package:wecare/widgets/timeline_widget.dart';
@@ -51,10 +50,15 @@ class _TimelinePageState extends State<TimelinePage>
       }
     }
 
+    // change the order for the current user to be first
     int idx = appState.caregivers
         .indexWhere((element) => element.id == appState.currentUser!.id);
     if (idx >= 0) {
       appState.caregivers.insert(0, appState.caregivers.removeAt(idx));
+    }
+
+    for (AppUser u in appState.caregivers) {
+      print("caregiver: " + u.toJson().toString());
     }
 
     appState.recipients.clear();
@@ -73,10 +77,15 @@ class _TimelinePageState extends State<TimelinePage>
       }
     }
 
+    // change the order for the current user to be first
     idx = appState.recipients
         .indexWhere((element) => element.id == appState.currentUser!.id);
     if (idx >= 0) {
       appState.recipients.insert(0, appState.recipients.removeAt(idx));
+    }
+
+    for (AppUser u in appState.recipients) {
+      print("recipients: " + u.toJson().toString());
     }
 
     appState.caremanagers.clear();
@@ -95,6 +104,7 @@ class _TimelinePageState extends State<TimelinePage>
       }
     }
 
+    // change the order for the current user to be first
     idx = appState.caremanagers
         .indexWhere((element) => element.id == appState.currentUser!.id);
     if (idx >= 0) {
@@ -117,6 +127,7 @@ class _TimelinePageState extends State<TimelinePage>
       }
     }
 
+    // change the order for the current user to be first
     idx = appState.practitioners
         .indexWhere((element) => element.id == appState.currentUser!.id);
     if (idx >= 0) {
@@ -134,20 +145,23 @@ class _TimelinePageState extends State<TimelinePage>
             return LoadingPage();
           }
 
+          double fontSize =
+              Theme.of(context).textTheme.subtitle1?.fontSize ?? 18;
+
           return DefaultTabController(
               length: appState.recipients.length,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: <Widget>[
                   Padding(
-                      padding: EdgeInsets.fromLTRB(24, 6, 24, 0),
+                      padding: EdgeInsets.fromLTRB(fontSize, 6, fontSize, 0),
                       child: TabBar(
-                    indicator: BoxDecoration(
-                      border: Border.all(color: Colors.black38, width: 2),
-                      shape: BoxShape.rectangle,
-                      borderRadius: BorderRadius.circular(50),
-                      color: globals.defaultThemeColor,
-                    ),
+                        indicator: BoxDecoration(
+                          border: Border.all(color: Colors.black38, width: 2),
+                          shape: BoxShape.rectangle,
+                          borderRadius: BorderRadius.circular(50),
+                          color: globals.defaultThemeColor,
+                        ),
                         indicatorColor: Colors.transparent,
                         labelColor: Colors.black,
                         unselectedLabelColor: Colors.black45,
@@ -155,24 +169,23 @@ class _TimelinePageState extends State<TimelinePage>
                         tabs: appState.recipients.map<Widget>((item) {
                           return Container(
                             padding: const EdgeInsets.fromLTRB(0, 6, 0, 6),
-                            //width: 100,
-                            //height: 40,
-                            child: Center(
-                              child: Text(
-                                item.displayName!,
-                                style: TextStyle(
-                                    fontSize: Theme.of(context)
-                                        .textTheme
-                                        .subtitle1!
-                                        .fontSize),
-                              ),
-                            ),
+                            child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    height: (fontSize * 1.5),
+                                    child: item.avatar,
+                                  ),
+                                  SizedBox(width: 6),
+                                  Expanded(
+                                      flex: 2,
+                                      child: Text(
+                                        item.displayName!,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(fontSize: fontSize),
+                                      )),
+                                ]),
                           );
-                          /*
-                      return Tab(
-                        text: item.displayName,
-                      );
-*/
                         }).toList(),
                       )),
                   Expanded(
@@ -183,11 +196,11 @@ class _TimelinePageState extends State<TimelinePage>
                         //controller: _tabController,
                         children: appState.recipients.map<Widget>((item) {
                           return CareTimelineMatrix(
-                            topBarBackgroundColor: Colors.pink[50],
-                            sideBarBackgroundColor: Colors.pink[50],
-                            chooserFontSize: 12,
-                            topBarFontSize: 12,
-                            sideBarFontSize: 12,
+                            topBarBackgroundColor: globals.defaultThemeColor,
+                            sideBarBackgroundColor: globals.defaultThemeColor,
+                            chooserFontSize: Theme.of(context).textTheme.button?.fontSize,
+                            topBarFontSize: Theme.of(context).textTheme.caption?.fontSize,
+                            sideBarFontSize: Theme.of(context).textTheme.caption?.fontSize,
                             startTime: 8,
                             workHours: 12,
                             recipient: item,

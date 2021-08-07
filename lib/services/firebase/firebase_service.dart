@@ -89,7 +89,7 @@ class FirebaseService {
   }
 
   Future<void> updateUserImage(String uid, String? url) {
-    return usersRef.doc(uid).update({'image_url': url});
+    return usersRef.doc(uid).update({'imageUrl': url});
   }
 
   ////////////////////////////////////////////////////////////////////////////
@@ -138,7 +138,7 @@ class FirebaseService {
   }
 
   Future<void> updateCustomerImage(String customerId, String? url) {
-    return customersRef.doc(customerId).update({'image_url': url});
+    return customersRef.doc(customerId).update({'imageUrl': url});
   }
 
   ////////////////////////////////////////////////////////////////////////////

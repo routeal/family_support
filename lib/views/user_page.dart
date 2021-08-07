@@ -223,6 +223,8 @@ class UserProps extends PropsValues {
         final Map<String, Object?>? updates = user!.diff(newUser);
         if (updates != null) {
           await firebase.updateUser(user!.id!, updates);
+        } else {
+          _dirty = false;
         }
       }
 
@@ -261,34 +263,38 @@ class UserProps extends PropsValues {
 
             // save to the local
             await Team.save(_team);
-
-            // add the newUser to appState
-            if (newUser.role == UserRole.caregiver) {
-              appState.caregivers.add(newUser);
-            } else if (newUser.role == UserRole.recipient) {
-              appState.recipients.add(newUser);
-            } else if (newUser.role == UserRole.caremanager) {
-              appState.caremanagers.add(newUser);
-            } else if (newUser.role == UserRole.practitioner) {
-              appState.practitioners.add(newUser);
-            }
           }
         }
       }
 
-      // update if this is the current user
-      if (user == appState.currentUser) {
-        print('save newUser: ' + newUser.toJson().toString());
-        // save the user into the local disk
-        await AppUser.save(newUser);
-        // set the current user
-        appState.currentUser = newUser;
+      // update appState's users
+      if (_dirty || _imageDirty) {
+        updateAppStateUser(appState, newUser);
       }
     } catch (e) {
       error = e.toString();
       print(error);
     }
     return error;
+  }
+
+  void updateAppStateUser(AppState appState, AppUser appUser) async {
+    if (appUser == appState.currentUser) {
+      await AppUser.save(appUser);
+      appState.currentUser = appUser;
+    } else if (appUser.role == UserRole.caregiver) {
+      appState.caregivers.removeWhere((u) => u.id == appUser.id);
+      appState.caregivers.add(appUser);
+    } else if (appUser.role == UserRole.recipient) {
+      appState.recipients.removeWhere((u) => u.id == appUser.id);
+      appState.recipients.add(appUser);
+    } else if (appUser.role == UserRole.caremanager) {
+      appState.caremanagers.add(appUser);
+      appState.caremanagers.add(appUser);
+    } else if (appUser.role == UserRole.practitioner) {
+      appState.practitioners.add(appUser);
+      appState.practitioners.add(appUser);
+    }
   }
 
   Future<void> submit(BuildContext context) async {
