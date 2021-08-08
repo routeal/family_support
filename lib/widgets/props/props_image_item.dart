@@ -18,18 +18,18 @@ class PropsImageItem extends FormField<String> {
             validator: validator,
             initialValue: initialValue,
             builder: (FormFieldState<String> state) {
-              return state.build(state.context);
+              return (state as _PropsImageFormState).construct();
             });
   @override
   FormFieldState<String> createState() {
-    return _PropsImageItemImageState(onChanged: onChanged);
+    return _PropsImageFormState(onChanged: onChanged);
   }
 }
 
-class _PropsImageItemImageState extends FormFieldState<String> {
+class _PropsImageFormState extends FormFieldState<String> {
   final ValueChanged<String>? onChanged;
 
-  _PropsImageItemImageState({this.onChanged});
+  _PropsImageFormState({this.onChanged});
 
   String? _imageUrl;
   File? _croppedFile;
@@ -162,8 +162,7 @@ class _PropsImageItemImageState extends FormFieldState<String> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget construct() {
     Widget? icon;
 
     if (!(_imageUrl?.isEmpty ?? true)) {

@@ -45,31 +45,30 @@ class PropsCareLevelItem extends FormField<String> {
             validator: validator,
             initialValue: initialValue,
             builder: (FormFieldState<String> state) {
-              return state.build(state.context);
+              return (state as _PropsCareLevelFormState).construct();
             });
 
   @override
   FormFieldState<String> createState() {
-    return _PropsCareLevelFormItemState(
+    return _PropsCareLevelFormState(
         icon: icon, label: label, onChanged: onChanged);
   }
 }
 
-class _PropsCareLevelFormItemState extends FormFieldState<String> {
+class _PropsCareLevelFormState extends FormFieldState<String> {
   final ValueChanged<String>? onChanged;
   final IconData? icon;
   final String? label;
 
   Map<String, String>? item;
 
-  _PropsCareLevelFormItemState({
+  _PropsCareLevelFormState({
     this.onChanged,
     this.icon,
     this.label,
   });
 
-  @override
-  Widget build(BuildContext context) {
+  Widget construct() {
     return Padding(
         padding: EdgeInsetsDirectional.all(12.0),
         child: Row(children: [

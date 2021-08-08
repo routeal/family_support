@@ -26,27 +26,26 @@ class PropsRoleItem extends FormField<String> {
             validator: validator,
             initialValue: initialValue,
             builder: (FormFieldState<String> state) {
-              return state.build(state.context);
+              return (state as _PropsRoleFormState).construct();
             });
 
   @override
   FormFieldState<String> createState() {
-    return _PropsRoleFormItemState(
+    return _PropsRoleFormState(
         icon: icon, label: label, onChanged: onChanged);
   }
 }
 
-class _PropsRoleFormItemState extends FormFieldState<String> {
+class _PropsRoleFormState extends FormFieldState<String> {
   Map<String, String>? item;
 
   final IconData? icon;
   final String? label;
   final ValueChanged<String>? onChanged;
 
-  _PropsRoleFormItemState({this.icon, this.label, this.onChanged});
+  _PropsRoleFormState({this.icon, this.label, this.onChanged});
 
-  @override
-  Widget build(BuildContext context) {
+  Widget construct() {
     return Padding(
         padding: EdgeInsetsDirectional.all(12.0),
         child: Row(children: [

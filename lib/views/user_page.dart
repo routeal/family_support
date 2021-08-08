@@ -223,11 +223,9 @@ class UserProps extends PropsValues {
       } else {
         final Map<String, Object?>? updates = user!.diff(newUser);
         if (updates != null) {
-          /*
-            updates.entries.forEach((entry) {
-              print('${entry.key}:${entry.value}');
-            });
-            */
+          updates.entries.forEach((entry) {
+            print('${entry.key}:${entry.value}');
+          });
           await firebase.updateUser(user!.id!, updates);
         }
       }

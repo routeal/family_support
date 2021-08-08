@@ -20,31 +20,30 @@ class PropsColorItem extends FormField<String> {
             validator: validator,
             initialValue: initialValue,
             builder: (FormFieldState<String> state) {
-              return state.build(state.context);
+              return (state as _PropsColorFormState).construct();
             });
 
   @override
   FormFieldState<String> createState() {
-    return _PropsColorFormItemState(
+    return _PropsColorFormState(
         icon: icon, label: label, onChanged: onChanged);
   }
 }
 
-class _PropsColorFormItemState extends FormFieldState<String> {
+class _PropsColorFormState extends FormFieldState<String> {
   final ValueChanged<String>? onChanged;
   final IconData? icon;
   final String? label;
 
   Map<String, String>? item;
 
-  _PropsColorFormItemState({
+  _PropsColorFormState({
     this.onChanged,
     this.icon,
     this.label,
   });
 
-  @override
-  Widget build(BuildContext context) {
+  Widget construct() {
     return Padding(
         padding: EdgeInsetsDirectional.all(12.0),
         child: Row(children: [
@@ -64,7 +63,8 @@ class _PropsColorFormItemState extends FormFieldState<String> {
                         child: DropdownButton(
                           value: item,
                           onChanged: (Map<String, String>? newItem) {
-                            setValue(newItem!['value']);
+                            print(newItem!['value']);
+                            setValue(newItem['value']);
                             if (onChanged != null) {
                               onChanged!(newItem['value']!);
                             }
