@@ -47,6 +47,7 @@ class _TimelinePageState extends State<TimelinePage>
           double fontSize =
               Theme.of(context).textTheme.subtitle1?.fontSize ?? 18;
 
+          /*
           for (Group g in appState.currentTeam!.groups!) {
             print(g.role.toString() + ':' + g.users.length.toString());
           }
@@ -54,6 +55,7 @@ class _TimelinePageState extends State<TimelinePage>
           for (Group g in appState.currentTeam!.groups!) {
             print(g.role.toString() + ':' + g.members!.length.toString());
           }
+          */
 
           final recipients = appState.currentTeam!.groups
               ?.singleWhere((group) => group.role == UserRole.recipient);

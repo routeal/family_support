@@ -55,13 +55,13 @@ class Team {
       }
       g.users.clear();
       for (String id in g.members!) {
-        print(g.role.toString() + ':' + id);
+        //print(g.role.toString() + ':' + id);
         if (id == appState.currentUser!.id) {
           g.users.add(appState.currentUser!);
         } else {
           AppUser? user = await firebase.getUser(id);
           if (user != null) {
-            print(g.role.toString() + ':' + id + ' added');
+            //print(g.role.toString() + ':' + id + ' added');
             g.users.add(user);
           }
         }

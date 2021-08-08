@@ -33,7 +33,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     AppState appState = context.read<AppState>();
 
-    print('index=' + _selectedIndex.toString());
+    //print('index=' + _selectedIndex.toString());
 
     final appBar = AppBar(
       title: Text(AppLocalizations.of(context)!.appName),

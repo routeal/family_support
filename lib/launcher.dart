@@ -42,7 +42,6 @@ RouteMap _signInRouteMap() {
             print("no currentuser or displayName");
             return false;
           }
-          print("can navigate");
           return true;
         },
         onNavigationFailed: (routeInfo, context) {
