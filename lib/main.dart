@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:wecare/globals.dart' as globals;
+import 'package:wecare/constants.dart' as Constants;
 import 'package:wecare/launcher.dart';
 import 'package:wecare/services/firebase/firebase_service.dart';
 import 'package:wecare/utils/logger.dart';
@@ -94,7 +94,7 @@ class _InitFirebaseState extends State<InitFirebase>
 
     if (widget != null) {
       return MaterialApp(
-        theme: ThemeData(primaryColor: globals.defaultScaffoldColor),
+        theme: ThemeData(primaryColor: Constants.defaultScaffoldColor),
         home: widget,
       );
     }

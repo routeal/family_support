@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wecare/globals.dart' as globals;
+import 'package:wecare/constants.dart' as Constants;
 
 class LoadingWidget extends StatelessWidget {
   final bool hasIndicator;
@@ -18,7 +18,7 @@ class LoadingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-        primaryColor: globals.defaultScaffoldColor,
+        primaryColor: Constants.defaultScaffoldColor,
       ),
       home: LoadingWidget(),
     );

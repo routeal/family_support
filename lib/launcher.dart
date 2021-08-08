@@ -3,7 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:routemaster/routemaster.dart';
-import 'package:wecare/globals.dart' as globals;
+import 'package:wecare/constants.dart' as Constants;
 import 'package:wecare/models/team.dart';
 import 'package:wecare/models/user.dart';
 import 'package:wecare/services/firebase/firebase_service.dart';
@@ -187,9 +187,9 @@ class Launcher extends StatelessWidget {
 
           return MaterialApp.router(
             theme: ThemeData(
-              scaffoldBackgroundColor: globals.defaultScaffoldColor,
+              scaffoldBackgroundColor: Constants.defaultScaffoldColor,
               appBarTheme: AppBarTheme(
-                color: globals.defaultThemeColor,
+                color: Constants.defaultPrimaryColor,
                 brightness: Brightness.light,
                 titleTextStyle: TextStyle(
                   fontSize: 20,

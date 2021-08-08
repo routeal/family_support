@@ -37,33 +37,6 @@ class CareLevel {
   static const int five = 5;
 }
 
-const List<Map<String, String>> CareLevels = [
-  {
-    'name': 'Not Available',
-    'value': '0',
-  },
-  {
-    'name': 'Care Level 1',
-    'value': '1',
-  },
-  {
-    'name': 'Care Level 2',
-    'value': '2',
-  },
-  {
-    'name': 'Care Level 3',
-    'value': '3',
-  },
-  {
-    'name': 'Care Level 4',
-    'value': '4',
-  },
-  {
-    'name': 'Care Level 5',
-    'value': '5',
-  },
-];
-
 class AppUser {
   String? id;
   String? imageUrl;

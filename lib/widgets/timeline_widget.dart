@@ -318,7 +318,7 @@ class _DaySelector extends State<DayChooser> {
           width: widget.fontSize,
         ),
         Text(
-          widget.recipient.displayName!,
+          'Care Level ' + widget.recipient.careLevel.toString(),
           style: TextStyle(fontSize: widget.fontSize),
         ),
         const Spacer(),

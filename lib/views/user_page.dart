@@ -171,6 +171,7 @@ class UserProps extends PropsValues {
         init: newUser.phone,
         icon: Icons.phone_outlined,
         validator: (String? value) {
+          if (newUser.role == UserRole.recipient) return null;
           if (value == null || value.isEmpty) return "Phone is required";
           return null;
         },

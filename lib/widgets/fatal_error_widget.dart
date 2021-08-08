@@ -22,7 +22,6 @@ class FatalErrorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: FIXME: need to be fixed!!!
     return Container(
         padding: EdgeInsets.symmetric(horizontal: 20),
         color: Theme.of(context).primaryColor,

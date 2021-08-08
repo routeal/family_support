@@ -64,7 +64,7 @@ class FirebaseService {
       firestore.collection('users').withConverter<AppUser>(
             fromFirestore: (snapshots, _) =>
                 AppUser.fromJson(snapshots.data()!),
-            toFirestore: (AppUser, _) => AppUser.toJson(),
+            toFirestore: (appUser, _) => appUser.toJson(),
           );
 
   Future<AppUser?> getUser(String uid) {
@@ -94,7 +94,7 @@ class FirebaseService {
   CollectionReference<Team?> get teamsRef =>
       firestore.collection('teams').withConverter<Team>(
             fromFirestore: (snapshots, _) => Team.fromJson(snapshots.data()!),
-            toFirestore: (Team, _) => Team.toJson(),
+            toFirestore: (team, _) => team.toJson(),
           );
 
   Future<Team?> getTeam(String id) {

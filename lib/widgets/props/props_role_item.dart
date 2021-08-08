@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wecare/models/user.dart';
 
-final List<Map<String, String>> UserRoles = [
+final List<Map<String, String>> userRoles = [
   {'name': 'Caregiver', 'value': UserRole.caregiver.toString()},
   {'name': 'Recipient', 'value': UserRole.recipient.toString()},
   {'name': 'Care Manager', 'value': UserRole.caremanager.toString()},
@@ -9,84 +9,79 @@ final List<Map<String, String>> UserRoles = [
 ];
 
 class PropsRoleItem extends FormField<String> {
+  final IconData? icon;
+  final String? label;
+  final ValueChanged<String>? onChanged;
+
   PropsRoleItem({
     String? initialValue,
     FormFieldSetter<String>? onSaved,
     FormFieldValidator<String>? validator,
-    ValueChanged<String>? onChanged,
-    IconData? icon,
-    String? label,
+    this.onChanged,
+    this.icon,
+    this.label,
     bool? enabled,
   }) : super(
             onSaved: onSaved,
             validator: validator,
             initialValue: initialValue,
-            builder: (state) {
-              return _PropsRoleFormItem(
-                  state: state,
-                  onChanged: onChanged,
-                  icon: icon,
-                  label: label,
-                  enabled: enabled);
+            builder: (FormFieldState<String> state) {
+              return state.build(state.context);
             });
-}
-
-class _PropsRoleFormItem extends StatefulWidget {
-  final FormFieldState<String> state;
-  final ValueChanged<String>? onChanged;
-  final IconData? icon;
-  final String? label;
-  final bool? enabled;
-
-  _PropsRoleFormItem(
-      {required this.state,
-      required this.onChanged,
-      this.icon,
-      this.label,
-      this.enabled});
 
   @override
-  _PropsRoleFormItemState createState() => _PropsRoleFormItemState(state);
+  FormFieldState<String> createState() {
+    return _PropsRoleFormItemState(
+        icon: icon, label: label, onChanged: onChanged);
+  }
 }
 
-class _PropsRoleFormItemState extends State<_PropsRoleFormItem> {
-  FormFieldState<String> state;
-  Map<String, String>? value;
+class _PropsRoleFormItemState extends FormFieldState<String> {
+  Map<String, String>? item;
 
-  _PropsRoleFormItemState(this.state);
+  final IconData? icon;
+  final String? label;
+  final ValueChanged<String>? onChanged;
+
+  _PropsRoleFormItemState({this.icon, this.label, this.onChanged});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
         padding: EdgeInsetsDirectional.all(12.0),
         child: Row(children: [
-          Icon(widget.icon),
+          Icon(icon),
           SizedBox(width: 16),
           Expanded(
             child: Container(
                 child: InputDecorator(
                     decoration: InputDecoration(
-                      labelText: widget.label,
+                      labelText: label,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(6.0),
                       ),
                     ),
-                    child: DropdownButton(
-                      value: value,
-                      onChanged: (Map<String, String>? newValue) {
-                        state.setValue(newValue!['value']);
-                        setState(() {
-                          value = newValue;
-                        });
-                      },
-                      items: UserRoles.map((role) {
-                        return DropdownMenuItem(
-                            value: role,
-                            child: Row(children: [
-                              Text(role['name']!),
-                            ]));
-                      }).toList(),
-                    ))),
+                    child: IgnorePointer(
+                        ignoring: !widget.enabled,
+                        child: DropdownButton(
+                          value: item,
+                          onChanged: (Map<String, String>? newItem) {
+                            setValue(newItem!['value']);
+                            if (onChanged != null) {
+                              onChanged!(newItem['value']!);
+                            }
+                            setState(() {
+                              item = newItem;
+                            });
+                          },
+                          items: userRoles.map((role) {
+                            return DropdownMenuItem(
+                                value: role,
+                                child: Row(children: [
+                                  Text(role['name']!),
+                                ]));
+                          }).toList(),
+                        )))),
           )
         ]));
   }
@@ -94,18 +89,8 @@ class _PropsRoleFormItemState extends State<_PropsRoleFormItem> {
   @override
   void initState() {
     super.initState();
-    value = UserRoles.firstWhere((e) => e['value'] == state.value,
-        orElse: () => UserRoles[0]);
-    state.setValue(value!['value']);
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
-  void didUpdateWidget(_PropsRoleFormItem oldWidget) {
-    super.didUpdateWidget(oldWidget);
+    item = userRoles.firstWhere((e) => e['value'] == value,
+        orElse: () => userRoles[0]);
+    setValue(item!['value']);
   }
 }

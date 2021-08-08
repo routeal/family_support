@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wecare/globals.dart' as globals;
+import 'package:wecare/constants.dart' as Constants;
 import 'package:wecare/models/team.dart';
 import 'package:wecare/models/user.dart';
 import 'package:wecare/views/app_state.dart';
@@ -78,7 +78,7 @@ class _TimelinePageState extends State<TimelinePage>
                           border: Border.all(color: Colors.black38, width: 2),
                           shape: BoxShape.rectangle,
                           borderRadius: BorderRadius.circular(50),
-                          color: globals.defaultThemeColor,
+                          color: Constants.defaultPrimaryColor,
                         ),
                         indicatorColor: Colors.transparent,
                         labelColor: Colors.black,
@@ -114,8 +114,8 @@ class _TimelinePageState extends State<TimelinePage>
                         //controller: _tabController,
                         children: users.map<Widget>((item) {
                           return CareTimelineMatrix(
-                            topBarBackgroundColor: globals.defaultThemeColor,
-                            sideBarBackgroundColor: globals.defaultThemeColor,
+                            topBarBackgroundColor: Constants.defaultPrimaryColor,
+                            sideBarBackgroundColor: Constants.defaultPrimaryColor,
                             chooserFontSize:
                                 Theme.of(context).textTheme.button?.fontSize,
                             topBarFontSize:
