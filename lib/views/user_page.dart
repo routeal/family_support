@@ -248,12 +248,12 @@ class UserProps extends PropsValues {
         }
 
         // update the user's imageUrl
-        await firebase.updateUserImage(newUser.id!, newUser.imageUrl);
+        await firebase.updateUserImage(newUser.id!, newUser.imageUrl!);
       }
 
-      bool updated = await team.addMember(context, newUser);
+      bool updated = await team.addUser(context, newUser);
       if (updated) {
-        Team.save(team);
+        await Team.save(team);
       }
 
       // save the user

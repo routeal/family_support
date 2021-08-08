@@ -14,7 +14,7 @@ void userDialog(BuildContext context) {
     await firebase.signOut();
 
     await AppUser.save(null);
-    //await Team.save(null);
+    await Team.save(null);
   }
 
   Dialog _dialog = Dialog(

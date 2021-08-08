@@ -36,11 +36,12 @@ class Team {
     if (this.groups != null) {
       data['groups'] = this.groups!.map((v) => v.toJson()).toList();
     }
-    data['createdAt'] = this.createdAt ?? DateTime.now().toIso8601String();
+    data['createdAt'] = this.createdAt == null ?
+        DateTime.now().toIso8601String() : this.createdAt!.toIso8601String();
     return data;
   }
 
-  Future<void> getMembers(BuildContext  context) async {
+  Future<void> getUsers(BuildContext context) async {
     if (groups == null) {
       return;
     }
@@ -54,11 +55,13 @@ class Team {
       }
       g.users.clear();
       for (String id in g.members!) {
+        print(g.role.toString() + ':' + id);
         if (id == appState.currentUser!.id) {
           g.users.add(appState.currentUser!);
         } else {
           AppUser? user = await firebase.getUser(id);
           if (user != null) {
+            print(g.role.toString() + ':' + id + ' added');
             g.users.add(user);
           }
         }
@@ -66,7 +69,7 @@ class Team {
     }
   }
 
-  Future<bool> addMember(BuildContext context, AppUser user) async {
+  Future<bool> addUser(BuildContext context, AppUser user) async {
     FirebaseService firebase = context.read<FirebaseService>();
 
     Group? group = groups?.firstWhere((g) => g.role == user.role);
@@ -80,13 +83,9 @@ class Team {
       group.addUser(user);
       groups!.add(group);
 
-      final update = {
-        'groups': [
-          {'role': user.role, 'members': [user.id]}
-        ]
-      };
+      final update = toJson();
 
-      await firebase.updateTeam(id, update);
+      await firebase.updateTeam(id!, update);
 
       return true;
     }
@@ -104,18 +103,14 @@ class Team {
       }
     }
 
-    final update =  {
-      'groups': [
-        {'role': user.role, 'members': group.members}
-      ]
-    };
+    final update = toJson();
 
-    await firebase.updateTeam(id, update);
+    await firebase.updateTeam(id!, update);
 
     return true;
   }
 
-  Future<bool> removeMember(BuildContext context, AppUser user) async {
+  Future<bool> removeUser(BuildContext context, AppUser user) async {
 
     Group? group = groups?.firstWhere((g) => g.role == user.role);
 
@@ -130,14 +125,10 @@ class Team {
       return false;
     }
 
-    final update = {
-      'groups': [
-        {'role': user.role, 'members': group.members}
-      ]
-    };
+    final update = toJson();
 
     FirebaseService firebase = context.read<FirebaseService>();
-    await firebase.updateTeam(id, update);
+    await firebase.updateTeam(id!, update);
 
     return true;
   }
@@ -181,8 +172,10 @@ class Group {
   }
 
   Group.fromJson(Map<String, Object?> json) {
-    role = json['role'] as int;
-    members = List<String>.from(json['members'] as List);
+    role = json['role'] == null ? null : json['role'] as int;
+    if (json['members'] != null) {
+      members = List<String>.from(json['members'] as List);
+    }
   }
 
   Map<String, dynamic> toJson() {

@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:wecare/globals.dart' as globals;
 import 'package:wecare/models/team.dart';
 import 'package:wecare/models/user.dart';
-import 'package:wecare/services/firebase/firebase_service.dart';
 import 'package:wecare/views/app_state.dart';
 import 'package:wecare/widgets/loading.dart';
 import 'package:wecare/widgets/timeline_widget.dart';
@@ -28,116 +27,11 @@ class _TimelinePageState extends State<TimelinePage>
 
   Future<void> loadMembers(BuildContext context) async {
     AppState appState = context.read<AppState>();
+
     assert(appState.currentUser != null);
     assert(appState.currentTeam != null);
 
-    appState.currentTeam!.getMembers(context);
-
-    /*
-    if (appState.caregivers.isNotEmpty) return;
-
-    FirebaseService firebase = context.read<FirebaseService>();
-
-    appState.caregivers.clear();
-    for (String id in appState.currentTeam!.caregivers) {
-      if (id == appState.currentUser!.id) {
-        if (appState.caregivers.where((u) => id == u.id).isEmpty) {
-          appState.caregivers.add(appState.currentUser!);
-        }
-      } else {
-        AppUser? user = await firebase.getUser(id);
-        if (user != null) {
-          if (appState.caregivers.where((u) => user.id == u.id).isEmpty) {
-            appState.caregivers.add(user);
-          }
-        }
-      }
-    }
-
-    // change the order for the current user to be first
-    int idx = appState.caregivers
-        .indexWhere((element) => element.id == appState.currentUser!.id);
-    if (idx >= 0) {
-      appState.caregivers.insert(0, appState.caregivers.removeAt(idx));
-    }
-
-    for (AppUser u in appState.caregivers) {
-      print("caregiver: " + u.toJson().toString());
-    }
-
-    appState.recipients.clear();
-    for (String id in appState.currentTeam!.recipients) {
-      if (id == appState.currentUser!.id) {
-        if (appState.recipients.where((u) => id == u.id).isEmpty) {
-          appState.recipients.add(appState.currentUser!);
-        }
-      } else {
-        AppUser? user = await firebase.getUser(id);
-        if (user != null) {
-          if (appState.recipients.where((u) => user.id == u.id).isEmpty) {
-            appState.recipients.add(user);
-          }
-        }
-      }
-    }
-
-    // change the order for the current user to be first
-    idx = appState.recipients
-        .indexWhere((element) => element.id == appState.currentUser!.id);
-    if (idx >= 0) {
-      appState.recipients.insert(0, appState.recipients.removeAt(idx));
-    }
-
-    for (AppUser u in appState.recipients) {
-      print("recipients: " + u.toJson().toString());
-    }
-
-    appState.caremanagers.clear();
-    for (String id in appState.currentTeam!.caremanagers) {
-      if (id == appState.currentUser!.id) {
-        if (appState.caremanagers.where((u) => id == u.id).isEmpty) {
-          appState.caremanagers.add(appState.currentUser!);
-        }
-      } else {
-        AppUser? user = await firebase.getUser(id);
-        if (user != null) {
-          if (appState.caremanagers.where((u) => user.id == u.id).isEmpty) {
-            appState.caremanagers.add(user);
-          }
-        }
-      }
-    }
-
-    // change the order for the current user to be first
-    idx = appState.caremanagers
-        .indexWhere((element) => element.id == appState.currentUser!.id);
-    if (idx >= 0) {
-      appState.caremanagers.insert(0, appState.caremanagers.removeAt(idx));
-    }
-
-    appState.practitioners.clear();
-    for (String id in appState.currentTeam!.practitioners) {
-      if (id == appState.currentUser!.id) {
-        if (appState.practitioners.where((u) => id == u.id).isEmpty) {
-          appState.practitioners.add(appState.currentUser!);
-        }
-      } else {
-        AppUser? user = await firebase.getUser(id);
-        if (user != null) {
-          if (appState.practitioners.where((u) => user.id == u.id).isEmpty) {
-            appState.practitioners.add(user);
-          }
-        }
-      }
-    }
-
-    // change the order for the current user to be first
-    idx = appState.practitioners
-        .indexWhere((element) => element.id == appState.currentUser!.id);
-    if (idx >= 0) {
-      appState.practitioners.insert(0, appState.practitioners.removeAt(idx));
-    }
-    */
+    await appState.currentTeam!.getUsers(context);
   }
 
   @override
@@ -153,15 +47,24 @@ class _TimelinePageState extends State<TimelinePage>
           double fontSize =
               Theme.of(context).textTheme.subtitle1?.fontSize ?? 18;
 
-          Group? recipients = appState.currentTeam!.groups
+          for (Group g in appState.currentTeam!.groups!) {
+            print(g.role.toString() + ':' + g.users.length.toString());
+          }
+
+          for (Group g in appState.currentTeam!.groups!) {
+            print(g.role.toString() + ':' + g.members!.length.toString());
+          }
+
+          final recipients = appState.currentTeam!.groups
               ?.singleWhere((group) => group.role == UserRole.recipient);
-          if (recipients == null) {
-            return Container();
+          if (recipients?.users.isEmpty ?? true) {
+            return Container(
+                child: Center(
+                    child: Text('Please add a recipient.',
+                    style: Theme.of(context).textTheme.headline6)));
           }
-          final users = recipients.users;
-          if (users.isEmpty) {
-            return Container();
-          }
+
+          final users = recipients!.users;
 
           return DefaultTabController(
               length: users.length,

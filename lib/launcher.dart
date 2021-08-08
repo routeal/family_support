@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -104,51 +103,61 @@ class Launcher extends StatelessWidget {
   // load appuser from the local disk, if not found,
   // then check the server
   Future<AppUser?> loadUser(BuildContext context) async {
-    FirebaseService firebase = context.read<FirebaseService>();
-    if (firebase.auth.currentUser == null) {
-      // delete the previous user if any
-      await AppUser.save(null);
-      return null;
-    } else {
-      AppUser? user = await AppUser.load();
-      if (user == null) {
-        user = await firebase.getUser(firebase.auth.currentUser!.uid);
-        if (user != null) {
-          print("init user from net: " + user.toJson().toString());
-          await AppUser.save(user);
-        }
+    try {
+      FirebaseService firebase = context.read<FirebaseService>();
+      if (firebase.auth.currentUser == null) {
+        // delete the previous user if any
+        await AppUser.save(null);
+        return null;
       } else {
-        print("init user from local: " + user.toJson().toString());
+        AppUser? user = await AppUser.load();
+        if (user == null) {
+          user = await firebase.getUser(firebase.auth.currentUser!.uid);
+          if (user != null) {
+            print("init user from net: " + user.toJson().toString());
+            await AppUser.save(user);
+          }
+        } else {
+          print("init user from local: " + user.toJson().toString());
+        }
+        return user;
       }
-      return user;
+    } catch (e) {
+      print("Error loadUser:" + e.toString());
     }
+    return null;
   }
 
   Future<Team?> loadTeam(BuildContext context, AppUser? user) async {
-    if (user == null || user.teamId == null) {
-      await Team.save(null);
-      return null;
-    }
-    Team? team = await Team.load();
-    if (team == null) {
-      FirebaseService firebase = context.read<FirebaseService>();
-      team = await firebase.getTeam(user.teamId!);
-      if (team != null) {
-        print("init team from net: " + team.toJson().toString());
-        await Team.save(team);
+    try {
+      if (user == null || user.teamId == null) {
+        await Team.save(null);
+        return null;
       }
-    } else {
-      print("init team from local: " + team.toJson().toString());
+      Team? team = await Team.load();
+      if (team == null) {
+        FirebaseService firebase = context.read<FirebaseService>();
+        team = await firebase.getTeam(user.teamId!);
+        if (team != null) {
+          print("init team from net: " + team.toJson().toString());
+          await Team.save(team);
+        } else {
+          print('unable to find ' + user.teamId!);
+        }
+      } else {
+        print("init team from local: " + team.toJson().toString());
+      }
+      return team;
+    } catch (e) {
+      print("Error loadTeam:" + e.toString());
     }
-    return team;
+    return null;
   }
 
   Future<void> loadAppState(BuildContext context) async {
-    print('loadAppState');
     AppState appState = context.read<AppState>();
     appState.currentUser = await loadUser(context);
     appState.currentTeam = await loadTeam(context, appState.currentUser);
-    return;
   }
 
   @override

@@ -41,20 +41,19 @@ class FirebaseService {
     return userCreds.user;
   }
 
-  Future<void> sendEmailVerification() {
+  Future<void> sendEmailVerification() async {
     User? user = auth.currentUser;
     if (user != null && !user.emailVerified) {
       return user.sendEmailVerification();
     }
-    return Future(() => null);
   }
 
-  Future<void> sendPasswordResetEmail({required String email}) {
-    return auth.sendPasswordResetEmail(email: email);
+  Future<void> sendPasswordResetEmail({required String email}) async {
+    auth.sendPasswordResetEmail(email: email);
   }
 
-  Future<void> signOut() {
-    return auth.signOut();
+  Future<void> signOut() async {
+    auth.signOut();
   }
 
   ////////////////////////////////////////////////////////////////////////////
@@ -84,7 +83,7 @@ class FirebaseService {
     return usersRef.doc(uid).update(data);
   }
 
-  Future<void> updateUserImage(String uid, String? url) {
+  Future<void> updateUserImage(String uid, String url) {
     return usersRef.doc(uid).update({'imageUrl': url});
   }
 
@@ -108,7 +107,7 @@ class FirebaseService {
     return ref.set(team);
   }
 
-  Future<void> updateTeam(String? id, Map<String, Object?> data) {
+  Future<void> updateTeam(String id, Map<String, Object?> data) {
     return teamsRef.doc(id).update(data);
   }
 
@@ -124,10 +123,6 @@ class FirebaseService {
     return _userImagePath(uid) + '/user_profile.jpg';
   }
 
-  String customerImagePath(String id) {
-    return _userImagePath(id) + '/' + id + '/customer_profile.jpg';
-  }
-
   Future<String?> uploadFile(String destination, String localPath) {
     File localFile = File(localPath);
     if (!localFile.existsSync()) {
@@ -136,9 +131,6 @@ class FirebaseService {
     UploadTask uploadTask =
         FirebaseStorage.instance.ref(destination).putFile(localFile);
     return uploadTask.then((snapshot) => snapshot.ref.getDownloadURL());
-
-//    await uploadTask;
-//    return uploadTask.snapshot.ref.getDownloadURL();
   }
 
   Future<void> deleteFile(String destination) {

@@ -150,7 +150,7 @@ class AppUser {
       'teamId': teamId,
       'note': note,
       'color': color,
-      'createdAt': DateTime.now().toIso8601String(),
+      'createdAt': ((createdAt == null) ? DateTime.now().toIso8601String() : createdAt!.toIso8601String()),
     };
   }
 

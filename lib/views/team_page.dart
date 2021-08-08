@@ -10,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:wecare/models/team.dart';
 import 'package:wecare/models/user.dart';
 import 'package:wecare/views/app_state.dart';
 import 'package:wecare/views/user_page.dart';
@@ -29,7 +30,11 @@ class _TeamMembers extends State<TeamMembers> {
 
   Future<void> removeUser(AppUser user) async {
     AppState appState = context.read<AppState>();
-    appState.currentTeam!.removeMember(context, user);
+    Team team = appState.currentTeam!;
+    bool updated = await team.removeUser(context, user);
+    if (updated) {
+      await Team.save(team);
+    }
   }
 
   Widget groupMembers(
