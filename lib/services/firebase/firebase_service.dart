@@ -63,7 +63,7 @@ class FirebaseService {
   get usersRef => firestore.collection('users');
 
   Future<app.User?> getUser(String uid) async {
-    final snapshot = await firestore.collection('users').doc(uid).get();
+    final snapshot = await usersRef.doc(uid).get();
     if (!snapshot.exists) {
       return null;
     }
@@ -84,12 +84,12 @@ class FirebaseService {
     }
     final messageMap = user.toJson();
     messageMap['createdAt'] = FieldValue.serverTimestamp();
-    return firestore.collection('users').doc(user.id).set(messageMap);
+    return usersRef.doc(user.id).set(messageMap);
   }
 
   Future<void> updateUser(String uid, Map<String, Object?> data) async {
     data.remove('createdAt');
-    return firestore.collection('users').doc(uid).update(data);
+    return usersRef.doc(uid).update(data);
   }
 
   ////////////////////////////////////////////////////////////////////////////
@@ -99,7 +99,7 @@ class FirebaseService {
   get teamsRef => firestore.collection('teams');
 
   Future<Team?> getTeam(String id) async {
-    final snapshot = await firestore.collection('teams').doc(id).get();
+    final snapshot = await teamsRef.doc(id).get();
     if (!snapshot.exists) {
       return null;
     }
@@ -114,16 +114,15 @@ class FirebaseService {
   }
 
   Future<void> createTeam(Team team) async {
-    final ref = teamsRef.doc();
-    team.id = ref.id;
+    team.id = teamsRef.id;
     final messageMap = team.toJson();
     messageMap['createdAt'] = FieldValue.serverTimestamp();
-    return firestore.collection('teams').doc(team.id).set(messageMap);
+    return teamsRef.set(messageMap);
   }
 
   Future<void> updateTeam(String id, Map<String, Object?> data) async {
     data.remove('createdAt');
-    return firestore.collection('teams').doc(id).update(data);
+    return teamsRef.doc(id).update(data);
   }
 
   ////////////////////////////////////////////////////////////////////////////
@@ -156,8 +155,10 @@ class FirebaseService {
   /// Chat Messages
   ////////////////////////////////////////////////////////////////////////////
 
+  chatRef(String id) => firestore.collection('chat/$id/messages');
+
   Future<void> sendMessage(String id, Map<String, Object?> message) async {
-    await firestore.collection('chat/$id/messages').add(message);
+    await chatRef(id).add(message);
   }
 
   ////////////////////////////////////////////////////////////////////////////

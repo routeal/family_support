@@ -1,25 +1,22 @@
-import 'dart:convert';
-import 'dart:math';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
+import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:mime/mime.dart';
 import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:wecare/constants.dart' as Constants;
 import 'package:wecare/models/user.dart';
 import 'package:wecare/services/firebase/firebase_service.dart';
 import 'package:wecare/utils/colors.dart';
 import 'package:wecare/views/app_state.dart';
-
-String randomString() {
-  var random = Random.secure();
-  var values = List<int>.generate(16, (i) => random.nextInt(255));
-  return base64UrlEncode(values);
-}
 
 class ChatPage extends StatefulWidget {
   const ChatPage({Key? key}) : super(key: key);
@@ -33,6 +30,7 @@ class _ChatPageState extends State<ChatPage> {
   late String _teamId;
   late types.User _user;
   List<types.User> _teamUsers = [];
+  bool _isAttachmentUploading = false;
 
   types.User convertChatUser(User user) {
     return types.User(
@@ -86,6 +84,17 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
+  void sendUpdateMessage(types.Message message) async {
+    if (message.author.id != _user.id) return;
+
+    final messageMap = message.toJson();
+    messageMap.removeWhere((key, value) => key == 'id' || key == 'createdAt');
+    messageMap['updatedAt'] = FieldValue.serverTimestamp();
+
+    FirebaseService firebase = context.read<FirebaseService>();
+    await firebase.chatRef(_teamId).doc(message.id).update(messageMap);
+  }
+
   void sendMessage(dynamic partialMessage) async {
     types.Message? message;
 
@@ -112,25 +121,16 @@ class _ChatPageState extends State<ChatPage> {
       );
     }
 
-    print('a');
-
     if (message != null) {
-      print('b');
       final messageMap = message.toJson();
       messageMap.removeWhere((key, value) => key == 'author' || key == 'id');
       messageMap['authorId'] = _user.id;
       messageMap['createdAt'] = FieldValue.serverTimestamp();
       messageMap['updatedAt'] = FieldValue.serverTimestamp();
 
-      print(messageMap.toString());
-
       FirebaseService firebase = context.read<FirebaseService>();
       await firebase.sendMessage(_teamId, messageMap);
     }
-  }
-
-  void _addMessage(types.Message message) {
-    sendMessage(message);
   }
 
   void _handleAttachmentPressed() {
@@ -184,16 +184,29 @@ class _ChatPageState extends State<ChatPage> {
     );
 
     if (result != null) {
-      final message = types.FileMessage(
-        author: _user,
-        createdAt: DateTime.now().millisecondsSinceEpoch,
-        id: randomString(),
-        name: result.files.single.name,
-        size: result.files.single.size,
-        uri: result.files.single.path ?? '',
-      );
+      _setAttachmentUploading(true);
+      final name = result.files.single.name;
+      final filePath = result.files.single.path;
+      final file = File(filePath ?? '');
 
-      _addMessage(message);
+      try {
+        final reference = FirebaseStorage.instance.ref(name);
+        await reference.putFile(file);
+        final uri = await reference.getDownloadURL();
+
+        final message = types.PartialFile(
+          mimeType: lookupMimeType(filePath ?? ''),
+          name: name,
+          size: result.files.single.size,
+          uri: uri,
+        );
+
+        sendMessage(message);
+        _setAttachmentUploading(false);
+      } on FirebaseException catch (e) {
+        _setAttachmentUploading(false);
+        print(e);
+      }
     }
   }
 
@@ -205,27 +218,54 @@ class _ChatPageState extends State<ChatPage> {
     );
 
     if (result != null) {
+      _setAttachmentUploading(true);
+      final file = File(result.path);
+      final size = file.lengthSync();
       final bytes = await result.readAsBytes();
       final image = await decodeImageFromList(bytes);
+      final name = result.name;
 
-      final message = types.ImageMessage(
-        author: _user,
-        createdAt: DateTime.now().millisecondsSinceEpoch,
-        height: image.height.toDouble(),
-        id: randomString(),
-        name: result.name,
-        size: bytes.length,
-        uri: result.path,
-        width: image.width.toDouble(),
-      );
+      try {
+        final reference = FirebaseStorage.instance.ref(name);
+        await reference.putFile(file);
+        final uri = await reference.getDownloadURL();
 
-      _addMessage(message);
+        final message = types.PartialImage(
+          height: image.height.toDouble(),
+          name: name,
+          size: size,
+          uri: uri,
+          width: image.width.toDouble(),
+        );
+
+        sendMessage(message);
+
+        _setAttachmentUploading(false);
+      } on FirebaseException catch (e) {
+        _setAttachmentUploading(false);
+        print(e);
+      }
     }
   }
 
   void _handleMessageTap(types.Message message) async {
     if (message is types.FileMessage) {
-      await OpenFile.open(message.uri);
+      var localPath = message.uri;
+
+      if (message.uri.startsWith('http')) {
+        final client = http.Client();
+        final request = await client.get(Uri.parse(message.uri));
+        final bytes = request.bodyBytes;
+        final documentsDir = (await getApplicationDocumentsDirectory()).path;
+        localPath = '$documentsDir/${message.name}';
+
+        if (!File(localPath).existsSync()) {
+          final file = File(localPath);
+          await file.writeAsBytes(bytes);
+        }
+      }
+
+      await OpenFile.open(localPath);
     }
   }
 
@@ -236,24 +276,17 @@ class _ChatPageState extends State<ChatPage> {
     final index = _messages.indexWhere((element) => element.id == message.id);
     final updatedMessage = _messages[index].copyWith(previewData: previewData);
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
-      setState(() {
-        _messages[index] = updatedMessage;
-      });
-    });
+    sendUpdateMessage(updatedMessage);
   }
 
   void _handleSendPressed(types.PartialText message) {
-    /*
-    final textMessage = types.TextMessage(
-      author: _user,
-      createdAt: DateTime.now().millisecondsSinceEpoch,
-      id: randomString(),
-      text: message.text,
-    );
-    */
-
     sendMessage(message);
+  }
+
+  void _setAttachmentUploading(bool uploading) {
+    setState(() {
+      _isAttachmentUploading = uploading;
+    });
   }
 
   @override
@@ -272,6 +305,7 @@ class _ChatPageState extends State<ChatPage> {
                   inputTextColor: Colors.black87,
                   primaryColor: HexColor(appState.currentUser?.color),
                 ),
+                isAttachmentUploading: _isAttachmentUploading,
                 messages: snapshot.data ?? [],
                 onAttachmentPressed: _handleAttachmentPressed,
                 onMessageTap: _handleMessageTap,
