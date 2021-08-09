@@ -92,7 +92,7 @@ class FirebaseService {
     return firestore.collection('users').doc(user.id).set(messageMap);
   }
 
-  Future<void> updateUser(String uid, Map<String, Object?> data) {
+  Future<void> updateUser(String uid, Map<String, Object?> data) async {
     data.remove('createdAt');
     return usersRef.doc(uid).update(data);
   }
@@ -130,7 +130,7 @@ class FirebaseService {
     return firestore.collection('teams').doc(team.id).set(messageMap);
   }
 
-  Future<void> updateTeam(String id, Map<String, Object?> data) {
+  Future<void> updateTeam(String id, Map<String, Object?> data) async {
     data.remove('createdAt');
     return teamsRef.doc(id).update(data);
   }
@@ -147,7 +147,7 @@ class FirebaseService {
     return userImagePath(uid) + '/user_profile.jpg';
   }
 
-  Future<String?> uploadFile(String destination, String localPath) {
+  Future<String?> uploadFile(String destination, String localPath) async {
     File localFile = File(localPath);
     if (!localFile.existsSync()) {
       throw ('not found: ' + localPath);
@@ -157,7 +157,7 @@ class FirebaseService {
     return uploadTask.then((snapshot) => snapshot.ref.getDownloadURL());
   }
 
-  Future<void> deleteFile(String destination) {
+  Future<void> deleteFile(String destination) async {
     return FirebaseStorage.instance.ref().child(destination).delete();
   }
 
