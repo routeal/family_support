@@ -15,7 +15,7 @@ import 'package:wecare/models/user.dart';
 import 'package:wecare/views/app_state.dart';
 import 'package:wecare/views/user_page.dart';
 
-typedef UserCallback = void Function(AppUser user);
+typedef UserCallback = void Function(User user);
 
 class TeamMembers extends StatefulWidget {
   @override
@@ -28,7 +28,7 @@ class _TeamMembers extends State<TeamMembers> {
     super.initState();
   }
 
-  Future<void> removeUser(AppUser user) async {
+  Future<void> removeUser(User user) async {
     AppState appState = context.read<AppState>();
     Team team = appState.currentTeam!;
     bool updated = await team.removeUser(context, user);
@@ -39,7 +39,7 @@ class _TeamMembers extends State<TeamMembers> {
 
   Widget groupMembers(
       {required int role,
-      required List<AppUser> users,
+      required List<User> users,
       required String header,
       required String button,
       required VoidCallback add,
@@ -153,7 +153,7 @@ class _TeamMembers extends State<TeamMembers> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.start,
-                        children: groups!.map<Widget>((g) {
+                        children: groups.map<Widget>((g) {
                           final label = labels[g.role!];
                           return groupMembers(
                               role: g.role!,
@@ -173,11 +173,11 @@ class _TeamMembers extends State<TeamMembers> {
                                   ));
                                 }
                               },
-                              remove: (AppUser user) async {
+                              remove: (User user) async {
                                 await removeUser(user);
                                 setState(() {});
                               },
-                              tap: (AppUser user) {
+                              tap: (User user) {
                                 Navigator.of(context).push(MaterialPageRoute(
                                     builder: (context) =>
                                         UpdateUserPage(user: user)));
@@ -215,7 +215,7 @@ class CategoryHeader extends StatelessWidget {
 }
 
 class ListUserItem extends StatelessWidget {
-  final AppUser user;
+  final User user;
   final bool me;
   final UserCallback tap;
   final UserCallback remove;

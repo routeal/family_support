@@ -58,15 +58,15 @@ class _TimelinePageState extends State<TimelinePage>
           */
 
           final recipients = appState.currentTeam!.groups
-              ?.singleWhere((group) => group.role == UserRole.recipient);
-          if (recipients?.users.isEmpty ?? true) {
+              .singleWhere((group) => group.role == UserRole.recipient);
+          if (recipients.users.isEmpty) {
             return Container(
                 child: Center(
                     child: Text('Please add a recipient.',
                     style: Theme.of(context).textTheme.headline6)));
           }
 
-          final users = recipients!.users;
+          final users = recipients.users;
 
           return DefaultTabController(
               length: users.length,

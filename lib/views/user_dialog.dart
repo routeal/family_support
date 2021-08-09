@@ -13,7 +13,7 @@ void userDialog(BuildContext context) {
     FirebaseService firebase = context.read<FirebaseService>();
     await firebase.signOut();
 
-    await AppUser.save(null);
+    await User.save(null);
     await Team.save(null);
   }
 

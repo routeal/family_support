@@ -7,7 +7,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:wecare/models/team.dart';
-import 'package:wecare/models/user.dart';
+import 'package:wecare/models/user.dart' as app;
 
 class FirebaseService {
   FirebaseFirestore get firestore => FirebaseFirestore.instance;
@@ -60,23 +60,38 @@ class FirebaseService {
   /// User
   ////////////////////////////////////////////////////////////////////////////
 
-  CollectionReference<AppUser?> get usersRef =>
-      firestore.collection('users').withConverter<AppUser>(
+  CollectionReference<app.User?> get usersRef =>
+      firestore.collection('users').withConverter<app.User>(
             fromFirestore: (snapshots, _) =>
-                AppUser.fromJson(snapshots.data()!),
+                app.User.fromJson(snapshots.data()!),
             toFirestore: (appUser, _) => appUser.toJson(),
           );
 
-  Future<AppUser?> getUser(String uid) {
-    return usersRef.doc(uid).get().then((snapshot) => snapshot.data()!);
+  Future<app.User?> getUser(String uid) async {
+    final snapshot = await firestore.collection('users').doc(uid).get();
+    if (!snapshot.exists) {
+      return null;
+    }
+    final data = snapshot.data();
+    print(data.toString());
+    if (data == null) {
+      return null;
+    }
+    try {
+      data['createdAt'] = data['createdAt']?.millisecondsSinceEpoch;
+    } catch (e) {}
+    print(data.toString());
+    return app.User.fromJson(data);
   }
 
-  Future<void> createUser(AppUser user) {
+  Future<void> createUser(app.User user) async {
     if (user.id == null) {
       final ref = usersRef.doc();
       user.id = ref.id;
     }
-    return usersRef.doc(user.id).set(user);
+    final messageMap = user.toJson();
+    messageMap['createdAt'] = FieldValue.serverTimestamp();
+    return firestore.collection('users').doc(user.id).set(messageMap);
   }
 
   Future<void> updateUser(String uid, Map<String, Object?> data) {
@@ -97,18 +112,37 @@ class FirebaseService {
             toFirestore: (team, _) => team.toJson(),
           );
 
-  Future<Team?> getTeam(String id) {
-    return teamsRef.doc(id).get().then((snapshot) => snapshot.data()!);
+  Future<Team?> getTeam(String id) async {
+    final snapshot = await firestore.collection('teams').doc(id).get();
+    if (!snapshot.exists) {
+      return null;
+    }
+    final data = snapshot.data();
+    if (data == null) {
+      return null;
+    }
+    try {
+      data['createdAt'] = data['createdAt']?.millisecondsSinceEpoch;
+    } catch (e) {}
+    return Team.fromJson(data);
   }
 
-  Future<void> createTeam(Team team) {
+  Future<void> createTeam(Team team) async {
     final ref = teamsRef.doc();
     team.id = ref.id;
-    return ref.set(team);
+    final messageMap = team.toJson();
+    messageMap['createdAt'] = FieldValue.serverTimestamp();
+    return firestore.collection('teams').doc(team.id).set(messageMap);
   }
 
   Future<void> updateTeam(String id, Map<String, Object?> data) {
     return teamsRef.doc(id).update(data);
+  }
+
+  Future<void> setTeam(Team team) async {
+    final messageMap = team.toJson();
+    messageMap.remove('createdAt');
+    return firestore.collection('teams').doc(team.id).set(messageMap);
   }
 
   ////////////////////////////////////////////////////////////////////////////

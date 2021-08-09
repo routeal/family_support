@@ -23,7 +23,7 @@ class AddUserPage extends StatelessWidget {
 }
 
 class UpdateUserPage extends StatelessWidget {
-  final AppUser user;
+  final User user;
   UpdateUserPage({Key? key, required this.user}) : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -51,12 +51,13 @@ class UserPropsPage extends StatelessWidget {
 
 class UserProps extends PropsValues {
   final BuildContext context;
-  final AppUser? user;
+  final User? user;
   final int? role;
 
-  late AppUser newUser;
+  late User newUser;
   late Team team;
 
+  String? _filePath;
   bool _imageDirty = false;
   bool _dirty = false;
 
@@ -73,10 +74,10 @@ class UserProps extends PropsValues {
     assert(appState.currentTeam != null);
 
     if (user == null) {
-      newUser = AppUser();
+      newUser = User();
       newUser.role = role;
     } else {
-      newUser = user!.clone();
+      newUser = User.fromJson(user!.toJson());
     }
 
     team = appState.currentTeam!;
@@ -89,7 +90,7 @@ class UserProps extends PropsValues {
       PropsValueItem(
         type: PropsType.Photo,
         init: newUser.imageUrl,
-        onSaved: (String? value) => newUser.filepath = value,
+        onSaved: (String? value) => _filePath = value,
         onChanged: (_) => _imageDirty = true,
       ),
       ((logoutButtonLabel != null)
@@ -217,11 +218,27 @@ class UserProps extends PropsValues {
     try {
       FirebaseService firebase = context.read<FirebaseService>();
 
+      // image has been changed
+      if (_imageDirty) {
+        String imagePath = firebase.userProfileImagePath(newUser.id!);
+
+        if (_filePath?.isEmpty ?? true) {
+          // remove
+          newUser.imageUrl = null;
+          // delete from storage
+          await firebase.deleteFile(imagePath);
+        } else {
+          // upload the image file
+          newUser.imageUrl =
+          await firebase.uploadFile(imagePath, _filePath!);
+        }
+      }
+
       // upload the user
       if (user == null) {
         await firebase.createUser(newUser);
       } else {
-        final Map<String, Object?>? updates = user!.diff(newUser);
+        final Map<String, Object?>? updates = user!.difference(newUser);
         if (updates != null) {
           updates.entries.forEach((entry) {
             print('${entry.key}:${entry.value}');
@@ -230,36 +247,16 @@ class UserProps extends PropsValues {
         }
       }
 
-      // image has been changed
-      if (_imageDirty) {
-        String imagePath = firebase.userProfileImagePath(newUser.id!);
-
-        if (newUser.filepath?.isEmpty ?? true) {
-          // remove
-          newUser.imageUrl = null;
-
-          // delete from storage
-          await firebase.deleteFile(imagePath);
-        } else {
-          // upload the image file
-          newUser.imageUrl =
-              await firebase.uploadFile(imagePath, newUser.filepath!);
-        }
-
-        // update the user's imageUrl
-        await firebase.updateUserImage(newUser.id!, newUser.imageUrl!);
-      }
-
       bool updated = await team.addUser(context, newUser);
       if (updated) {
         await Team.save(team);
       }
 
       // save the user
-      AppState appState = Provider.of<AppState>(context, listen: false);
+      AppState appState = context.read<AppState>();
       if (appState.currentUser!.id == newUser.id) {
         appState.currentUser = newUser;
-        AppUser.save(newUser);
+        User.save(newUser);
       }
     } catch (e) {
       error = e.toString();

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -27,6 +28,8 @@ class JoinTeamPage extends StatelessWidget {
                 onPressed: () {
                   FirebaseService firebase = context.read<FirebaseService>();
                   firebase.signOut();
+                  User.save(null);
+                  Team.save(null);
                 })
           ],
         ),
@@ -194,7 +197,7 @@ class NewTeamPage extends StatelessWidget {
       // now the user has its team id, but the team dosen't have
       // the user id in the team groups yet.
       if (appState.currentUser == null) {
-        appState.currentUser = AppUser(
+        appState.currentUser = User(
             id: firebase.auth.currentUser?.uid,
             teamId: team.id,
             email: firebase.auth.currentUser?.email);
@@ -377,7 +380,7 @@ class _ScanTeamQRPageState extends State<ScanTeamQRPage> {
       appState.currentTeam = team;
 
       if (appState.currentUser == null) {
-        appState.currentUser = AppUser(
+        appState.currentUser = User(
             id: firebase.auth.currentUser?.uid,
             teamId: teamId,
             role: role,

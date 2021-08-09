@@ -3,7 +3,8 @@ import 'package:wecare/models/team.dart';
 import 'package:wecare/models/user.dart';
 
 class AppState {
-  AppUser? currentUser;
+  User? currentUser;
   Team? currentTeam;
+  List<User> currentMembers = [];
   RoutemasterDelegate? route;
 }

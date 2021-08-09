@@ -99,24 +99,30 @@ RouteMap _signInRouteMap() {
 class Launcher extends StatelessWidget {
   // load appuser from the local disk, if not found,
   // then check the server
-  Future<AppUser?> loadUser(BuildContext context) async {
+  Future<User?> loadUser(BuildContext context) async {
     try {
       FirebaseService firebase = context.read<FirebaseService>();
       if (firebase.auth.currentUser == null) {
         // delete the previous user if any
-        await AppUser.save(null);
+        await User.save(null);
         return null;
       } else {
-        AppUser? user = await AppUser.load();
+        print('a');
+
+        User? user;// = await User.load();
         if (user == null) {
           user = await firebase.getUser(firebase.auth.currentUser!.uid);
+          print('c');
           if (user != null) {
             print("init user from net: " + user.toJson().toString());
-            await AppUser.save(user);
+            await User.save(user);
+          } else {
+            print("init user from net: null");
           }
         } else {
           print("init user from local: " + user.toJson().toString());
         }
+        print('b');
         return user;
       }
     } catch (e) {
@@ -125,13 +131,13 @@ class Launcher extends StatelessWidget {
     return null;
   }
 
-  Future<Team?> loadTeam(BuildContext context, AppUser? user) async {
+  Future<Team?> loadTeam(BuildContext context, User? user) async {
     try {
       if (user == null || user.teamId == null) {
         await Team.save(null);
         return null;
       }
-      Team? team = await Team.load();
+      Team? team;// = await Team.load();
       if (team == null) {
         FirebaseService firebase = context.read<FirebaseService>();
         team = await firebase.getTeam(user.teamId!);

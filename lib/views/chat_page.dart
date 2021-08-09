@@ -32,7 +32,7 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     AppState appState = context.read<AppState>();
-    AppUser user = appState.currentUser!;
+    User user = appState.currentUser!;
     _user =  types.User(
       id: user.id!,
       imageUrl: user.imageUrl,

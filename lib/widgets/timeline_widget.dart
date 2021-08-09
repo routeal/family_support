@@ -169,7 +169,7 @@ class ScrollingPositions with ChangeNotifier {
 class CareTimelineMatrix extends StatelessWidget {
   final dayList = DayRange();
   final scrollPos = ScrollingPositions();
-  final AppUser recipient;
+  final User recipient;
   final Color? topBarBackgroundColor;
   final Color? sideBarBackgroundColor;
   final Color? frameColor;
@@ -246,7 +246,7 @@ class CareTimelineMatrix extends StatelessWidget {
 }
 
 class DayChooser extends StatefulWidget {
-  final AppUser recipient;
+  final User recipient;
   final double fontSize;
   const DayChooser({Key? key, required this.recipient, required this.fontSize})
       : super(key: key);
