@@ -27,107 +27,85 @@ class _TimelinePageState extends State<TimelinePage>
 
   @override
   Widget build(BuildContext context) {
-    AppState appState = context.read<AppState>();
-    return FutureBuilder(
-        future: Members.loadUsers(context),
-        builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return LoadingPage();
-          }
+    double fontSize = Theme.of(context).textTheme.subtitle1?.fontSize ?? 18;
 
-          double fontSize =
-              Theme.of(context).textTheme.subtitle1?.fontSize ?? 18;
+    final users = Members.getUsers(context, UserRole.recipient);
 
-          /*
-          for (Group g in appState.currentTeam!.groups!) {
-            print(g.role.toString() + ':' + g.users.length.toString());
-          }
+    if (users.isEmpty) {
+      return Container(
+          child: Center(
+              child: Text('Please add a recipient.',
+                  style: Theme.of(context).textTheme.headline6)));
+    }
 
-          for (Group g in appState.currentTeam!.groups!) {
-            print(g.role.toString() + ':' + g.members!.length.toString());
-          }
-          */
-
-          final users = Members.getUsers(context, UserRole.recipient);
-
-          if (users.isEmpty) {
-            return Container(
-                child: Center(
-                    child: Text('Please add a recipient.',
-                        style: Theme.of(context).textTheme.headline6)));
-          }
-
-          return DefaultTabController(
-              length: users.length,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: <Widget>[
-                  Padding(
-                      padding: EdgeInsets.fromLTRB(fontSize, 6, fontSize, 0),
-                      child: TabBar(
-                        indicator: BoxDecoration(
-                          border: Border.all(color: Colors.black38, width: 2),
-                          shape: BoxShape.rectangle,
-                          borderRadius: BorderRadius.circular(50),
-                          color: Constants.defaultPrimaryColor,
-                        ),
-                        indicatorColor: Colors.transparent,
-                        labelColor: Colors.black,
-                        unselectedLabelColor: Colors.black45,
-                        isScrollable: false,
-                        tabs: users.map<Widget>((item) {
-                          return Container(
-                            padding: const EdgeInsets.fromLTRB(0, 6, 0, 6),
-                            child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  SizedBox(
-                                    height: (fontSize * 1.5),
-                                    child: item.avatar,
-                                  ),
-                                  SizedBox(width: 6),
-                                  Expanded(
-                                      flex: 2,
-                                      child: Text(
-                                        item.displayName!,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(fontSize: fontSize),
-                                      )),
-                                ]),
-                          );
-                        }).toList(),
-                      )),
-                  Expanded(
-                    child: Container(
-                      margin: EdgeInsets.only(left: 0, right: 0),
-                      child: TabBarView(
-                        physics: NeverScrollableScrollPhysics(),
-                        //controller: _tabController,
-                        children: users.map<Widget>((item) {
-                          return CareTimelineMatrix(
-                            topBarBackgroundColor:
-                                Constants.defaultPrimaryColor,
-                            sideBarBackgroundColor:
-                                Constants.defaultPrimaryColor,
-                            chooserFontSize:
-                                Theme.of(context).textTheme.button?.fontSize,
-                            topBarFontSize:
-                                Theme.of(context).textTheme.caption?.fontSize,
-                            sideBarFontSize:
-                                Theme.of(context).textTheme.caption?.fontSize,
-                            startTime: 8,
-                            workHours: 12,
-                            recipient: item,
-                          );
-                          //return Container(
-                          //  color: HexColor(item.color!),
-                          //);
-                        }).toList(),
-                      ),
-                    ),
-                  )
-                ],
-              ));
-        });
+    return DefaultTabController(
+        length: users.length,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: <Widget>[
+            Padding(
+                padding: EdgeInsets.fromLTRB(fontSize, 6, fontSize, 0),
+                child: TabBar(
+                  indicator: BoxDecoration(
+                    border: Border.all(color: Colors.black38, width: 2),
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.circular(50),
+                    color: Constants.defaultPrimaryColor,
+                  ),
+                  indicatorColor: Colors.transparent,
+                  labelColor: Colors.black,
+                  unselectedLabelColor: Colors.black45,
+                  isScrollable: false,
+                  tabs: users.map<Widget>((item) {
+                    return Container(
+                      padding: const EdgeInsets.fromLTRB(0, 6, 0, 6),
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              height: (fontSize * 1.5),
+                              child: item.avatar,
+                            ),
+                            SizedBox(width: 6),
+                            Expanded(
+                                flex: 2,
+                                child: Text(
+                                  item.displayName!,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(fontSize: fontSize),
+                                )),
+                          ]),
+                    );
+                  }).toList(),
+                )),
+            Expanded(
+              child: Container(
+                margin: EdgeInsets.only(left: 0, right: 0),
+                child: TabBarView(
+                  physics: NeverScrollableScrollPhysics(),
+                  //controller: _tabController,
+                  children: users.map<Widget>((item) {
+                    return CareTimelineMatrix(
+                      topBarBackgroundColor: Constants.defaultPrimaryColor,
+                      sideBarBackgroundColor: Constants.defaultPrimaryColor,
+                      chooserFontSize:
+                          Theme.of(context).textTheme.button?.fontSize,
+                      topBarFontSize:
+                          Theme.of(context).textTheme.caption?.fontSize,
+                      sideBarFontSize:
+                          Theme.of(context).textTheme.caption?.fontSize,
+                      startTime: 8,
+                      workHours: 12,
+                      recipient: item,
+                    );
+                    //return Container(
+                    //  color: HexColor(item.color!),
+                    //);
+                  }).toList(),
+                ),
+              ),
+            )
+          ],
+        ));
   }
 }

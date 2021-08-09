@@ -60,12 +60,7 @@ class FirebaseService {
   /// User
   ////////////////////////////////////////////////////////////////////////////
 
-  CollectionReference<app.User?> get usersRef =>
-      firestore.collection('users').withConverter<app.User>(
-            fromFirestore: (snapshots, _) =>
-                app.User.fromJson(snapshots.data()!),
-            toFirestore: (appUser, _) => appUser.toJson(),
-          );
+  get usersRef => firestore.collection('users');
 
   Future<app.User?> getUser(String uid) async {
     final snapshot = await firestore.collection('users').doc(uid).get();
@@ -94,18 +89,14 @@ class FirebaseService {
 
   Future<void> updateUser(String uid, Map<String, Object?> data) async {
     data.remove('createdAt');
-    return usersRef.doc(uid).update(data);
+    return firestore.collection('users').doc(uid).update(data);
   }
 
   ////////////////////////////////////////////////////////////////////////////
   /// Teams
   ////////////////////////////////////////////////////////////////////////////
 
-  CollectionReference<Team?> get teamsRef =>
-      firestore.collection('teams').withConverter<Team>(
-            fromFirestore: (snapshots, _) => Team.fromJson(snapshots.data()!),
-            toFirestore: (team, _) => team.toJson(),
-          );
+  get teamsRef => firestore.collection('teams');
 
   Future<Team?> getTeam(String id) async {
     final snapshot = await firestore.collection('teams').doc(id).get();
@@ -132,7 +123,7 @@ class FirebaseService {
 
   Future<void> updateTeam(String id, Map<String, Object?> data) async {
     data.remove('createdAt');
-    return teamsRef.doc(id).update(data);
+    return firestore.collection('teams').doc(id).update(data);
   }
 
   ////////////////////////////////////////////////////////////////////////////
@@ -159,6 +150,14 @@ class FirebaseService {
 
   Future<void> deleteFile(String destination) async {
     return FirebaseStorage.instance.ref().child(destination).delete();
+  }
+
+  ////////////////////////////////////////////////////////////////////////////
+  /// Chat Messages
+  ////////////////////////////////////////////////////////////////////////////
+
+  Future<void> sendMessage(String id, Map<String, Object?> message) async {
+    await firestore.collection('chat/$id/messages').add(message);
   }
 
   ////////////////////////////////////////////////////////////////////////////

@@ -1,4 +1,3 @@
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:wecare/utils/colors.dart';
@@ -95,7 +94,6 @@ class User {
         'createdAt': createdAt,
       };
 
-  // exclude imageUrl for comparison
   Map<String, Object?>? difference(User user) {
     Map<String, Object?> map = Map();
     if (id != user.id) {

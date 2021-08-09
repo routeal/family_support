@@ -108,7 +108,8 @@ class Launcher extends StatelessWidget {
         await Preferences.save('user', null);
         return null;
       } else {
-        User? user; // = await User.load();
+        final data = await Preferences.load('user');
+        User? user = (data != null) ? User.fromJson(data) : null;
         if (user == null) {
           user = await firebase.getUser(firebase.auth.currentUser!.uid);
           if (user != null) {
@@ -134,8 +135,9 @@ class Launcher extends StatelessWidget {
         await Preferences.save('team', null);
         return null;
       }
-      Team? team; // = await Team.load();
-      if (team == null) {
+      final data = await Preferences.load('team');
+      Team? team = (data != null) ? Team.fromJson(data) : null;
+      if (data == null) {
         FirebaseService firebase = context.read<FirebaseService>();
         team = await firebase.getTeam(user.teamId!);
         if (team != null) {
@@ -145,7 +147,7 @@ class Launcher extends StatelessWidget {
           print('unable to find ' + user.teamId!);
         }
       } else {
-        print("init team from local: " + team.toJson().toString());
+        print("init team from local: " + team!.toJson().toString());
       }
       return team;
     } catch (e) {
