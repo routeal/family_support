@@ -61,10 +61,6 @@ class Members {
       members += group.members ?? [];
     }
 
-    for (String s in members) {
-      print('member: ' + s);
-    }
-
     FirebaseService firebase = context.read<FirebaseService>();
 
     appState.currentMembers.clear();

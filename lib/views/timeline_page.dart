@@ -25,21 +25,11 @@ class _TimelinePageState extends State<TimelinePage>
     super.dispose();
   }
 
-  Future<void> loadMembers(BuildContext context) async {
-    AppState appState = context.read<AppState>();
-
-    assert(appState.currentUser != null);
-    assert(appState.currentTeam != null);
-
-    //await appState.currentTeam!.getUsers(context);
-    Members.loadUsers(context);
-  }
-
   @override
   Widget build(BuildContext context) {
     AppState appState = context.read<AppState>();
     return FutureBuilder(
-        future: loadMembers(context),
+        future: Members.loadUsers(context),
         builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
             return LoadingPage();
