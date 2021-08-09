@@ -73,14 +73,12 @@ class FirebaseService {
       return null;
     }
     final data = snapshot.data();
-    print(data.toString());
     if (data == null) {
       return null;
     }
     try {
       data['createdAt'] = data['createdAt']?.millisecondsSinceEpoch;
     } catch (e) {}
-    print(data.toString());
     return app.User.fromJson(data);
   }
 
@@ -95,6 +93,7 @@ class FirebaseService {
   }
 
   Future<void> updateUser(String uid, Map<String, Object?> data) {
+    data.remove('createdAt');
     return usersRef.doc(uid).update(data);
   }
 
@@ -132,6 +131,7 @@ class FirebaseService {
   }
 
   Future<void> updateTeam(String id, Map<String, Object?> data) {
+    data.remove('createdAt');
     return teamsRef.doc(id).update(data);
   }
 
@@ -139,12 +139,12 @@ class FirebaseService {
   /// Storage
   ////////////////////////////////////////////////////////////////////////////
 
-  String _userImagePath(String uid) {
+  String userImagePath(String uid) {
     return 'users/' + uid + '/images';
   }
 
   String userProfileImagePath(String uid) {
-    return _userImagePath(uid) + '/user_profile.jpg';
+    return userImagePath(uid) + '/user_profile.jpg';
   }
 
   Future<String?> uploadFile(String destination, String localPath) {

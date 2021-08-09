@@ -222,6 +222,8 @@ class UserProps extends PropsValues {
       // image has been changed
       if (_imageDirty) {
         String imagePath = firebase.userProfileImagePath(newUser.id!);
+        print(imagePath);
+        print(_filePath);
 
         if (_filePath?.isEmpty ?? true) {
           // remove

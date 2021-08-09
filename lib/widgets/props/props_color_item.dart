@@ -63,8 +63,7 @@ class _PropsColorFormState extends FormFieldState<String> {
                         child: DropdownButton(
                           value: item,
                           onChanged: (Map<String, String>? newItem) {
-                            print(newItem!['value']);
-                            setValue(newItem['value']);
+                            setValue(newItem!['value']);
                             if (onChanged != null) {
                               onChanged!(newItem['value']!);
                             }

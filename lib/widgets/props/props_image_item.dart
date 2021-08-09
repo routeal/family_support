@@ -36,7 +36,7 @@ class _PropsImageFormState extends FormFieldState<String> {
   final _picker = ImagePicker();
 
   Future _showDialog() async {
-    var pane = ((_imageUrl?.isEmpty ?? false) &&
+    var pane = ((_imageUrl?.isEmpty ?? true) &&
             (_croppedFile == null || !_croppedFile!.existsSync()))
         ? [
             TextButton(

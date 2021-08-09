@@ -101,6 +101,9 @@ class User {
     if (id != user.id) {
       map['id'] = user.id;
     }
+    if (imageUrl != user.imageUrl) {
+      map['imageUrl'] = user.imageUrl;
+    }
     if (displayName != user.displayName) {
       map['displayName'] = user.displayName;
     }

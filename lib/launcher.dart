@@ -108,12 +108,9 @@ class Launcher extends StatelessWidget {
         await Preferences.save('user', null);
         return null;
       } else {
-        print('a');
-
         User? user; // = await User.load();
         if (user == null) {
           user = await firebase.getUser(firebase.auth.currentUser!.uid);
-          print('c');
           if (user != null) {
             print("init user from net: " + user.toJson().toString());
             await Preferences.save('user', user.toJson());
@@ -123,7 +120,6 @@ class Launcher extends StatelessWidget {
         } else {
           print("init user from local: " + user.toJson().toString());
         }
-        print('b');
         return user;
       }
     } catch (e) {
