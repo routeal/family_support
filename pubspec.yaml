@@ -60,7 +60,9 @@ dependencies:
 
   # reliable
   lottie: ^1.0.1
+  file_picker: ^3.0.4
   image_cropper: ^1.4.1
+  open_file: ^3.2.1
   fluttertoast: ^8.0.8
   cached_network_image: ^3.0.0
   qr_flutter: ^4.0.0
@@ -69,6 +71,7 @@ dependencies:
 
   # not so poppular
   routemaster: ^0.9.5
+  flutter_chat_ui: ^1.1.9
 
   # not null safety, need to be replaced
   qr_code_tools: ^0.0.7

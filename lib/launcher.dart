@@ -9,6 +9,7 @@ import 'package:wecare/models/user.dart';
 import 'package:wecare/services/firebase/firebase_service.dart';
 import 'package:wecare/views/app_state.dart';
 import 'package:wecare/views/auth_page.dart';
+import 'package:wecare/views/chat_page.dart';
 import 'package:wecare/views/home_page.dart';
 import 'package:wecare/views/new_team.dart';
 import 'package:wecare/views/team_page.dart';
@@ -76,9 +77,6 @@ RouteMap _signInRouteMap() {
         ),
     '/chat': (_) => MaterialPage<void>(
           child: ChatPage(),
-        ),
-    '/album': (_) => MaterialPage<void>(
-          child: AlbumPage(),
         ),
     '/user': (route) => MaterialPage<void>(
           child: UserPropsPage(),

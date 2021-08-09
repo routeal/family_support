@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 // Primary color
-Color defaultPrimaryColor = Colors.pink[50]!;
+const Color defaultPrimaryColor =  Color(0xffffd1dc);
 
 // Scaffold (pane) color
-Color defaultScaffoldColor = Color(0xfffff3f5);
+const Color defaultScaffoldColor = Color(0xfffff3f5);
