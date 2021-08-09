@@ -1,16 +1,17 @@
 import 'dart:convert';
 import 'dart:math';
-import 'package:flutter/material.dart';
+
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:open_file/open_file.dart';
+import 'package:provider/provider.dart';
 import 'package:wecare/constants.dart' as Constants;
 import 'package:wecare/models/user.dart';
 import 'package:wecare/utils/colors.dart';
 import 'package:wecare/views/app_state.dart';
-import 'package:provider/provider.dart';
 
 String randomString() {
   var random = Random.secure();
@@ -33,7 +34,7 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     AppState appState = context.read<AppState>();
     User user = appState.currentUser!;
-    _user =  types.User(
+    _user = types.User(
       id: user.id!,
       imageUrl: user.imageUrl,
       lastName: user.lastName,
@@ -145,9 +146,9 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _handlePreviewDataFetched(
-      types.TextMessage message,
-      types.PreviewData previewData,
-      ) {
+    types.TextMessage message,
+    types.PreviewData previewData,
+  ) {
     final index = _messages.indexWhere((element) => element.id == message.id);
     final updatedMessage = _messages[index].copyWith(previewData: previewData);
 
@@ -189,7 +190,6 @@ class _ChatPageState extends State<ChatPage> {
         showUserAvatars: true,
         showUserNames: true,
         user: _user,
-
       ),
     );
   }
@@ -207,11 +207,11 @@ class ChatL10nJp extends ChatL10n {
     String inputPlaceholder = 'Message',
     String sendButtonAccessibilityLabel = 'Send',
   }) : super(
-    attachmentButtonAccessibilityLabel:
-    attachmentButtonAccessibilityLabel,
-    emptyChatPlaceholder: emptyChatPlaceholder,
-    fileButtonAccessibilityLabel: fileButtonAccessibilityLabel,
-    inputPlaceholder: inputPlaceholder,
-    sendButtonAccessibilityLabel: sendButtonAccessibilityLabel,
-  );
+          attachmentButtonAccessibilityLabel:
+              attachmentButtonAccessibilityLabel,
+          emptyChatPlaceholder: emptyChatPlaceholder,
+          fileButtonAccessibilityLabel: fileButtonAccessibilityLabel,
+          inputPlaceholder: inputPlaceholder,
+          sendButtonAccessibilityLabel: sendButtonAccessibilityLabel,
+        );
 }

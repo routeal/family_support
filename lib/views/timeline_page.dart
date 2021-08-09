@@ -31,7 +31,8 @@ class _TimelinePageState extends State<TimelinePage>
     assert(appState.currentUser != null);
     assert(appState.currentTeam != null);
 
-    await appState.currentTeam!.getUsers(context);
+    //await appState.currentTeam!.getUsers(context);
+    Members.loadUsers(context);
   }
 
   @override
@@ -57,16 +58,14 @@ class _TimelinePageState extends State<TimelinePage>
           }
           */
 
-          final recipients = appState.currentTeam!.groups
-              .singleWhere((group) => group.role == UserRole.recipient);
-          if (recipients.users.isEmpty) {
+          final users = Members.getUsers(context, UserRole.recipient);
+
+          if (users.isEmpty) {
             return Container(
                 child: Center(
                     child: Text('Please add a recipient.',
-                    style: Theme.of(context).textTheme.headline6)));
+                        style: Theme.of(context).textTheme.headline6)));
           }
-
-          final users = recipients.users;
 
           return DefaultTabController(
               length: users.length,
@@ -116,8 +115,10 @@ class _TimelinePageState extends State<TimelinePage>
                         //controller: _tabController,
                         children: users.map<Widget>((item) {
                           return CareTimelineMatrix(
-                            topBarBackgroundColor: Constants.defaultPrimaryColor,
-                            sideBarBackgroundColor: Constants.defaultPrimaryColor,
+                            topBarBackgroundColor:
+                                Constants.defaultPrimaryColor,
+                            sideBarBackgroundColor:
+                                Constants.defaultPrimaryColor,
                             chooserFontSize:
                                 Theme.of(context).textTheme.button?.fontSize,
                             topBarFontSize:

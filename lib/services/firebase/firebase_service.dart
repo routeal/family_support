@@ -98,10 +98,6 @@ class FirebaseService {
     return usersRef.doc(uid).update(data);
   }
 
-  Future<void> updateUserImage(String uid, String url) {
-    return usersRef.doc(uid).update({'imageUrl': url});
-  }
-
   ////////////////////////////////////////////////////////////////////////////
   /// Teams
   ////////////////////////////////////////////////////////////////////////////
@@ -137,12 +133,6 @@ class FirebaseService {
 
   Future<void> updateTeam(String id, Map<String, Object?> data) {
     return teamsRef.doc(id).update(data);
-  }
-
-  Future<void> setTeam(Team team) async {
-    final messageMap = team.toJson();
-    messageMap.remove('createdAt');
-    return firestore.collection('teams').doc(team.id).set(messageMap);
   }
 
   ////////////////////////////////////////////////////////////////////////////

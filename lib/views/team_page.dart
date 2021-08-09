@@ -12,6 +12,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:wecare/models/team.dart';
 import 'package:wecare/models/user.dart';
+import 'package:wecare/utils/preferences.dart';
 import 'package:wecare/views/app_state.dart';
 import 'package:wecare/views/user_page.dart';
 
@@ -31,9 +32,9 @@ class _TeamMembers extends State<TeamMembers> {
   Future<void> removeUser(User user) async {
     AppState appState = context.read<AppState>();
     Team team = appState.currentTeam!;
-    bool updated = await team.removeUser(context, user);
+    bool updated = await Members.removeUser(context, user);
     if (updated) {
-      await Team.save(team);
+      await Preferences.save('team', team.toJson());
     }
   }
 
@@ -157,7 +158,7 @@ class _TeamMembers extends State<TeamMembers> {
                           final label = labels[g.role!];
                           return groupMembers(
                               role: g.role!,
-                              users: g.users,
+                              users: Members.getUsers(context, g.role!),
                               header: label['header']!,
                               button: label['button']!,
                               add: () {

@@ -7,6 +7,7 @@ import 'package:wecare/constants.dart' as Constants;
 import 'package:wecare/models/team.dart';
 import 'package:wecare/models/user.dart';
 import 'package:wecare/services/firebase/firebase_service.dart';
+import 'package:wecare/utils/preferences.dart';
 import 'package:wecare/views/app_state.dart';
 import 'package:wecare/views/auth_page.dart';
 import 'package:wecare/views/chat_page.dart';
@@ -104,18 +105,18 @@ class Launcher extends StatelessWidget {
       FirebaseService firebase = context.read<FirebaseService>();
       if (firebase.auth.currentUser == null) {
         // delete the previous user if any
-        await User.save(null);
+        await Preferences.save('user', null);
         return null;
       } else {
         print('a');
 
-        User? user;// = await User.load();
+        User? user; // = await User.load();
         if (user == null) {
           user = await firebase.getUser(firebase.auth.currentUser!.uid);
           print('c');
           if (user != null) {
             print("init user from net: " + user.toJson().toString());
-            await User.save(user);
+            await Preferences.save('user', user.toJson());
           } else {
             print("init user from net: null");
           }
@@ -134,16 +135,16 @@ class Launcher extends StatelessWidget {
   Future<Team?> loadTeam(BuildContext context, User? user) async {
     try {
       if (user == null || user.teamId == null) {
-        await Team.save(null);
+        await Preferences.save('team', null);
         return null;
       }
-      Team? team;// = await Team.load();
+      Team? team; // = await Team.load();
       if (team == null) {
         FirebaseService firebase = context.read<FirebaseService>();
         team = await firebase.getTeam(user.teamId!);
         if (team != null) {
           print("init team from net: " + team.toJson().toString());
-          await Team.save(team);
+          await Preferences.save('team', team.toJson());
         } else {
           print('unable to find ' + user.teamId!);
         }

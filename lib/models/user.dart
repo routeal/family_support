@@ -1,9 +1,6 @@
-import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wecare/utils/colors.dart';
 
 class UserRole {
@@ -81,45 +78,23 @@ class User {
 
   // imageUrl will be set after the photo is stored
   Map<String, dynamic> toJson() => {
-      'id': id,
-      'imageUrl': imageUrl,
-      'displayName': displayName,
-      'firstName': firstName,
-      'lastName': lastName,
-      'company': company,
-      'phone': phone,
-      'email': email,
-      'address': address,
-      'website': website,
-      'role': role,
-      'careLevel': careLevel,
-      'teamId': teamId,
-      'note': note,
-      'color': color,
-      'createdAt': createdAt,
-  };
-
-  // load from local device
-  static Future<User?> load() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? userPref = prefs.getString('user');
-    if (userPref != null) {
-      Map<String, dynamic> userMap =
-          jsonDecode(userPref) as Map<String, dynamic>;
-      return User.fromJson(userMap);
-    }
-    return null;
-  }
-
-  // save to local device
-  static Future<void> save(User? user) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (user != null) {
-      await prefs.setString('user', jsonEncode(user.toJson()));
-    } else {
-      await prefs.remove('user');
-    }
-  }
+        'id': id,
+        'imageUrl': imageUrl,
+        'displayName': displayName,
+        'firstName': firstName,
+        'lastName': lastName,
+        'company': company,
+        'phone': phone,
+        'email': email,
+        'address': address,
+        'website': website,
+        'role': role,
+        'careLevel': careLevel,
+        'teamId': teamId,
+        'note': note,
+        'color': color,
+        'createdAt': createdAt,
+      };
 
   // exclude imageUrl for comparison
   Map<String, Object?>? difference(User user) {

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:wecare/models/team.dart';
 import 'package:wecare/models/user.dart';
 import 'package:wecare/services/firebase/firebase_service.dart';
+import 'package:wecare/utils/preferences.dart';
 import 'package:wecare/views/app_state.dart';
 import 'package:wecare/widgets/dialogs.dart';
 import 'package:wecare/widgets/props/props_values.dart';
@@ -229,8 +230,7 @@ class UserProps extends PropsValues {
           await firebase.deleteFile(imagePath);
         } else {
           // upload the image file
-          newUser.imageUrl =
-          await firebase.uploadFile(imagePath, _filePath!);
+          newUser.imageUrl = await firebase.uploadFile(imagePath, _filePath!);
         }
       }
 
@@ -247,16 +247,16 @@ class UserProps extends PropsValues {
         }
       }
 
-      bool updated = await team.addUser(context, newUser);
+      bool updated = await Members.addUser(context, newUser);
       if (updated) {
-        await Team.save(team);
+        await Preferences.save('team', team.toJson());
       }
 
       // save the user
       AppState appState = context.read<AppState>();
       if (appState.currentUser!.id == newUser.id) {
         appState.currentUser = newUser;
-        User.save(newUser);
+        await Preferences.save('user', newUser.toJson());
       }
     } catch (e) {
       error = e.toString();

@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:math';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -12,6 +11,7 @@ import 'package:qr_code_tools/qr_code_tools.dart';
 import 'package:wecare/models/team.dart';
 import 'package:wecare/models/user.dart';
 import 'package:wecare/services/firebase/firebase_service.dart';
+import 'package:wecare/utils/preferences.dart';
 import 'package:wecare/views/app_state.dart';
 import 'package:wecare/widgets/dialogs.dart';
 
@@ -28,8 +28,8 @@ class JoinTeamPage extends StatelessWidget {
                 onPressed: () {
                   FirebaseService firebase = context.read<FirebaseService>();
                   firebase.signOut();
-                  User.save(null);
-                  Team.save(null);
+                  Preferences.save('user', null);
+                  Preferences.save('team', null);
                 })
           ],
         ),
