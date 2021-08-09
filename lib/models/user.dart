@@ -76,7 +76,6 @@ class User {
         color = json['color'] as String?,
         createdAt = json['createdAt'] as int?;
 
-  // imageUrl will be set after the photo is stored
   Map<String, dynamic> toJson() => {
         'id': id,
         'imageUrl': imageUrl,
