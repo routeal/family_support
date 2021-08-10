@@ -9,20 +9,20 @@ A new Flutter project.
 
 ## Firebase
 
-# User
+### User
 
 users/${userId}
 
 See models/users.dart
 
 
-# Team
+### Team
 
 teams/${teamId}
 
 See models/team.dart
 
 
-# Chat
+### Chat
 
 chat/${teamId}/messages
