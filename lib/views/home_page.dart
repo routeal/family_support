@@ -6,6 +6,8 @@ import 'package:wecare/models/team.dart';
 import 'package:wecare/services/firebase/firebase_service.dart';
 import 'package:wecare/views/app_state.dart';
 import 'package:wecare/views/chat_page.dart';
+import 'package:wecare/views/event_page.dart';
+import 'package:wecare/views/shift_page.dart';
 import 'package:wecare/views/timeline_page.dart';
 import 'package:wecare/views/user_dialog.dart';
 
@@ -93,19 +95,5 @@ class _HomePageState extends State<HomePage> {
             return _pageList[_selectedIndex];
           },
         ));
-  }
-}
-
-class EventPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(body: Center(child: Text('Event page')));
-  }
-}
-
-class ShiftPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(body: Center(child: Text('Shift page')));
   }
 }
